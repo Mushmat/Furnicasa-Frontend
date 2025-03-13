@@ -7,7 +7,7 @@ function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/")
+    axios.get("https://furnicasa.onrender.com")
       .then((response) => {
         setMessage(response.data);
         setLoading(false);
