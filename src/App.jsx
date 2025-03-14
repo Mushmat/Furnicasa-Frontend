@@ -1,34 +1,31 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import Cart from "./pages/Cart";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 function App() {
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    axios.get("https://furnicasa.onrender.com")
-      .then((response) => {
-        setMessage(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        setError("Failed to fetch data from the server.");
-        setLoading(false);
-      });
-  }, []);
-
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      {loading ? (
-        <h1 className="text-4xl font-bold text-yellow-500 animate-pulse">Loading...</h1>
-      ) : error ? (
-        <h1 className="text-4xl font-bold text-red-500">{error}</h1>
-      ) : (
-        <h1 className="text-4xl font-bold text-blue-600">{message}</h1>
-      )}
-    </div>
+    <Router>
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 
