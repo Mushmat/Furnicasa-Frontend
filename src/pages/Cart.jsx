@@ -11,7 +11,7 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('https://furnicasa.onrender.com/api/cart', {
+      const res = await axios.get(BACKEND_URL, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

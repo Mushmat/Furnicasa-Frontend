@@ -30,15 +30,18 @@ export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const fetchCart = async () => {
-    const res = await axios.get("/api/cart", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-    dispatch({ type: "SET_CART", payload: res.data });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(BACKEND_URL, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      dispatch({ type: "SET_CART", payload: res.data });
+    } catch (error) {
+      console.error("Failed to fetch cart:", error);
+    }
   };
-
-  useEffect(() => {
-    fetchCart();
-  }, []);
 
   return (
     <CartContext.Provider value={{ ...state, dispatch }}>
