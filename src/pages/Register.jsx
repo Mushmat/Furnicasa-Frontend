@@ -1,36 +1,30 @@
-// src/pages/Register.jsx
+// src/pages/RegisterAdvanced.jsx
 import { useState } from "react";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const Register = () => {
-  const [name, setName] = useState("");
+const RegisterAdvanced = () => {
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useAuth();
+
+  const [statusMessage, setStatusMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // If you do NOT have a proxy in vite.config.js:
-      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/register`, {
-        name,
+      // Replace with your actual backend URL or environment variable
+      const res = await axios.post("https://your-render-backend.onrender.com/api/auth/register", {
+        fullName,
+        phone,
         email,
         password,
       });
-
-      // If you HAVE a proxy set up, you can use:
-      // const res = await axios.post("/api/auth/register", { name, email, password });
-
-      const token = res.data.token;
-
-      // After successful register, log them in automatically
-      login(email, token);
-
-      // Redirect to home page
-      navigate("/");
+      setStatusMessage(res.data.message);
+      // Optionally, navigate to verify page:
+      // navigate("/verify-otp");
     } catch (error) {
       alert(error.response?.data?.error || "Registration failed");
     }
@@ -42,20 +36,30 @@ const Register = () => {
         onSubmit={handleSubmit}
         className="bg-white shadow-md rounded px-8 py-6 w-full max-w-sm"
       >
-        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-        
+        <h2 className="text-2xl font-bold mb-6 text-center">Register (with OTP)</h2>
+
         <div className="mb-4">
-          <label className="block mb-1 font-semibold">Name</label>
+          <label className="block mb-1 font-semibold">Full Name</label>
           <input
             type="text"
             className="w-full border rounded px-3 py-2"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your Full Name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
           />
         </div>
-        
+
+        <div className="mb-4">
+          <label className="block mb-1 font-semibold">Phone</label>
+          <input
+            type="text"
+            className="w-full border rounded px-3 py-2"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+          />
+        </div>
+
         <div className="mb-4">
           <label className="block mb-1 font-semibold">Email</label>
           <input
@@ -63,11 +67,10 @@ const Register = () => {
             className="w-full border rounded px-3 py-2"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
             required
           />
         </div>
-        
+
         <div className="mb-6">
           <label className="block mb-1 font-semibold">Password</label>
           <input
@@ -75,17 +78,20 @@ const Register = () => {
             className="w-full border rounded px-3 py-2"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Create a password"
             required
           />
         </div>
-        
+
         <button
           type="submit"
           className="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700 transition-colors"
         >
           Register
         </button>
+
+        {statusMessage && (
+          <p className="mt-4 text-center text-green-600">{statusMessage}</p>
+        )}
 
         <p className="text-center mt-4">
           Already have an account?{" "}
@@ -101,4 +107,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterAdvanced;
