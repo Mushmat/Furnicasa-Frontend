@@ -11,7 +11,7 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('https://your-render-backend.onrender.com/api/cart', {
+      const res = await axios.get('https://furnicasa.onrender.com/api/cart', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -27,7 +27,7 @@ const Cart = () => {
   const removeFromCart = async (productId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`https://your-render-backend.onrender.com/api/cart/remove/${productId}`, {
+      await axios.delete(`https://furnicasa.onrender.com/api/cart/remove/${productId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
