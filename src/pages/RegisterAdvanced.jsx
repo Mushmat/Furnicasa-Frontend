@@ -15,16 +15,18 @@ const RegisterAdvanced = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Replace with your actual backend URL or environment variable
       const res = await axios.post("https://furnicasa.onrender.com/api/auth/register", {
         fullName,
         phone,
         email,
         password,
       });
+      
       setStatusMessage(res.data.message);
-      // Optionally, navigate to verify page:
-      // navigate("/verify-otp");
+
+      // ✅ Redirect to the Verify OTP page and pass the email as state
+      navigate('/verify-otp', { state: { email } });
+
     } catch (error) {
       alert(error.response?.data?.error || "Registration failed");
     }
