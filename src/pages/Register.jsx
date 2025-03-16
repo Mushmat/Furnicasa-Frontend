@@ -15,10 +15,11 @@ const Register = () => {
     e.preventDefault();
     try {
       // If you do NOT have a proxy in vite.config.js:
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        { name, email, password }
-      );
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/register`, {
+        name,
+        email,
+        password,
+      });
 
       // If you HAVE a proxy set up, you can use:
       // const res = await axios.post("/api/auth/register", { name, email, password });

@@ -14,10 +14,10 @@ const Login = () => {
     e.preventDefault();
     try {
       // If you do NOT have a Vite proxy in vite.config.js, use the full URL:
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        { email, password }
-      );
+      const res = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/login`, {
+        email,
+        password,
+      });
 
       // If you HAVE a proxy set up:
       // const res = await axios.post("/api/auth/login", { email, password });
