@@ -152,7 +152,7 @@ const Navbar = () => {
                 Login
               </Link>
               <Link
-                to="/register"
+                to="/register-advanced"
                 className="hover:text-gray-300"
                 onClick={() => setMenuOpen(false)}
               >
