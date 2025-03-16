@@ -16,7 +16,7 @@ const RegisterAdvanced = () => {
     e.preventDefault();
     try {
       // Replace with your actual backend URL or environment variable
-      const res = await axios.post("https://your-render-backend.onrender.com/api/auth/register", {
+      const res = await axios.post("https://furnicasa.onrender.com/api/auth/register", {
         fullName,
         phone,
         email,
