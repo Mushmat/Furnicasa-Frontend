@@ -1,19 +1,14 @@
 import { useCart } from '../context/CartContext';
-import { FiTrash2 } from "react-icons/fi";
+import axios from 'axios';
 
 const Cart = () => {
   const { cartItems, dispatch } = useCart();
 
-  const increaseQty = (id) => {
-    dispatch({ type: "INCREASE_QUANTITY", payload: id });
-  };
-
-  const decreaseQty = (id) => {
-    dispatch({ type: "DECREASE_QUANTITY", payload: id });
-  };
-
-  const removeFromCart = (id) => {
-    dispatch({ type: "REMOVE_FROM_CART", payload: id });
+  const removeFromCart = async (productId) => {
+    await axios.delete(`/api/cart/remove/${productId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    dispatch({ type: "REMOVE_FROM_CART", payload: productId });
   };
 
   return (
@@ -24,35 +19,15 @@ const Cart = () => {
       ) : (
         <div className="space-y-4">
           {cartItems.map((item) => (
-            <div key={item._id} className="border p-4 rounded shadow flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <img src={item.imageUrl} alt={item.name} className="h-16 w-16 object-contain" />
-                <div>
-                  <h3 className="font-bold">{item.name}</h3>
-                  <p>{item.price} ₹</p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-4">
+            <div key={item.product._id} className="border p-4 rounded shadow flex justify-between items-center">
+              <div>
+                <h3>{item.product.title}</h3>
+                <p>Quantity: {item.quantity}</p>
                 <button
-                  onClick={() => decreaseQty(item._id)}
-                  className="bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600"
+                  onClick={() => removeFromCart(item.product._id)}
+                  className="bg-red-500 text-white px-2 py-1 rounded"
                 >
-                  -
-                </button>
-                <span>{item.quantity}</span>
-                <button
-                  onClick={() => increaseQty(item._id)}
-                  className="bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600"
-                >
-                  +
-                </button>
-
-                <button
-                  onClick={() => removeFromCart(item._id)}
-                  className="bg-red-600 text-white p-2 rounded hover:bg-red-700"
-                >
-                  <FiTrash2 />
+                  Remove
                 </button>
               </div>
             </div>

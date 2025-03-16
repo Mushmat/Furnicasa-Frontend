@@ -1,57 +1,24 @@
-import { createContext, useContext, useReducer } from 'react';
+import { createContext, useContext, useReducer, useEffect } from 'react';
+import axios from 'axios';
 
-// Initial State
+const CartContext = createContext();
+
 const initialState = {
   cartItems: [],
 };
 
-// Reducer for handling cart actions
-const cartReducer = (state, action) => {
+const reducer = (state, action) => {
   switch (action.type) {
+    case "SET_CART":
+      return { ...state, cartItems: action.payload };
+
     case "ADD_TO_CART":
-      const existingItem = state.cartItems.find(item => item._id === action.payload._id);
-      if (existingItem) {
-        // Increase quantity if item already exists
-        return {
-          ...state,
-          cartItems: state.cartItems.map(item =>
-            item._id === action.payload._id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          ),
-        };
-      } else {
-        // Add new item with quantity = 1
-        return {
-          ...state,
-          cartItems: [...state.cartItems, { ...action.payload, quantity: 1 }],
-        };
-      }
-
-    case "INCREASE_QUANTITY":
-      return {
-        ...state,
-        cartItems: state.cartItems.map(item =>
-          item._id === action.payload
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        ),
-      };
-
-    case "DECREASE_QUANTITY":
-      return {
-        ...state,
-        cartItems: state.cartItems.map(item =>
-          item._id === action.payload
-            ? { ...item, quantity: item.quantity > 1 ? item.quantity - 1 : 1 }
-            : item
-        ),
-      };
+      return { ...state, cartItems: [...state.cartItems, action.payload] };
 
     case "REMOVE_FROM_CART":
       return {
         ...state,
-        cartItems: state.cartItems.filter(item => item._id !== action.payload),
+        cartItems: state.cartItems.filter((item) => item.product._id !== action.payload),
       };
 
     default:
@@ -59,16 +26,25 @@ const cartReducer = (state, action) => {
   }
 };
 
-const CartContext = createContext();
-
-export const useCart = () => useContext(CartContext);
-
 export const CartProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const fetchCart = async () => {
+    const res = await axios.get("/api/cart", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    dispatch({ type: "SET_CART", payload: res.data });
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   return (
-    <CartContext.Provider value={{ cartItems: state.cartItems, dispatch }}>
+    <CartContext.Provider value={{ ...state, dispatch }}>
       {children}
     </CartContext.Provider>
   );
 };
+
+export const useCart = () => useContext(CartContext);
