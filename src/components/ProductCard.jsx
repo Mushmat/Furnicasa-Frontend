@@ -1,10 +1,28 @@
+import axios from 'axios';
 import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product }) => {
   const { dispatch } = useCart();
 
-  const addToCart = () => {
-    dispatch({ type: "ADD_TO_CART", payload: product });
+  const addToCart = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
+        {
+          productId: product._id,
+          quantity: 1, // default quantity
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      dispatch({ type: "ADD_TO_CART", payload: res.data });
+    } catch (error) {
+      console.error('Failed to add product to cart:', error);
+    }
   };
 
   return (
