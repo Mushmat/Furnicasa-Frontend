@@ -1,3 +1,4 @@
+// src/pages/AdminOrders.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -47,7 +48,6 @@ const AdminOrders = () => {
           <p><strong>Order ID:</strong> {order._id}</p>
           <p><strong>Status:</strong> {order.status}</p>
           <p><strong>Total Price:</strong> ₹{order.totalPrice}</p>
-          <p><strong>Items:</strong></p>
           <ul>
             {order.items.map((item) => (
               <li key={item.product._id}>
@@ -62,6 +62,7 @@ const AdminOrders = () => {
           >
             <option value="Pending">Pending</option>
             <option value="Shipped">Shipped</option>
+            <option value="Out for Delivery">Out for Delivery</option>
             <option value="Delivered">Delivered</option>
           </select>
         </div>
