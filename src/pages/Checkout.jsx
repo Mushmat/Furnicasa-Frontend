@@ -1,6 +1,8 @@
+// src/pages/Checkout.jsx
+import axios from "axios";
 import { useState } from "react";
 import { useCart } from "../context/CartContext";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Checkout = () => {
   const { cartItems, dispatch } = useCart();
@@ -12,6 +14,7 @@ const Checkout = () => {
     country: "",
     phone: "",
   });
+  const navigate = useNavigate();
 
   const totalPrice = cartItems.reduce((sum, item) => {
     return sum + item.product.price * item.quantity;
@@ -21,28 +24,65 @@ const Checkout = () => {
     setShipping({ ...shipping, [e.target.name]: e.target.value });
   };
 
-  const handleOrder = async () => {
+  const handlePayment = async () => {
     const token = localStorage.getItem("token");
-
     try {
-      const items = cartItems.map((item) => ({
-        productId: item.product._id,
-        quantity: item.quantity,
-        price: item.product.price,
-      }));
-
-      const res = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
-        { items, shippingAddress: shipping },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+      // 1️⃣ Create Razorpay Order
+      const { data: razorpayOrder } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
+        { amount: totalPrice },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      dispatch({ type: "SET_CART", payload: [] }); // Clear cart
-      alert(`Order placed successfully! Order ID: ${res.data._id}`);
+      // 2️⃣ Razorpay Options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        name: "Furnicasa",
+        description: "Furniture Purchase",
+        order_id: razorpayOrder.id,
+        handler: async (response) => {
+          try {
+            // 3️⃣ Verify Payment Signature
+            await axios.post(
+              `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify`,
+              { ...response },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            // 4️⃣ Create Order in DB with status "Paid"
+            const items = cartItems.map((item) => ({
+              productId: item.product._id,
+              quantity: item.quantity,
+              price: item.product.price,
+            }));
+
+            const { data: newOrder } = await axios.post(
+              `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
+              {
+                items,
+                shippingAddress: shipping,
+                status: "Paid",
+              },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            dispatch({ type: "SET_CART", payload: [] }); // Clear cart
+            alert(`Payment Successful! Order ID: ${newOrder._id}`);
+            navigate("/my-orders");
+          } catch (error) {
+            console.error("Payment verification failed:", error);
+            alert("Payment verification failed.");
+          }
+        },
+        theme: { color: "#F37254" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      console.error("Order placement failed:", error);
+      console.error("Payment initiation failed:", error);
+      alert("Payment initiation failed.");
     }
   };
 
@@ -106,10 +146,10 @@ const Checkout = () => {
       </div>
 
       <button
-        onClick={handleOrder}
+        onClick={handlePayment}
         className="bg-orange-600 text-white py-2 px-4 rounded hover:bg-orange-700"
       >
-        Place Order
+        Proceed to Pay
       </button>
     </div>
   );
