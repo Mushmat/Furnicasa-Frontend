@@ -20,10 +20,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login: store token & user in state + localStorage
-  const login = (email, token) => {
+  const login = (email, token, isAdmin) => {
     localStorage.setItem("token", token);
     localStorage.setItem("userEmail", email);
-    setUser({ email, token });
+    localStorage.setItem("isAdmin", isAdmin);
+    setUser({ email, token, isAdmin });
   };
 
   // Logout: clear localStorage & reset cart
