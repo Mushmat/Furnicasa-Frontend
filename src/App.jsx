@@ -13,6 +13,8 @@ import RegisterAdvanced from "./pages/RegisterAdvanced";
 import VerifyOTP from "./pages/VerifyOTP";
 import Login from "./pages/Login";
 import AdminOrders from "./pages/AdminOrders";
+import Checkout from "./pages/Checkout";
+import MyOrders from "./pages/MyOrders";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/login" element={<Login />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/my-orders" element={<MyOrders />} />
 
           </Routes>
         </main>

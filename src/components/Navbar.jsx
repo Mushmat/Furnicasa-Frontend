@@ -46,7 +46,9 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-
+          <Link to="/my-orders" className="hover:text-gray-200">
+          My Orders
+          </Link>
           {user ? (
             // If user is logged in, show Profile Icon + Logout
             <div className="flex items-center space-x-4">

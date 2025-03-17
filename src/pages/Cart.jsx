@@ -2,6 +2,7 @@
 import { useCart } from "../context/CartContext";
 import axios from "axios";
 import { FiTrash2 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, dispatch } = useCart();
@@ -114,6 +115,13 @@ const Cart = () => {
       <div className="border p-4 rounded shadow mt-4">
         <h3 className="text-xl font-bold">Total: ₹{totalPrice}</h3>
       </div>
+
+      <Link
+        to="/checkout"
+        className="mt-4 inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+      >
+        Proceed to Checkout
+      </Link>
     </div>
   );
 };
