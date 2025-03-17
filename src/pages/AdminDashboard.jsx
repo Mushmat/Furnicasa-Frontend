@@ -11,7 +11,11 @@ const AdminDashboard = () => {
             Manage Orders
           </Link>
         </li>
-        {/* You can add more admin links here, like products management */}
+        <li>
+          <Link to="/admin/add-product" className="text-blue-600 hover:underline">
+            Add New Product
+          </Link>
+        </li>
       </ul>
     </div>
   );

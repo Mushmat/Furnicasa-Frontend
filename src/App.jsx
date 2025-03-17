@@ -8,7 +8,6 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-
 import RegisterAdvanced from "./pages/RegisterAdvanced";
 import VerifyOTP from "./pages/VerifyOTP";
 import Login from "./pages/Login";
@@ -16,6 +15,7 @@ import AdminOrders from "./pages/AdminOrders";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminAddProduct from "./pages/AdminAddProduct";
 
 function App() {
   return (
@@ -31,15 +31,19 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
 
-            {/* New advanced auth routes */}
+            {/* Advanced Auth Routes */}
             <Route path="/register-advanced" element={<RegisterAdvanced />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
+
+            {/* Order & Checkout Routes */}
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/my-orders" element={<MyOrders />} />
+
+            {/* Admin Panel Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/add-product" element={<AdminAddProduct />} />
           </Routes>
         </main>
         <Footer />
