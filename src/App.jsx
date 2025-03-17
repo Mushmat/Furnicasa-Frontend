@@ -16,6 +16,7 @@ import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAddProduct from "./pages/AdminAddProduct";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 function App() {
   return (
@@ -44,6 +45,8 @@ function App() {
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/add-product" element={<AdminAddProduct />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+
           </Routes>
         </main>
         <Footer />

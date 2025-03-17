@@ -50,6 +50,7 @@ const Checkout = () => {
               { ...response },
               { headers: { Authorization: `Bearer ${token}` } }
             );
+
             // 4️⃣ Create Order in DB with status "Paid"
             const items = cartItems.map((item) => ({
               productId: item.product._id,
@@ -67,9 +68,12 @@ const Checkout = () => {
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            dispatch({ type: "SET_CART", payload: [] }); // Clear cart
-            alert(`Payment Successful! Order ID: ${newOrder._id}`);
-            navigate("/my-orders");
+            // 5️⃣ Clear cart and redirect to confirmation page
+            dispatch({ type: "SET_CART", payload: [] });
+
+            navigate("/order-confirmation", {
+              state: { orderId: newOrder._id, totalPrice: newOrder.totalPrice },
+            });
           } catch (error) {
             console.error("Payment verification failed:", error);
             alert("Payment verification failed.");
