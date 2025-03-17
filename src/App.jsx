@@ -12,6 +12,7 @@ import Contact from "./pages/Contact";
 import RegisterAdvanced from "./pages/RegisterAdvanced";
 import VerifyOTP from "./pages/VerifyOTP";
 import Login from "./pages/Login";
+import AdminOrders from "./pages/AdminOrders";
 
 function App() {
   return (
@@ -31,6 +32,8 @@ function App() {
             <Route path="/register-advanced" element={<RegisterAdvanced />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+
           </Routes>
         </main>
         <Footer />

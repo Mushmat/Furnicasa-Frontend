@@ -24,7 +24,6 @@ const Cart = () => {
     }
   };
 
-  // Patch route to update quantity
   const updateQuantity = async (productId, newQuantity) => {
     try {
       const token = localStorage.getItem("token");
@@ -44,7 +43,6 @@ const Cart = () => {
     }
   };
 
-  // Increment or decrement calls the patch route
   const incrementQuantity = (productId, currentQty) => {
     updateQuantity(productId, currentQty + 1);
   };
@@ -54,6 +52,10 @@ const Cart = () => {
       updateQuantity(productId, currentQty - 1);
     }
   };
+
+  const totalPrice = cartItems.reduce((sum, item) => {
+    return sum + item.product.price * item.quantity;
+  }, 0);
 
   if (!cartItems || cartItems.length === 0) {
     return <p className="p-4">Your cart is empty.</p>;
@@ -108,6 +110,10 @@ const Cart = () => {
           </div>
         </div>
       ))}
+
+      <div className="border p-4 rounded shadow mt-4">
+        <h3 className="text-xl font-bold">Total: ₹{totalPrice}</h3>
+      </div>
     </div>
   );
 };
