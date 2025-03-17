@@ -1,3 +1,4 @@
+// Main.jsx
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
@@ -7,10 +8,10 @@ import { AuthProvider } from './context/AuthContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider> {/* Auth should wrap Cart for proper context hierarchy */}
-      <CartProvider>
+    <CartProvider>
+      <AuthProvider>
         <App />
-      </CartProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </CartProvider>
   </StrictMode>
 );
