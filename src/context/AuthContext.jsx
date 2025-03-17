@@ -14,8 +14,9 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
     const storedEmail = localStorage.getItem("userEmail");
+    const isAdmin = localStorage.getItem("isAdmin") === "true"; // Parse it correctly
     if (storedToken && storedEmail) {
-      setUser({ email: storedEmail, token: storedToken });
+      setUser({ email: storedEmail, token: storedToken, isAdmin });
     }
   }, []);
 
@@ -27,10 +28,10 @@ export const AuthProvider = ({ children }) => {
     setUser({ email, token, isAdmin });
   };
 
-  // Logout: clear localStorage & reset cart
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("isAdmin"); // ✅ Clear isAdmin
     setUser(null);
     dispatch({ type: "SET_CART", payload: [] });
   };

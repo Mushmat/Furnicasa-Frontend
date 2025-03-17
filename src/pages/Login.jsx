@@ -17,23 +17,19 @@ const Login = () => {
         email,
         password,
       });
-  
-      // If successful, get token
-      const token = res.data.token;
-  
-      // ✅ Store token explicitly
-      localStorage.setItem("token", token);
-  
-      // Store user email & token in context (if necessary)
-      login(email, token);
-  
-      // Redirect to home page
-      navigate("/");
+
+      const { token, isAdmin } = res.data;
+
+      // ✅ Store in context and localStorage
+      login(email, token, isAdmin);
+
+      // ✅ Navigate based on role
+      navigate(isAdmin ? "/admin" : "/");
+
     } catch (error) {
       alert(error.response?.data?.error || "Login failed");
     }
   };
-  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
