@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import AdminOrders from "./pages/AdminOrders";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -37,7 +38,8 @@ function App() {
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/my-orders" element={<MyOrders />} />
-
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
           </Routes>
         </main>
         <Footer />
