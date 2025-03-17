@@ -1,12 +1,23 @@
-import axios from 'axios';
-import { useCart } from '../context/CartContext';
+// src/components/ProductCard.jsx
+import axios from "axios";
+import { useCart } from "../context/CartContext";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = ({ product }) => {
   const { dispatch } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const addToCart = async () => {
+    // If no user, prompt login
+    if (!user) {
+      alert("Please log in to add items to your cart.");
+      return navigate("/login");
+    }
+
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
         {
@@ -19,9 +30,10 @@ const ProductCard = ({ product }) => {
           },
         }
       );
-      dispatch({ type: "ADD_TO_CART", payload: res.data });
+      // The backend returns the entire updated cart array
+      dispatch({ type: "SET_CART", payload: res.data });
     } catch (error) {
-      console.error('Failed to add product to cart:', error);
+      console.error("Failed to add product to cart:", error);
     }
   };
 
