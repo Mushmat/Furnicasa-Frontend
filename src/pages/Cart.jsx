@@ -11,7 +11,7 @@ const Cart = () => {
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get(BACKEND_URL, {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
