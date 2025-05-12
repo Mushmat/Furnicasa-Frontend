@@ -46,3 +46,14 @@ section {
 .btn:focus {
   @apply bg-gray-900 text-white;
 }
+
+/* at bottom of index.css */
+.hero-item {
+  @apply bg-cover bg-center h-[330px];
+}
+/* slick dots centering */
+.slick-dots {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
