@@ -33,10 +33,6 @@ h1 {
   @apply text-4xl font-bold;
 }
 
-.section {
-  @apply max-w-6xl mx-auto p-6;
-}
-
 /* Recreate Nelson’s default .btn look */
 .btn {
   @apply bg-transparent border border-gray-900 text-gray-900 
@@ -47,13 +43,27 @@ h1 {
   @apply bg-gray-900 text-white;
 }
 
-/* at bottom of index.css */
+/* …existing Tailwind directives… */
+
+.section {
+  @apply max-w-6xl mx-auto p-6;
+}
+
+/* hero still uses our helper */
 .hero-item {
   @apply bg-cover bg-center h-[330px];
 }
-/* slick dots centering */
+
+/* make room for the fixed navbar */
+#main-wrapper {
+  padding-top: 5.5rem; /* green bar + white bar */
+}
+
+/* center slick dots under a full-width slider */
 .slick-dots {
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
 }
+
+/* your .btn definitions etc… */

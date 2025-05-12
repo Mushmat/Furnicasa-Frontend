@@ -47,8 +47,8 @@ const Home = () => {
   return (
     <div id="main-wrapper" className="pt-[128px]">  
       {/* ================= Hero Slider ================= */}
-      <section className="hero-section section position-relative">
-        <Slider {...heroSettings} className="hero-slider section">
+      <section className="hero-section relative">
+      <Slider {...heroSettings} className="hero-slider">
           {[1, 2].map((i) => (
             <div
               key={i}
