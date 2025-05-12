@@ -6,12 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Furnicasa</title>
 
-    <!-- ✅ Razorpay Checkout Script -->
+    <!-- Razorpay Checkout Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+    <!-- Nelson Template CSS (must load first) -->
+    <link rel="stylesheet" href="/assets/css/vendor/bootstrap.min.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/iconfont.min.css" />
+    <link rel="stylesheet" href="/assets/css/vendor/helper.css" />
+    <link rel="stylesheet" href="/assets/css/plugins/plugins.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
+
+    <!-- Your Tailwind + global overrides (load last) -->
+    <link rel="stylesheet" href="/index.css" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Nelson Template JS -->
+    <script src="/assets/js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&v=3.22"></script>
+    <script src="/assets/js/vendor/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/plugins.js"></script>
+    <script src="/assets/js/main.js"></script>
   </body>
 </html>

@@ -17,6 +17,7 @@ import MyOrders from "./pages/MyOrders";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminAddProduct from "./pages/AdminAddProduct";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import LoginRegister from './pages/LoginRegister';
 
 function App() {
   return (
@@ -35,7 +36,7 @@ function App() {
             {/* Advanced Auth Routes */}
             <Route path="/register-advanced" element={<RegisterAdvanced />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<LoginRegister />} />
 
             {/* Order & Checkout Routes */}
             <Route path="/checkout" element={<Checkout />} />
