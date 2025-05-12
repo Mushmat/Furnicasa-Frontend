@@ -51,25 +51,27 @@ const Home = () => {
   <Slider {...heroSettings} className="hero-slider">
     {[1, 2].map((i) => (
       <div
-        key={i}
-        className="hero-item bg-image"
-        style={{
-          backgroundImage: `url(/assets/images/hero/hero-${i}.jpg)`,
-          height: "500px", // Adjust the height to your requirement
-        }}
-      >
-        <div className="container h-full flex items-center justify-center">
-          <div className="hero-content-2 text-center">
-            <h2 className="text-4xl font-bold text-white mb-4">
-              Creative Design<br />
-              Modern & Exclusive Furniture
-            </h2>
-            <Link to="/products" className="btn bg-black text-white">
-              SHOP NOW
-            </Link>
-          </div>
+      key={i}
+      className="hero-item bg-image"
+      style={{
+        backgroundImage: `url(/assets/images/hero/hero-${i}.jpg)`,
+        height: "500px",  // Adjust height as per your design needs
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="container h-full flex items-center justify-center">
+        <div className="hero-content-2 text-center">
+          <h2 className="text-4xl font-bold text-white mb-4">
+            Creative Design<br />
+            Modern & Exclusive Furniture
+          </h2>
+          <Link to="/products" className="btn bg-black text-white">
+            SHOP NOW
+          </Link>
         </div>
       </div>
+    </div>
     ))}
   </Slider>
 </section>

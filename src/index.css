@@ -49,10 +49,12 @@ h1 {
   @apply max-w-6xl mx-auto p-6;
 }
 
-/* hero still uses our helper */
 .hero-item {
-  @apply bg-cover bg-center h-[330px];
+  @apply bg-cover bg-center h-[500px]; /* Adjust the height as necessary */
+  background-size: cover; /* Ensures the image covers the area without distortion */
+  background-position: center; /* Keeps the image centered */
 }
+
 
 /* make room for the fixed navbar */
 #main-wrapper {
