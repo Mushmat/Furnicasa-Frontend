@@ -16,7 +16,7 @@ const Navbar = () => {
       </div>
 
       {/* Main White Bar */}
-      <nav className="bg-white w-full border-b border-gray-200 shadow-sm py-3 fixed top-[2rem] md:top-[2.25rem] z-50">
+      <nav className="bg-white w-full border-b border-gray-200 shadow-sm py-3 sticky top-0 z-50">
         {/* Wrapper */}
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
           {/* Left Section: Brand & (Desktop) Search */}
