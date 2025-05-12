@@ -48,30 +48,31 @@ const Home = () => {
     <div id="main-wrapper" className="pt-[128px]">  
       {/* ================= Hero Slider ================= */}
       <section className="hero-section relative">
-      <Slider {...heroSettings} className="hero-slider">
-          {[1, 2].map((i) => (
-            <div
-              key={i}
-              className="hero-item bg-image"
-              style={{
-                backgroundImage: `url(/assets/images/hero/hero-${i}.jpg)`,
-              }}
-            >
-              <div className="container">
-                <div className="hero-content-2 center">
-                  <h2 className="text-4xl font-bold text-white mb-4">
-                    Creative Design<br />
-                    Modern & Exclusive Furniture
-                  </h2>
-                  <Link to="/products" className="btn bg-black text-white">
-                    SHOP NOW
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </Slider>
-      </section>
+  <Slider {...heroSettings} className="hero-slider">
+    {[1, 2].map((i) => (
+      <div
+        key={i}
+        className="hero-item bg-image"
+        style={{
+          backgroundImage: `url(/assets/images/hero/hero-${i}.jpg)`,
+          height: "500px", // Adjust the height to your requirement
+        }}
+      >
+        <div className="container h-full flex items-center justify-center">
+          <div className="hero-content-2 text-center">
+            <h2 className="text-4xl font-bold text-white mb-4">
+              Creative Design<br />
+              Modern & Exclusive Furniture
+            </h2>
+            <Link to="/products" className="btn bg-black text-white">
+              SHOP NOW
+            </Link>
+          </div>
+        </div>
+      </div>
+    ))}
+  </Slider>
+</section>
 
       {/* ================= Banner Section ================= */}
       <section className="banner-section section pt-30">
