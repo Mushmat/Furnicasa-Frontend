@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminAddProduct from "./pages/AdminAddProduct";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import LoginRegister from './pages/LoginRegister';
+import MyOrders from './pages/MyOrders';
 
 function App() {
   return (
