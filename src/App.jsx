@@ -2,6 +2,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+
+// Pages
 import Home from "./pages/Home";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
@@ -10,15 +12,16 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import RegisterAdvanced from "./pages/RegisterAdvanced";
 import VerifyOTP from "./pages/VerifyOTP";
-import Login from "./pages/Login";
-import AdminOrders from "./pages/AdminOrders";
-import Checkout from "./pages/Checkout";
+import LoginRegister from "./pages/LoginRegister";
+import Login from "./pages/Login";                // if you still use Login.jsx
+import MyAccount from "./pages/MyAccount";
 import MyOrders from "./pages/MyOrders";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminAddProduct from "./pages/AdminAddProduct";
 import OrderConfirmation from "./pages/OrderConfirmation";
-import LoginRegister from './pages/LoginRegister';
-import MyOrders from './pages/MyOrders';
+
+// Admin
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminOrders from "./pages/AdminOrders";
+import AdminAddProduct from "./pages/AdminAddProduct";
 
 function App() {
   return (
@@ -27,28 +30,31 @@ function App() {
         <Navbar />
         <main className="flex-grow pt-20">
           <Routes>
+            {/* Public */}
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/my-account" element={<MyAccount/>}/>
-            {/* Advanced Auth Routes */}
+
+            {/* Account */}
+            <Route path="/my-account" element={<MyAccount />} />
+            <Route path="/my-orders" element={<MyOrders />} />
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+
+            {/* Auth flows */}
             <Route path="/register-advanced" element={<RegisterAdvanced />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/login" element={<LoginRegister />} />
 
-            {/* Order & Checkout Routes */}
+            {/* Checkout */}
             <Route path="/checkout" element={<Checkout />} />
-            <Route path="/my-orders" element={<MyOrders />} />
 
-            {/* Admin Panel Routes */}
+            {/* Admin Panel */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/add-product" element={<AdminAddProduct />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
-
           </Routes>
         </main>
         <Footer />
