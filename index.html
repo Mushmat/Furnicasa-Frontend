@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -9,16 +9,14 @@
     <!-- Razorpay Checkout Script -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-    <!-- Only keep the icon font CSS from Nelson -->
+    <!-- Nelson styles that are still needed -->
     <link rel="stylesheet" href="/assets/css/vendor/iconfont.min.css" />
+    <link rel="stylesheet" href="/assets/css/style.css" />
   </head>
   <body>
     <div id="root"></div>
-
-    <!-- Your React entrypoint -->
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Google Maps (if you still need it) -->
+    <!-- (Google‑maps script kept for Checkout only) -->
     <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&v=3.22"></script>
   </body>
 </html>

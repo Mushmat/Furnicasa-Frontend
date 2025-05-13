@@ -41,7 +41,13 @@ const ProductCard = ({ product }) => {
         {/* Two-state image */}
         <a href={`/product/${product._id}`} className="block">
           <img
-            src={product.images[0]}
+            src={
+              /* if images array exists use the first picture, otherwise fall back
+         to the single imageUrl field or a gray placeholder                 */
+      Array.isArray(product.images) && product.images.length
+        ? product.images[0]
+        : product.imageUrl || '/assets/images/placeholder/270x290.png'
+            }
             alt={product.name}
             className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
           />
@@ -72,7 +78,7 @@ const ProductCard = ({ product }) => {
           <span className="discounted-price text-red-500 mr-2">
             ₹{product.price.toLocaleString()}
           </span>
-          {product.originalPrice > product.price && (
+          {product.originalPrice && product.originalPrice > product.price && (
             <span className="main-price line-through text-gray-500">
               ₹{product.originalPrice.toLocaleString()}
             </span>
