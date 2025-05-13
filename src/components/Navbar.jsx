@@ -4,25 +4,25 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const { cartItems } = useCart();
-  const { user, logout } = useAuth();
+  const [menuOpen, setMenuOpen]   = useState(false);
+  const { cartItems }             = useCart();
+  const { user, logout }          = useAuth();
 
   const navLinks = [
-    { to: "/products", label: "Products" },
-    { to: "/about",    label: "About"    },
-    { to: "/contact",  label: "Contact"  },
-    { to: "/my-orders",label: "My Orders" },
+    { to: "/products",  label: "Products"  },
+    { to: "/about",     label: "About"     },
+    { to: "/contact",   label: "Contact"   },
+    { to: "/my-orders", label: "My Orders" },
   ];
 
   return (
     <>
-      {/* Top Promo */}
+      {/* --- Top Promo --- */}
       <div className="bg-green-700 text-white text-center py-2 text-sm">
         Extra Rs. 10,000 Off in Stores*
       </div>
 
-      {/* Main Nav */}
+      {/* --- Main Nav --- */}
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -32,7 +32,7 @@ const Navbar = () => {
               Furnicasa
             </Link>
 
-            {/* Desktop Links */}
+            {/* Centered Links (desktop) */}
             <div className="hidden md:flex space-x-8">
               {navLinks.map(({ to, label }) => (
                 <Link
@@ -43,8 +43,6 @@ const Navbar = () => {
                   {label}
                 </Link>
               ))}
-
-              {/* Admin Panel (only for admins) */}
               {user?.isAdmin && (
                 <Link
                   to="/admin"
@@ -57,15 +55,15 @@ const Navbar = () => {
                   >
                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
                   </svg>
-                  Admin Panel
+                  Admin
                 </Link>
               )}
             </div>
 
-            {/* Icons */}
+            {/* Right-side icons */}
             <div className="flex items-center space-x-6">
-              {/* Search Icon */}
-              <button className="hidden md:flex items-center">
+              {/* Search (desktop) */}
+              <button className="hidden md:flex">
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/54/54481.png"
                   alt="Search"
@@ -73,30 +71,47 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* Auth */}
-              {user ? (
-                <button
-                  onClick={logout}
-                  className="hidden md:flex items-center"
-                >
-                  <img
-                    src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
-                    alt="Logout"
-                    className="w-6 h-6"
-                  />
-                </button>
-              ) : (
-                <Link
-                  to="/login"
-                  className="hidden md:flex items-center text-gray-700 hover:text-orange-600"
-                >
-                  <img
-                    src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
-                    alt="Login"
-                    className="w-6 h-6"
-                  />
-                </Link>
-              )}
+              {/* User Icon + Hover-Dropdown */}
+              <div className="relative group">
+                <img
+                  src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
+                  alt="Account"
+                  className="w-6 h-6 cursor-pointer"
+                />
+
+                <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
+                  <Link
+                    to="/my-account"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/my-orders"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Orders
+                  </Link>
+                  <Link
+                    to="/my-account/address"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Address
+                  </Link>
+                  <Link
+                    to="/my-account/details"
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Account Details
+                  </Link>
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
 
               {/* Cart */}
               <Link to="/cart" className="relative">
@@ -158,24 +173,50 @@ const Navbar = () => {
                   {label}
                 </Link>
               ))}
-
               {user?.isAdmin && (
                 <Link
                   to="/admin"
                   className="block text-gray-700 hover:text-orange-600"
                   onClick={() => setMenuOpen(false)}
                 >
-                  Admin Panel
+                  Admin
                 </Link>
               )}
-
+              <Link
+                to="/my-account"
+                className="block text-gray-700 hover:text-orange-600"
+                onClick={() => setMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/my-orders"
+                className="block text-gray-700 hover:text-orange-600"
+                onClick={() => setMenuOpen(false)}
+              >
+                Orders
+              </Link>
+              <Link
+                to="/my-account/address"
+                className="block text-gray-700 hover:text-orange-600"
+                onClick={() => setMenuOpen(false)}
+              >
+                Address
+              </Link>
+              <Link
+                to="/my-account/details"
+                className="block text-gray-700 hover:text-orange-600"
+                onClick={() => setMenuOpen(false)}
+              >
+                Account Details
+              </Link>
               {user ? (
                 <button
                   onClick={() => {
                     logout();
                     setMenuOpen(false);
                   }}
-                  className="block text-gray-700 hover:text-orange-600"
+                  className="block w-full text-left text-gray-700 hover:text-orange-600"
                 >
                   Logout
                 </button>

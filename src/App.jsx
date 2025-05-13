@@ -32,7 +32,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-
+            <Route path="/my-account" element={<MyAccount/>}/>
             {/* Advanced Auth Routes */}
             <Route path="/register-advanced" element={<RegisterAdvanced />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
