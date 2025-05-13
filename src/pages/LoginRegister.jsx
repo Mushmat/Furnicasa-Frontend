@@ -1,220 +1,200 @@
 // src/pages/LoginRegister.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginRegister() {
-  // — login state & handlers
-  const [loginData, setLoginData] = useState({ email: '', password: '' });
-  const { login } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLoginChange = e =>
+  // — Login State & Handlers
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const handleLoginChange = (e) =>
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
-
-  const handleLoginSubmit = async e => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'https://furnicasa.onrender.com/api/auth/login',
-        {
-          email: loginData.email,
-          password: loginData.password,
-        }
+        "https://furnicasa.onrender.com/api/auth/login",
+        loginData
       );
       const { token, isAdmin } = res.data;
       login(loginData.email, token, isAdmin);
-      navigate(isAdmin ? '/admin' : '/');
+      navigate(isAdmin ? "/admin" : "/");
     } catch (err) {
-      alert(err.response?.data?.error || 'Login failed');
+      alert(err.response?.data?.error || "Login failed");
     }
   };
 
-  // — register state & handlers
+  // — Register State & Handlers
   const [regData, setRegData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    password: '',
+    fullName: "",
+    phone: "",
+    email: "",
+    password: "",
   });
-  const [statusMessage, setStatusMessage] = useState('');
-
-  const handleRegChange = e =>
+  const [statusMessage, setStatusMessage] = useState("");
+  const handleRegChange = (e) =>
     setRegData({ ...regData, [e.target.name]: e.target.value });
-
-  const handleRegSubmit = async e => {
+  const handleRegSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'https://furnicasa.onrender.com/api/auth/register',
+        "https://furnicasa.onrender.com/api/auth/register",
         regData
       );
       setStatusMessage(res.data.message);
-      navigate('/verify-otp', { state: { email: regData.email } });
+      navigate("/verify-otp", { state: { email: regData.email } });
     } catch (err) {
-      alert(err.response?.data?.error || 'Registration failed');
+      alert(err.response?.data?.error || "Registration failed");
     }
   };
 
   return (
-    <div id="main-wrapper">
-      {/* Page Banner */}
-      <div
-        className="page-banner-section section bg-image"
-        style={{ backgroundImage: 'url(/assets/images/bg/breadcrumb.png)' }}
-      >
-        <div className="container">
-          <div className="page-banner text-start">
-            <h2>Login Register</h2>
-            <ul className="page-breadcrumb">
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>Login Register</li>
-            </ul>
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-3xl space-y-8">
+        {/* Banner */}
+        <div
+          className="h-48 rounded-lg bg-cover bg-center mb-8"
+          style={{
+            backgroundImage: "url(/assets/images/bg/breadcrumb.png)",
+          }}
+        >
+          <div className="h-full bg-black bg-opacity-40 flex flex-col justify-center pl-8">
+            <h1 className="text-4xl font-bold text-white">Login &amp; Register</h1>
+            <nav className="text-gray-200 mt-2">
+              <Link to="/" className="hover:underline">Home</Link> / Login Register
+            </nav>
           </div>
         </div>
-      </div>
 
-      {/* Login/Register Section */}
-      <div className="login-register-section section pt-90 pb-70">
-        <div className="container">
-          <div className="row">
-            {/* ——— Login Form ——— */}
-            <div className="col-md-6 col-sm-6">
-              <div className="customer-login-register">
-                <div className="form-login-title">
-                  <h2>Login</h2>
+        {/* Forms Container */}
+        <div className="bg-white py-8 px-6 shadow rounded-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* —— Login —— */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Login</h2>
+              <form onSubmit={handleLoginSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={loginData.email}
+                    onChange={handleLoginChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-                <div className="login-form">
-                  <form onSubmit={handleLoginSubmit}>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Email <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="email"
-                        name="email"
-                        value={loginData.email}
-                        onChange={handleLoginChange}
-                        required
-                      />
-                    </div>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Password <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="password"
-                        name="password"
-                        value={loginData.password}
-                        onChange={handleLoginChange}
-                        required
-                      />
-                    </div>
-                    <div className="login-submit">
-                      <button type="submit" className="btn">
-                        Login
-                      </button>
-                      <label>
-                        <input
-                          type="checkbox"
-                          name="rememberme"
-                          className="checkbox"
-                        />
-                        <span>Remember me</span>
-                      </label>
-                    </div>
-                    <div className="lost-password">
-                      <Link to="/forgot-password">Lost your password?</Link>
-                    </div>
-                  </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={loginData.password}
+                    onChange={handleLoginChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-              </div>
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center text-sm">
+                    <input
+                      type="checkbox"
+                      name="rememberme"
+                      className="h-4 w-4 text-orange-600 border-gray-300 rounded"
+                    />
+                    <span className="ml-2">Remember me</span>
+                  </label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-orange-600 hover:underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded-md shadow hover:bg-orange-700"
+                >
+                  Log In
+                </button>
+              </form>
             </div>
 
-            {/* ——— Register Form ——— */}
-            <div className="col-md-6 col-sm-6">
-              <div className="customer-login-register register-pt-0">
-                <div className="form-register-title">
-                  <h2>Register</h2>
+            {/* —— Register —— */}
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Register</h2>
+              <form onSubmit={handleRegSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={regData.fullName}
+                    onChange={handleRegChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-                <div className="register-form">
-                  <form onSubmit={handleRegSubmit}>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Full Name <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={regData.fullName}
-                        onChange={handleRegChange}
-                        required
-                      />
-                    </div>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Phone <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="text"
-                        name="phone"
-                        value={regData.phone}
-                        onChange={handleRegChange}
-                        required
-                      />
-                    </div>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Email <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="email"
-                        name="email"
-                        value={regData.email}
-                        onChange={handleRegChange}
-                        required
-                      />
-                    </div>
-                    <div className="form-fild">
-                      <p>
-                        <label>
-                          Password <span className="required">*</span>
-                        </label>
-                      </p>
-                      <input
-                        type="password"
-                        name="password"
-                        value={regData.password}
-                        onChange={handleRegChange}
-                        required
-                      />
-                    </div>
-                    <div className="register-submit">
-                      <button type="submit" className="btn">
-                        Register
-                      </button>
-                    </div>
-                    {statusMessage && (
-                      <p className="mt-4 text-center text-green-600">
-                        {statusMessage}
-                      </p>
-                    )}
-                  </form>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone
+                  </label>
+                  <input
+                    type="text"
+                    name="phone"
+                    value={regData.phone}
+                    onChange={handleRegChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
                 </div>
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={regData.email}
+                    onChange={handleRegChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={regData.password}
+                    onChange={handleRegChange}
+                    required
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded-md shadow hover:bg-orange-700"
+                >
+                  Register
+                </button>
+                {statusMessage && (
+                  <p className="mt-4 text-center text-green-600">
+                    {statusMessage}
+                  </p>
+                )}
+              </form>
             </div>
           </div>
         </div>
