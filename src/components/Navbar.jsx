@@ -1,12 +1,21 @@
+// src/components/Navbar.jsx
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const { cartItems } = useCart();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setProfileOpen(false);
+    navigate("/login");
+  };
 
   const navLinks = [
     { to: "/products",  label: "Products"  },
@@ -67,45 +76,71 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* User Icon + Dropdown */}
-              <div className="relative group">
+              {/* Profile Icon + React Hover Menu */}
+              <div
+                className="relative"
+                onMouseEnter={() => setProfileOpen(true)}
+                onMouseLeave={() => setProfileOpen(false)}
+              >
                 <img
                   src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
                   alt="Account"
                   className="w-6 h-6 cursor-pointer"
                 />
-                <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
-                  <Link
-                    to="/my-account"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/my-orders"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Orders
-                  </Link>
-                  <Link
-                    to="/my-account/address"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Address
-                  </Link>
-                  <Link
-                    to="/my-account/details"
-                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Account Details
-                  </Link>
-                  <button
-                    onClick={logout}
-                    className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  >
-                    Logout
-                  </button>
-                </div>
+
+                {profileOpen && (
+                  <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg z-50">
+                    {user ? (
+                      <>
+                        <Link
+                          to="/my-account"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Dashboard
+                        </Link>
+                        <Link
+                          to="/my-orders"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Orders
+                        </Link>
+                        <Link
+                          to="/my-account/address"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Address
+                        </Link>
+                        <Link
+                          to="/my-account/details"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Account Details
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          to="/login"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Login
+                        </Link>
+                        <Link
+                          to="/register-advanced"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        >
+                          Register
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Cart */}
@@ -169,44 +204,46 @@ const Navbar = () => {
                   Admin
                 </Link>
               )}
-              <Link
-                to="/my-account"
-                className="block text-gray-700 hover:text-orange-600"
-                onClick={() => setMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                to="/my-orders"
-                className="block text-gray-700 hover:text-orange-600"
-                onClick={() => setMenuOpen(false)}
-              >
-                Orders
-              </Link>
-              <Link
-                to="/my-account/address"
-                className="block text-gray-700 hover:text-orange-600"
-                onClick={() => setMenuOpen(false)}
-              >
-                Address
-              </Link>
-              <Link
-                to="/my-account/details"
-                className="block text-gray-700 hover:text-orange-600"
-                onClick={() => setMenuOpen(false)}
-              >
-                Account Details
-              </Link>
               {user ? (
-                <button
-                  onClick={() => {
-                    logout();
-                    setMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-gray-700 hover:text-orange-600"
-                >
-                  Logout
-                </button>
+                <>
+                  <Link
+                    to="/my-account"
+                    className="block text-gray-700 hover:text-orange-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    to="/my-orders"
+                    className="block text-gray-700 hover:text-orange-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Orders
+                  </Link>
+                  <Link
+                    to="/my-account/address"
+                    className="block text-gray-700 hover:text-orange-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Address
+                  </Link>
+                  <Link
+                    to="/my-account/details"
+                    className="block text-gray-700 hover:text-orange-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Account Details
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setMenuOpen(false);
+                    }}
+                    className="block w-full text-left text-gray-700 hover:text-orange-600"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <Link
