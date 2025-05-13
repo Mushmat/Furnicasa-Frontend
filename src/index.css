@@ -50,10 +50,10 @@ h1 {
 }
 
 .hero-item {
-  @apply bg-cover bg-center h-[500px]; /* Adjust the height as necessary */
-  background-size: cover; /* Ensures the image covers the area without distortion */
-  background-position: center; /* Keeps the image centered */
+  @apply w-full bg-cover bg-center;
+  height: 100vh;  /* Ensure the hero section takes up the full viewport height */
 }
+
 
 
 /* make room for the fixed navbar */
