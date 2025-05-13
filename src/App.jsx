@@ -17,7 +17,7 @@ import Login from "./pages/Login";                // if you still use Login.jsx
 import MyAccount from "./pages/MyAccount";
 import MyOrders from "./pages/MyOrders";
 import OrderConfirmation from "./pages/OrderConfirmation";
-
+import Checkout from "./pages/Checkout";
 // Admin
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
