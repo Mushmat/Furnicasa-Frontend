@@ -3,42 +3,47 @@ import { fetchProducts } from '../services/api';
 import ProductCard from '../components/ProductCard';
 
 const Products = () => {
-  // — Data
+  /* ------------ data ------------ */
   const [products, setProducts] = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [error,    setError]    = useState('');
 
-  // — Filters & view state
+  /* ------------ UI / filter state ------------ */
   const [category,  setCategory]  = useState('all');
   const [minPrice,  setMinPrice]  = useState(0);
-  const [maxPrice,  setMaxPrice]  = useState(10000);
+  const [maxPrice,  setMaxPrice]  = useState(Infinity);
   const [sortBy,    setSortBy]    = useState('');
   const [page,      setPage]      = useState(1);
 
-  // — Fetch products on mount
+  /* ------------ fetch once ------------ */
   useEffect(() => {
     fetchProducts()
       .then(data => setProducts(data))
-      .catch(err => setError(err.message))
+      .catch(err  => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  // — Build category list
+  /* ------------ build category list ------------ */
   const categories = useMemo(() => {
     const cats = new Set(products.map(p => p.category || 'Uncategorized'));
     return ['all', ...cats];
   }, [products]);
 
-  // — Filter, sort, paginate
+  /* ------------ filter / sort / paginate ------------ */
   const perPage = 12;
+
   const filtered = useMemo(() => {
     let list = products;
 
+    /* category */
     if (category !== 'all') {
       list = list.filter(p => p.category === category);
     }
+
+    /* price range */
     list = list.filter(p => p.price >= minPrice && p.price <= maxPrice);
 
+    /* sort */
     if (sortBy === 'price_asc')  list = list.sort((a,b) => a.price - b.price);
     if (sortBy === 'price_desc') list = list.sort((a,b) => b.price - a.price);
     if (sortBy === 'name_asc')   list = list.sort((a,b) => a.name.localeCompare(b.name));
@@ -47,19 +52,21 @@ const Products = () => {
     return list;
   }, [products, category, minPrice, maxPrice, sortBy]);
 
-  const pages = Math.ceil(filtered.length / perPage);
-  const pageItems = filtered.slice((page-1)*perPage, page*perPage);
+  const pages     = Math.ceil(filtered.length / perPage);
+  const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
 
+  /* ------------ loading / error guard ------------ */
   if (loading) return <p className="p-8 text-center">Loading…</p>;
   if (error)   return <p className="p-8 text-center text-red-600">{error}</p>;
 
+  /* ================================================ */
   return (
     <div id="main-wrapper" className="pt-[5.5rem]">
 
-      {/* ====== Page Banner ====== */}
+      {/* -------- page banner -------- */}
       <section
         className="page-banner-section bg-cover bg-center h-[330px] mb-12"
-        style={{ backgroundImage: `url('/assets/images/bg/breadcrumb.png')` }}
+        style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
       >
         <div className="container h-full flex flex-col justify-center text-white">
           <h1 className="text-4xl font-bold">Shop</h1>
@@ -75,22 +82,21 @@ const Products = () => {
 
       <div className="container mx-auto px-6 flex flex-col lg:flex-row gap-8">
 
-        {/* ====== Sidebar ====== */}
+        {/* -------- SIDEBAR -------- */}
         <aside className="lg:w-1/4 space-y-6">
 
-          {/* Categories */}
+          {/* categories */}
           <div>
             <h3 className="font-semibold mb-2">Product categories</h3>
             <ul className="space-y-1">
               {categories.map(cat => (
                 <li key={cat}>
                   <button
-                    onClick={() => setCategory(cat)}
-                    className={`w-full text-left px-3 py-1 rounded ${
-                      category === cat
+                    onClick={() => { setCategory(cat); setPage(1); }}
+                    className={`w-full text-left px-3 py-1 rounded
+                      ${category === cat
                         ? 'bg-gray-800 text-white'
-                        : 'hover:bg-gray-100'
-                    }`}
+                        : 'hover:bg-gray-100'}`}
                   >
                     {cat === 'all' ? 'All' : cat}
                   </button>
@@ -99,7 +105,7 @@ const Products = () => {
             </ul>
           </div>
 
-          {/* Price Filter */}
+          {/* price filter */}
           <div>
             <h3 className="font-semibold mb-2">Filter by price</h3>
             <div className="space-y-2">
@@ -113,22 +119,39 @@ const Products = () => {
                 />
                 <input
                   type="number"
-                  value={maxPrice}
-                  onChange={e => setMaxPrice(Number(e.target.value))}
+                  value={maxPrice === Infinity ? '' : maxPrice}
+                  onChange={e => {
+                    const v = e.target.value;
+                    setMaxPrice(v === '' ? Infinity : Number(v));
+                  }}
                   className="w-1/2 border px-2 py-1 rounded"
                   placeholder="Max"
                 />
               </div>
-              <button className="btn w-full">Filter</button>
+
+              {/* --- apply + clear --- */}
+              <button
+                className="btn w-full"
+                onClick={() => setPage(1)}   /* restart at page 1 */
+              >
+                Apply filter
+              </button>
+
+              <button
+                className="btn w-full"
+                onClick={() => { setMinPrice(0); setMaxPrice(Infinity); setPage(1); }}
+              >
+                Clear filter
+              </button>
             </div>
           </div>
 
-          {/* Sort */}
+          {/* sort */}
           <div>
             <h3 className="font-semibold mb-2">Sort by</h3>
             <select
               value={sortBy}
-              onChange={e => setSortBy(e.target.value)}
+              onChange={e => { setSortBy(e.target.value); setPage(1); }}
               className="w-full border px-3 py-1 rounded"
             >
               <option value="">Default</option>
@@ -141,7 +164,7 @@ const Products = () => {
 
         </aside>
 
-        {/* ====== Product Grid ====== */}
+        {/* -------- PRODUCT GRID -------- */}
         <main className="flex-1">
           {pageItems.length === 0 ? (
             <p>No products match your filters.</p>
@@ -153,24 +176,21 @@ const Products = () => {
             </div>
           )}
 
-          {/* ====== Pagination ====== */}
+          {/* pagination */}
           {pages > 1 && (
             <div className="mt-12 flex justify-center space-x-3">
               {[...Array(pages)].map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setPage(i+1)}
-                  className={`px-3 py-1 rounded ${
-                    page === i+1
-                      ? 'bg-gray-800 text-white'
-                      : 'hover:bg-gray-100'
-                  }`}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-1 rounded
+                    ${page === i + 1 ? 'bg-gray-800 text-white' : 'hover:bg-gray-100'}`}
                 >
-                  {String(i+1).padStart(2,'0')}
+                  {String(i + 1).padStart(2, '0')}
                 </button>
               ))}
               <button
-                onClick={() => setPage(p => Math.min(p+1, pages))}
+                onClick={() => setPage(p => Math.min(p + 1, pages))}
                 className="px-3 py-1 hover:bg-gray-100 rounded"
               >
                 Next
