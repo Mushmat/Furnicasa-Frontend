@@ -1,244 +1,160 @@
 // src/pages/Products.jsx
-import React, { useEffect, useState, useMemo } from 'react'
-import { fetchProducts } from '../services/api'
-import ProductCard from '../components/ProductCard'
-import { FaTh, FaThList } from 'react-icons/fa'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState, useMemo } from 'react';
+import { fetchProducts } from '../services/api';
+import ProductCard from '../components/ProductCard';
 
 const Products = () => {
-  // fetched data + loading / error
-  const [products, setProducts] = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [error, setError]       = useState('')
+  // — Data state
+  const [products, setProducts] = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState('');
 
-  // UI state
-  const [view, setView]             = useState('grid')      // 'grid' | 'list'
-  const [sortOption, setSortOption] = useState('')          // '', 'name-asc', 'price-desc', etc.
-  const [page, setPage]             = useState(1)
-  const perPage                     = 12
+  // — UI state
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [sortOption,       setSortOption]       = useState('');
+  const [viewMode,         setViewMode]         = useState('grid'); // 'grid' or 'list'
 
-  // filter state
-  const [selectedCats, setSelectedCats] = useState([])      
-  const [priceFilter, setPriceFilter]   = useState([0, Infinity])
-
-  // fetch on mount
+  // — Fetch once on mount
   useEffect(() => {
     fetchProducts()
-      .then(data => {
-        setProducts(data)
-        // initialize priceFilter based on your data range
-        const prices = data.map(p => p.price)
-        setPriceFilter([Math.min(...prices), Math.max(...prices)])
-      })
+      .then(data => setProducts(data))
       .catch(err => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
+      .finally(() => setLoading(false));
+  }, []);
 
-  if (loading) return <p className="p-6">Loading products…</p>
-  if (error)   return <p className="p-6 text-red-500">{error}</p>
+  // — Derive unique categories (plus an "all" option)
+  const categories = useMemo(() => {
+    const cats = new Set(products.map(p => p.category || 'uncategorized'));
+    return ['all', ...cats];
+  }, [products]);
 
-  // derive the list of categories
-  const categories = useMemo(
-    () => Array.from(new Set(products.map(p => p.category))),
-    [products]
-  )
+  // — Filter & sort
+  const displayed = useMemo(() => {
+    let list = [...products];
 
-  // filtering + sorting + pagination
-  const processed = useMemo(() => {
-    let result = products
-
-    // 1) category filter
-    if (selectedCats.length) {
-      result = result.filter(p => selectedCats.includes(p.category))
+    if (selectedCategory !== 'all') {
+      list = list.filter(p => p.category === selectedCategory);
     }
 
-    // 2) price filter
-    result = result.filter(
-      p => p.price >= priceFilter[0] && p.price <= priceFilter[1]
-    )
+    if (sortOption === 'price_asc') {
+      list.sort((a,b) => a.price - b.price);
+    } else if (sortOption === 'price_desc') {
+      list.sort((a,b) => b.price - a.price);
+    } else if (sortOption === 'name_asc') {
+      list.sort((a,b) => a.name.localeCompare(b.name));
+    } else if (sortOption === 'name_desc') {
+      list.sort((a,b) => b.name.localeCompare(a.name));
+    }
 
-    // 3) sorting
-    result = [...result].sort((a, b) => {
-      switch (sortOption) {
-        case 'name-asc':   return a.name.localeCompare(b.name)
-        case 'name-desc':  return b.name.localeCompare(a.name)
-        case 'price-asc':  return a.price - b.price
-        case 'price-desc': return b.price - a.price
-        default:           return 0
-      }
-    })
+    return list;
+  }, [products, selectedCategory, sortOption]);
 
-    return result
-  }, [products, selectedCats, priceFilter, sortOption])
-
-  const totalPages = Math.ceil(processed.length / perPage)
-  const paginated  = processed.slice((page - 1) * perPage, page * perPage)
-
-  // handlers
-  const toggleCat = cat =>
-    setSelectedCats(cs =>
-      cs.includes(cat) ? cs.filter(x => x !== cat) : [...cs, cat]
-    )
+  if (loading) return <p className="p-6 text-center">Loading products…</p>;
+  if (error)   return <p className="p-6 text-center text-red-500">{error}</p>;
 
   return (
-    <div className="container mx-auto p-6 flex gap-6">
-      {/* ───────────── SIDEBAR ───────────── */}
-      <aside className="w-1/4 space-y-8">
-        {/* Categories */}
-        <div>
-          <h3 className="text-lg font-bold mb-2">Categories</h3>
-          <ul className="space-y-1">
-            {categories.map(cat => (
-              <li key={cat}>
-                <label className="inline-flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedCats.includes(cat)}
-                    onChange={() => toggleCat(cat)}
-                    className="form-checkbox h-4 w-4"
-                  />
-                  <span className="capitalize">{cat}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <div className="container mx-auto p-6">
+      <div className="flex flex-col lg:flex-row gap-6">
 
-        {/* Price */}
-        <div>
-          <h3 className="text-lg font-bold mb-2">Price</h3>
-          <div className="flex items-center space-x-2">
-            <input
-              type="number"
-              className="w-1/3 border p-1 rounded"
-              value={priceFilter[0]}
-              onChange={e =>
-                setPriceFilter([Number(e.target.value), priceFilter[1]])
-              }
-            />
-            <span>–</span>
-            <input
-              type="number"
-              className="w-1/3 border p-1 rounded"
-              value={priceFilter[1]}
-              onChange={e =>
-                setPriceFilter([priceFilter[0], Number(e.target.value)])
-              }
-            />
-          </div>
-        </div>
-      </aside>
-
-      {/* ───────────── MAIN CONTENT ───────────── */}
-      <main className="flex-1">
-        {/* Toolbar */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center space-x-4">
-            {/* view toggle */}
-            <button
-              onClick={() => setView('grid')}
-              className={`p-2 rounded ${
-                view === 'grid' ? 'bg-gray-200' : ''
-              }`}
-            >
-              <FaTh />
-            </button>
-            <button
-              onClick={() => setView('list')}
-              className={`p-2 rounded ${
-                view === 'list' ? 'bg-gray-200' : ''
-              }`}
-            >
-              <FaThList />
-            </button>
-            <span>{processed.length} items</span>
-          </div>
-
-          {/* sort */}
+        {/* — Sidebar */}
+        <aside className="w-full lg:w-1/4 space-y-6">
           <div>
-            <label className="mr-2 font-medium">Sort by:</label>
+            <h3 className="font-bold mb-2">Product categories</h3>
+            <ul className="space-y-1">
+              {categories.map(cat => (
+                <li key={cat}>
+                  <button
+                    className={`w-full text-left px-2 py-1 rounded ${
+                      selectedCategory === cat
+                        ? 'bg-gray-800 text-white'
+                        : 'hover:bg-gray-100'
+                    }`}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat === 'all' ? 'All' : cat}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-bold mb-2">Sort by</h3>
             <select
               value={sortOption}
               onChange={e => setSortOption(e.target.value)}
-              className="border px-2 py-1 rounded"
+              className="w-full border px-2 py-1 rounded"
             >
-              <option value="">Default</option>
-              <option value="name-asc">Name, A–Z</option>
-              <option value="name-desc">Name, Z–A</option>
-              <option value="price-asc">Price, low→high</option>
-              <option value="price-desc">Price, high→low</option>
+              <option value="">— Select —</option>
+              <option value="price_asc">Price: low to high</option>
+              <option value="price_desc">Price: high to low</option>
+              <option value="name_asc">Name: A → Z</option>
+              <option value="name_desc">Name: Z → A</option>
             </select>
           </div>
-        </div>
 
-        {/* Products Grid or List */}
-        {view === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {paginated.map(p => (
-              <ProductCard key={p._id} product={p} />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {paginated.map(p => (
-              <div
-                key={p._id}
-                className="flex border rounded overflow-hidden shadow-sm"
+          <div>
+            <h3 className="font-bold mb-2">View</h3>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`flex-1 px-2 py-1 rounded ${
+                  viewMode === 'grid'
+                    ? 'bg-gray-800 text-white'
+                    : 'hover:bg-gray-100'
+                }`}
               >
-                <Link
-                  to={`/product/${p._id}`}
-                  className="w-1/3 flex-shrink-0"
+                Grid
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`flex-1 px-2 py-1 rounded ${
+                  viewMode === 'list'
+                    ? 'bg-gray-800 text-white'
+                    : 'hover:bg-gray-100'
+                }`}
+              >
+                List
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* — Products */}
+        <main className="flex-1">
+          {displayed.length === 0 ? (
+            <p>No products found.</p>
+          ) : viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayed.map(p => (
+                <ProductCard key={p._id} product={p} />
+              ))}
+            </div>
+          ) : (
+            <ul className="space-y-6">
+              {displayed.map(p => (
+                <li
+                  key={p._id}
+                  className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 p-4 border rounded"
                 >
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="w-full h-full object-cover"
+                    className="w-full md:w-48 h-48 object-cover rounded"
                   />
-                </Link>
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <Link
-                    to={`/product/${p._id}`}
-                    className="text-xl font-semibold hover:underline"
-                  >
-                    {p.name}
-                  </Link>
-                  <p className="text-gray-700 line-clamp-3">
-                    {p.description}
-                  </p>
-                  <div className="mt-4 flex justify-between items-center">
-                    <span className="text-lg font-bold">
-                      ${p.price.toFixed(2)}
-                    </span>
-                    <Link
-                      to={`/product/${p._id}`}
-                      className="btn bg-black text-white px-4 py-2"
-                    >
-                      View Details
-                    </Link>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-2">{p.name}</h3>
+                    <p className="text-gray-600 mb-2">{p.description}</p>
+                    <p className="font-semibold text-lg">${p.price.toFixed(2)}</p>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Pagination */}
-        <div className="mt-8 flex justify-center space-x-2">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-            <button
-              key={n}
-              onClick={() => setPage(n)}
-              className={`px-4 py-2 border rounded ${
-                page === n ? 'bg-gray-900 text-white' : ''
-              }`}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-      </main>
+                </li>
+              ))}
+            </ul>
+          )}
+        </main>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export default Products
+export default Products;
