@@ -10,9 +10,12 @@ const MyAccount = () => {
   return (
     <div id="main-wrapper">
       {/* Banner */}
+      {/* Banner */}
       <section
-        className="page-banner-section bg-gray-200"
-        style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
+        className="page-banner-section bg-cover bg-center h-[330px]"
+        style={{
+          backgroundImage: "url('/assets/images/bg/breadcrumb.png')",
+        }}
       >
         <div className="container mx-auto py-12 px-4">
           <h2 className="text-3xl font-semibold">My Account</h2>

@@ -4,9 +4,9 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const { cartItems }             = useCart();
-  const { user, logout }          = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { cartItems } = useCart();
+  const { user, logout } = useAuth();
 
   const navLinks = [
     { to: "/products",  label: "Products"  },
@@ -17,12 +17,12 @@ const Navbar = () => {
 
   return (
     <>
-      {/* --- Top Promo --- */}
+      {/* Top Promo */}
       <div className="bg-green-700 text-white text-center py-2 text-sm">
         Extra Rs. 10,000 Off in Stores*
       </div>
 
-      {/* --- Main Nav --- */}
+      {/* Main Nav */}
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -48,11 +48,7 @@ const Navbar = () => {
                   to="/admin"
                   className="text-gray-700 hover:text-orange-600 uppercase tracking-wide flex items-center"
                 >
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                  <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
                   </svg>
                   Admin
@@ -62,7 +58,7 @@ const Navbar = () => {
 
             {/* Right-side icons */}
             <div className="flex items-center space-x-6">
-              {/* Search (desktop) */}
+              {/* Search */}
               <button className="hidden md:flex">
                 <img
                   src="https://cdn-icons-png.flaticon.com/512/54/54481.png"
@@ -71,14 +67,13 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* User Icon + Hover-Dropdown */}
+              {/* User Icon + Dropdown */}
               <div className="relative group">
                 <img
                   src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
                   alt="Account"
                   className="w-6 h-6 cursor-pointer"
                 />
-
                 <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-50">
                   <Link
                     to="/my-account"
@@ -139,19 +134,11 @@ const Navbar = () => {
                   viewBox="0 0 24 24"
                 >
                   {menuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12" />
                   ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
               </button>
