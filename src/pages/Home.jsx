@@ -60,7 +60,7 @@ const Home = () => {
       <section className="hero-section relative">
         <Slider {...heroSettings}>
           {heroImages.map((src, i) => (
-            <div key={i} className="relative h-[500px]">
+            <div key={i} className="relative h-[400px]">
               <img src={src} alt={`Hero ${i + 1}`} className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
