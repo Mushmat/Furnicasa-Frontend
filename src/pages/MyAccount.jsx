@@ -1,14 +1,76 @@
 // src/pages/MyAccount.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-const MyAccount = () => {
-  const { user } = useAuth();          // logout stays in Navbar only
-  const [tab, setTab] = useState("dashboard");
+/* ────────────────────────────────────────────────────────── */
+/*  tiny timeline helper                                      */
+/* ────────────────────────────────────────────────────────── */
+const steps = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"];
 
+const OrderTimeline = ({ status }) => {
+  if (status === "Cancelled") {
+    return <p className="text-red-600 font-semibold mt-2">Order Cancelled</p>;
+  }
+
+  const current = steps.indexOf(status); // -1 if server sent an odd status
+  return (
+    <div className="mt-4 space-y-2">
+      {steps.map((step, i) => {
+        const done = i <= current;
+        return (
+          <div key={step} className="flex items-center">
+            <span
+              className={`w-3 h-3 rounded-full ${
+                done ? "bg-green-600" : "bg-gray-300"
+              }`}
+            />
+            <span
+              className={`ml-2 text-sm ${
+                done ? "text-green-600" : "text-gray-500"
+              }`}
+            >
+              {step}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+/* ────────────────────────────────────────────────────────── */
+/*  main component                                            */
+/* ────────────────────────────────────────────────────────── */
+const MyAccount = () => {
+  const { user } = useAuth(); // logout lives in Navbar only
+  const [tab, setTab]       = useState("dashboard");
+  const [orders, setOrders] = useState([]);
+  const [fetchErr, setFetchErr] = useState("");
+  const token = localStorage.getItem("token");
+
+  /* fetch orders whenever Orders-tab is active */
+  useEffect(() => {
+    if (tab !== "orders") return;
+    (async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/orders/my-orders`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setOrders(data);
+        setFetchErr("");
+      } catch (err) {
+        console.error(err);
+        setFetchErr("Could not load orders. Please try again later.");
+      }
+    })();
+  }, [tab, token]);
+
+  /* ───────────── render ───────────── */
   return (
     <div id="main-wrapper">
-      {/* ────────────────── Page banner ────────────────── */}
+      {/* page banner */}
       <section
         className="page-banner-section bg-cover bg-center h-[330px]"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
@@ -29,16 +91,16 @@ const MyAccount = () => {
         </div>
       </section>
 
-      {/* ────────────────── Content ────────────────── */}
+      {/* content */}
       <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
+        {/* sidebar */}
         <aside className="lg:w-1/4">
           <nav className="bg-white shadow p-4 flex flex-col space-y-2">
             {[
               { key: "dashboard", label: "Dashboard" },
-              { key: "orders",    label: "Orders"    },
-              { key: "address",   label: "Address"   },
-              { key: "account",   label: "Account Details" },
+              { key: "orders", label: "Orders" },
+              { key: "address", label: "Address" },
+              { key: "account", label: "Account Details" },
             ].map(({ key, label }) => (
               <button
                 key={key}
@@ -55,28 +117,67 @@ const MyAccount = () => {
           </nav>
         </aside>
 
-        {/* Main panel */}
+        {/* main panel */}
         <main className="flex-1 bg-white shadow p-6">
+          {/* DASHBOARD -------------------------------------------------- */}
           {tab === "dashboard" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">Dashboard</h3>
-              <p className="mb-4">
+              <p>
                 Hello, <strong>{user?.fullName || user?.email}</strong>!
               </p>
-              <p>
-                From your dashboard you can view your recent orders, manage
-                addresses and update your account details.
+              <p className="mt-2">
+                From here you can view recent orders, manage addresses &
+                update your account details.
               </p>
             </>
           )}
 
+          {/* ORDERS ----------------------------------------------------- */}
           {tab === "orders" && (
             <>
-              <h3 className="text-2xl font-semibold mb-4">Orders</h3>
-              <p>Your past orders will appear here.</p>
+              <h3 className="text-2xl font-semibold mb-4">My Orders</h3>
+              {fetchErr && <p className="text-red-600">{fetchErr}</p>}
+              {orders.length === 0 && !fetchErr && (
+                <p>You have no orders yet.</p>
+              )}
+              {orders.map((order) => (
+                <div
+                  key={order._id}
+                  className="border rounded shadow p-4 mb-6"
+                >
+                  <p>
+                    <strong>Order ID:</strong> {order._id}
+                  </p>
+                  <p>
+                    <strong>Status:</strong> {order.status}
+                  </p>
+                  <p>
+                    <strong>Total:</strong> ₹{order.totalPrice}
+                  </p>
+                  <p>
+                    <strong>Placed on:</strong>{" "}
+                    {new Date(order.createdAt).toLocaleString()}
+                  </p>
+
+                  <div className="mt-2">
+                    <p className="font-semibold">Items:</p>
+                    <ul className="list-disc ml-6">
+                      {order.items.map((it) => (
+                        <li key={it._id}>
+                          {it.product?.title || "Removed"} × {it.quantity}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <OrderTimeline status={order.status} />
+                </div>
+              ))}
             </>
           )}
 
+          {/* ADDRESS ---------------------------------------------------- */}
           {tab === "address" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">Billing Address</h3>
@@ -94,9 +195,13 @@ const MyAccount = () => {
             </>
           )}
 
+          {/* ACCOUNT DETAILS ------------------------------------------- */}
           {tab === "account" && (
             <>
-              <h3 className="text-2xl font-semibold mb-4">Account Details</h3>
+              <h3 className="text-2xl font-semibold mb-4">
+                Account Details
+              </h3>
+              {/* (static form placeholders) */}
               <form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input

@@ -15,7 +15,6 @@ import VerifyOTP from "./pages/VerifyOTP";
 import LoginRegister from "./pages/LoginRegister";
 import Login from "./pages/Login";                // if you still use Login.jsx
 import MyAccount from "./pages/MyAccount";
-import MyOrders from "./pages/MyOrders";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
 // Admin
@@ -40,7 +39,6 @@ function App() {
 
             {/* Account */}
             <Route path="/my-account" element={<MyAccount />} />
-            <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
             {/* Auth flows */}
