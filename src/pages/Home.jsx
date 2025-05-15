@@ -11,26 +11,12 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products`
-        );
-        setProducts(data);
-      } catch (err) {
-        console.error("Failed to fetch products:", err);
-      }
-    };
-    fetchProducts();
+    // fetch all products once
+    axios
+      .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`)
+      .then(({ data }) => setProducts(data))
+      .catch((err) => console.error("Failed to load products:", err));
   }, []);
-
-  // adjust these filters to match your product schema
-  const homeProducts = products
-    .filter((p) => p.category === "home")
-    .slice(0, 4);
-  const officeProducts = products
-    .filter((p) => p.category === "office")
-    .slice(0, 4);
 
   // Hero slider settings
   const heroSettings = {
@@ -42,11 +28,19 @@ const Home = () => {
     slidesToShow: 1,
   };
 
+  // split your products array:
+  // 0 & 1 => banners
+  // 2–5 => home tab
+  // 6–9 => office tab
+  const bannerProducts = products.slice(0, 2);
+  const homeProducts = products.slice(2, 6);
+  const officeProducts = products.slice(6, 10);
+
   return (
     <div id="main-wrapper" className="pt-[128px]">
       {/* ========== Hero Slider ========== */}
       <section className="hero-section relative">
-        <Slider {...heroSettings} className="hero-slider">
+        <Slider {...heroSettings}>
           {[1, 2].map((_, i) => (
             <div key={i} className="relative h-[500px]">
               <img
@@ -71,35 +65,32 @@ const Home = () => {
         </Slider>
       </section>
 
-      {/* ========== Banner Section (dynamic) ========== */}
-      <section className="banner-section section pt-30">
-        <div className="container">
-          <div className="row">
-            {products.slice(0, 2).map((prod, idx) => (
-              <div key={prod._id} className="col-lg-6 col-md-6 col-sm-12">
-                <div className="single-banner-item mb-30">
-                  <div className="banner-image">
-                    <Link to={`/product/${prod._id}`}>
-                      <img
-                        src={prod.imageUrl}
-                        alt={prod.title}
-                        className="w-full"
-                      />
-                    </Link>
-                  </div>
-                  <div
-                    className={
-                      idx === 1 ? "banner-content tr-right" : "banner-content"
-                    }
+      {/* ========== Banner Section ========== */}
+      <section className="py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {bannerProducts.map((prod, idx) => (
+              <div
+                key={prod._id}
+                className="relative overflow-hidden rounded-lg shadow-lg"
+              >
+                <Link to={`/product/${prod._id}`}>
+                  <img
+                    src={prod.imageUrl}
+                    alt={prod.title}
+                    className="w-full h-64 object-cover"
+                  />
+                </Link>
+                <div className="absolute inset-0 flex flex-col justify-end p-6 bg-gradient-to-t from-black/50 to-transparent">
+                  <h3 className="text-2xl font-bold text-white">
+                    {prod.title}
+                  </h3>
+                  <Link
+                    to={`/product/${prod._id}`}
+                    className="inline-block mt-2 text-orange-400 font-semibold"
                   >
-                    <h3 className="title text-2xl font-bold">{prod.title}</h3>
-                    <Link
-                      to={`/product/${prod._id}`}
-                      className="text-orange-600"
-                    >
-                      SHOP NOW
-                    </Link>
-                  </div>
+                    SHOP NOW
+                  </Link>
                 </div>
               </div>
             ))}
@@ -107,84 +98,86 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ========== Popular Furniture (Tabs) ========== */}
-      <section className="product-section section pt-70 pb-55">
-        <div className="container">
-          <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold">Popular Furniture</h2>
+      {/* ========== Popular Furniture Tabs ========== */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-6">
+            Popular Furniture
+          </h2>
+
+          <div className="flex justify-center space-x-4 mb-8">
+            {["home", "office"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-2 border ${
+                  activeTab === tab
+                    ? "border-black bg-white font-bold"
+                    : "border-gray-300 bg-transparent"
+                }`}
+              >
+                {tab.toUpperCase()}
+              </button>
+            ))}
           </div>
 
-          <ul className="flex justify-center space-x-4 mb-8">
-            {["home", "office"].map((tab) => (
-              <li key={tab}>
-                <button
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 border ${
-                    activeTab === tab
-                      ? "border-black font-bold"
-                      : "border-gray-300"
-                  }`}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(activeTab === "home" ? homeProducts : officeProducts).map(
+              (prod) => (
+                <div
+                  key={prod._id}
+                  className="bg-white rounded-lg shadow hover:shadow-md transition"
                 >
-                  {tab.toUpperCase()}
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          <div className="tab-content">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {(activeTab === "home" ? homeProducts : officeProducts).map(
-                (prod) => (
-                  <div key={prod._id} className="single-grid-product">
-                    <div className="product-image mb-2">
-                      <Link to={`/product/${prod._id}`}>
-                        <img
-                          src={prod.imageUrl}
-                          alt={prod.title}
-                          className="w-full object-contain h-48"
-                        />
-                      </Link>
-                    </div>
-                    <div className="product-content">
-                      <h3 className="title">
-                        <Link to={`/product/${prod._id}`}>{prod.title}</Link>
-                      </h3>
-                      <p className="product-price">
-                        <span className="discounted-price">
-                          ₹{prod.price.toFixed(2)}
-                        </span>
-                      </p>
-                    </div>
+                  <Link to={`/product/${prod._id}`}>
+                    <img
+                      src={prod.imageUrl}
+                      alt={prod.title}
+                      className="w-full h-48 object-contain p-4"
+                    />
+                  </Link>
+                  <div className="p-4">
+                    <h4 className="font-semibold mb-2">
+                      <Link to={`/product/${prod._id}`}>{prod.title}</Link>
+                    </h4>
+                    <p className="text-lg font-bold">₹{prod.price}</p>
                   </div>
-                )
-              )}
-            </div>
+                </div>
+              )
+            )}
           </div>
         </div>
       </section>
 
       {/* ========== Features ========== */}
-      <section className="features-section section pt-30">
-        <div className="container grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="py-12">
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
               icon: "feature-1.png",
               title: "Free home delivery",
               desc: "On orders over $100",
             },
-            { icon: "feature-2.png", title: "Quality Products", desc: "Our main goal" },
-            { icon: "feature-3.png", title: "3 Days Return", desc: "If you’re not happy" },
+            {
+              icon: "feature-2.png",
+              title: "Quality Products",
+              desc: "Our main goal",
+            },
+            {
+              icon: "feature-3.png",
+              title: "3 Days Return",
+              desc: "If you’re not happy",
+            },
           ].map(({ icon, title, desc }, i) => (
             <div
               key={i}
-              className="single-feature text-center p-6 bg-gray-100 rounded"
+              className="bg-gray-100 rounded-lg p-6 flex flex-col items-center text-center"
             >
               <img
                 src={`/assets/images/icons/${icon}`}
                 alt=""
-                className="mx-auto mb-4"
+                className="h-12 mb-4"
               />
-              <h4 className="font-bold mb-2">{title}</h4>
+              <h5 className="font-bold mb-2">{title}</h5>
               <p className="text-gray-600">{desc}</p>
             </div>
           ))}
