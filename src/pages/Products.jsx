@@ -61,7 +61,7 @@ const Products = () => {
 
   /* ================================================ */
   return (
-    <div id="main-wrapper" className="pt-[5.5rem]">
+    <div id="main-wrapper">
 
       {/* -------- page banner -------- */}
       <section

@@ -58,7 +58,7 @@ h1 {
 
 /* make room for the fixed navbar */
 #main-wrapper {
-  padding-top: 5.5rem; /* green bar + white bar */
+  padding-top: 6rem; /* green bar + white bar */
 }
 
 /* center slick dots under a full-width slider */
