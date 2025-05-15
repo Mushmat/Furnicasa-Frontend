@@ -55,7 +55,7 @@ const Home = () => {
                     <br />
                     Modern &amp; Exclusive Furniture
                   </h2>
-                  <Link to="/products" className="btn bg-black text-white">
+                  <Link to="/product/${prod._id}" className="btn bg-black text-white">
                     SHOP NOW
                   </Link>
                 </div>

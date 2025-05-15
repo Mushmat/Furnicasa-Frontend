@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
   const { dispatch } = useCart();
@@ -27,40 +27,50 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  // pick fallback for image
+  const imgSrc =
+    Array.isArray(product.images) && product.images.length
+      ? product.images[0]
+      : product.imageUrl || '/assets/images/placeholder/270x290.png';
+
   return (
     <div className="single-grid-product bg-white rounded shadow hover:shadow-lg overflow-hidden">
       <div className="product-image relative group">
         {/* Labels */}
         {product.onSale && (
-          <span className="absolute top-2 left-2 bg-red-600 text-xs text-white px-2 py-1 rounded">Sale</span>
+          <span className="absolute top-2 left-2 bg-red-600 text-xs text-white px-2 py-1 rounded">
+            Sale
+          </span>
         )}
         {!product.onSale && product.isNew && (
-          <span className="absolute top-2 left-2 bg-green-600 text-xs text-white px-2 py-1 rounded">New</span>
+          <span className="absolute top-2 left-2 bg-green-600 text-xs text-white px-2 py-1 rounded">
+            New
+          </span>
         )}
 
-        {/* Two-state image */}
-        <a href={`/product/${product._id}`} className="block">
-          <img
-            src={
-              /* if images array exists use the first picture, otherwise fall back
-         to the single imageUrl field or a gray placeholder                 */
-      Array.isArray(product.images) && product.images.length
-        ? product.images[0]
-        : product.imageUrl || '/assets/images/placeholder/270x290.png'
-            }
-            alt={product.name}
-            className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
-          />
-        </a>
+        {/* Clickable image + overlay */}
+        <Link to={`/product/${product._id}`} className="block overflow-hidden">
+          <div className="relative">
+            <img
+              src={imgSrc}
+              alt={product.name}
+              className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            {/* Overlay */}
+            <div className="overlay absolute inset-0 flex items-center justify-center text-white text-lg font-semibold">
+              View Details
+            </div>
+          </div>
+        </Link>
 
         {/* Hover actions */}
         <div className="product-action absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-4">
           <button onClick={addToCart} className="text-white hover:text-orange-400">
             <i className="fa fa-cart-plus fa-lg"></i>
           </button>
-          <button className="text-white hover:text-orange-400">
+          <Link to={`/product/${product._id}`} className="text-white hover:text-orange-400">
             <i className="fa fa-eye fa-lg"></i>
-          </button>
+          </Link>
           <button className="text-white hover:text-orange-400">
             <i className="fa fa-heart-o fa-lg"></i>
           </button>
@@ -69,9 +79,9 @@ const ProductCard = ({ product }) => {
 
       <div className="p-4">
         <h3 className="title text-lg font-semibold mb-2">
-          <a href={`/product/${product._id}`} className="hover:text-orange-600">
+          <Link to={`/product/${product._id}`} className="hover:text-orange-600">
             {product.name}
-          </a>
+          </Link>
         </h3>
 
         <p className="product-price mb-1">

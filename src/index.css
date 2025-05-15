@@ -68,4 +68,14 @@ h1 {
   transform: translateX(-50%);
 }
 
-/* your .btn definitions etc… */
+/* overlay sits on top of the image, initially hidden */
+.product-image .overlay {
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: rgba(0,0,0,0.4);
+}
+
+/* show it when the group is hovered */
+.product-image.group:hover .overlay {
+  opacity: 1;
+}
