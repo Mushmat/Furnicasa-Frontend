@@ -76,6 +76,7 @@ h1 {
 }
 
 /* show it when the group is hovered */
-.product-image.group:hover .overlay {
-  opacity: 1;
-}
+.product-image:hover .overlay {
+   opacity: 1;
+ }
+
