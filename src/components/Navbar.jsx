@@ -1,26 +1,34 @@
-// src/components/Navbar.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen]       = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { cartItems } = useCart();
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { cartItems }                 = useCart();
+  const { user, logout }              = useAuth();
+  const navigate                       = useNavigate();
 
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
-    navigate("/login");
+    navigate("/");
+  };
+
+  const handleMyOrdersClick = () => {
+    if (user) {
+      navigate("/my-orders");
+    } else {
+      navigate("/login");
+    }
   };
 
   const navLinks = [
     { to: "/products",  label: "Products"  },
     { to: "/about",     label: "About"     },
     { to: "/contact",   label: "Contact"   },
+    // We’ll handle My Orders specially below
     { to: "/my-orders", label: "My Orders" },
   ];
 
@@ -43,21 +51,42 @@ const Navbar = () => {
 
             {/* Centered Links (desktop) */}
             <div className="hidden md:flex space-x-8">
-              {navLinks.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className="text-gray-700 hover:text-orange-600 uppercase tracking-wide"
-                >
-                  {label}
-                </Link>
-              ))}
+              {navLinks.map(({ to, label }) => {
+                // override My Orders button
+                if (to === "/my-orders") {
+                  return (
+                    <button
+                      key={to}
+                      onClick={handleMyOrdersClick}
+                      className="text-gray-700 hover:text-orange-600 uppercase tracking-wide"
+                    >
+                      {label}
+                    </button>
+                  );
+                }
+                // regular links
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="text-gray-700 hover:text-orange-600 uppercase tracking-wide"
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+
+              {/* Admin Link */}
               {user?.isAdmin && (
                 <Link
                   to="/admin"
                   className="text-gray-700 hover:text-orange-600 uppercase tracking-wide flex items-center"
                 >
-                  <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-5 h-5 mr-1"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
                   </svg>
                   Admin
@@ -76,18 +105,14 @@ const Navbar = () => {
                 />
               </button>
 
-              {/* Profile Icon + React Hover Menu */}
-              <div
-                className="relative"
-                onMouseEnter={() => setProfileOpen(true)}
-                onMouseLeave={() => setProfileOpen(false)}
-              >
+              {/* Profile Icon + Click-toggle Menu */}
+              <div className="relative">
                 <img
+                  onClick={() => setProfileOpen((open) => !open)}
                   src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
                   alt="Account"
                   className="w-6 h-6 cursor-pointer"
                 />
-
                 {profileOpen && (
                   <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg z-50">
                     {user ? (
@@ -95,24 +120,30 @@ const Navbar = () => {
                         <Link
                           to="/my-account"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Dashboard
                         </Link>
-                        <Link
-                          to="/my-orders"
-                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        <button
+                          onClick={() => {
+                            handleMyOrdersClick();
+                            setProfileOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                         >
                           Orders
-                        </Link>
+                        </button>
                         <Link
                           to="/my-account/address"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Address
                         </Link>
                         <Link
                           to="/my-account/details"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Account Details
                         </Link>
@@ -128,12 +159,14 @@ const Navbar = () => {
                         <Link
                           to="/login"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Login
                         </Link>
                         <Link
                           to="/register-advanced"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Register
                         </Link>
@@ -160,7 +193,7 @@ const Navbar = () => {
               {/* Mobile Hamburger */}
               <button
                 className="md:hidden"
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() => setMenuOpen((o) => !o)}
               >
                 <svg
                   className="w-6 h-6 text-gray-700"
@@ -169,11 +202,19 @@ const Navbar = () => {
                   viewBox="0 0 24 24"
                 >
                   {menuOpen ? (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   ) : (
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
                   )}
                 </svg>
               </button>
@@ -185,16 +226,33 @@ const Navbar = () => {
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-4 py-4 space-y-4">
-              {navLinks.map(({ to, label }) => (
-                <Link
-                  key={to}
-                  to={to}
-                  className="block text-gray-700 hover:text-orange-600"
-                  onClick={() => setMenuOpen(false)}
-                >
-                  {label}
-                </Link>
-              ))}
+              {navLinks.map(({ to, label }) => {
+                if (to === "/my-orders") {
+                  return (
+                    <button
+                      key={to}
+                      onClick={() => {
+                        handleMyOrdersClick();
+                        setMenuOpen(false);
+                      }}
+                      className="block text-gray-700 hover:text-orange-600 w-full text-left"
+                    >
+                      {label}
+                    </button>
+                  );
+                }
+                return (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="block text-gray-700 hover:text-orange-600"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
+
               {user?.isAdmin && (
                 <Link
                   to="/admin"
@@ -204,46 +262,17 @@ const Navbar = () => {
                   Admin
                 </Link>
               )}
+
               {user ? (
-                <>
-                  <Link
-                    to="/my-account"
-                    className="block text-gray-700 hover:text-orange-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/my-orders"
-                    className="block text-gray-700 hover:text-orange-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Orders
-                  </Link>
-                  <Link
-                    to="/my-account/address"
-                    className="block text-gray-700 hover:text-orange-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Address
-                  </Link>
-                  <Link
-                    to="/my-account/details"
-                    className="block text-gray-700 hover:text-orange-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Account Details
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setMenuOpen(false);
-                    }}
-                    className="block w-full text-left text-gray-700 hover:text-orange-600"
-                  >
-                    Logout
-                  </button>
-                </>
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setMenuOpen(false);
+                  }}
+                  className="block w-full text-left text-gray-700 hover:text-orange-600"
+                >
+                  Logout
+                </button>
               ) : (
                 <>
                   <Link
