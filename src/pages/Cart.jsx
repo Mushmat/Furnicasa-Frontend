@@ -214,6 +214,7 @@ const Cart = () => {
           </div>
           <Link
             to="/checkout"
+            state={{ discountPercent }} 
             className="mt-4 block text-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
             Proceed to Checkout

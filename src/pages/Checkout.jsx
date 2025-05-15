@@ -1,11 +1,17 @@
 // src/pages/Checkout.jsx
+import React, { useState, useMemo } from "react";
 import axios from "axios";
-import { useState } from "react";
 import { useCart } from "../context/CartContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Checkout = () => {
   const { cartItems, dispatch } = useCart();
+  const navigate = useNavigate();
+  const location = useLocation();
+  // get discount percent or default to 0
+  const discountPercent = location.state?.discountPercent || 0;
+
+  // shipping form state
   const [shipping, setShipping] = useState({
     fullName: "",
     address: "",
@@ -14,27 +20,42 @@ const Checkout = () => {
     country: "",
     phone: "",
   });
-  const navigate = useNavigate();
 
-  const totalPrice = cartItems.reduce((sum, item) => {
-    return sum + item.product.price * item.quantity;
-  }, 0);
+  // Subtotal
+  const subtotal = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0
+      ),
+    [cartItems]
+  );
 
-  const handleChange = (e) => {
+  // Discount amount
+  const discountAmount = useMemo(
+    () => (subtotal * discountPercent) / 100,
+    [subtotal, discountPercent]
+  );
+
+  // Final total to pay
+  const totalToPay = useMemo(
+    () => subtotal - discountAmount,
+    [subtotal, discountAmount]
+  );
+
+  const handleChange = (e) =>
     setShipping({ ...shipping, [e.target.name]: e.target.value });
-  };
 
   const handlePayment = async () => {
     const token = localStorage.getItem("token");
     try {
-      // 1️⃣ Create Razorpay Order
+      // 1️⃣ Create Razorpay order for the discounted total
       const { data: razorpayOrder } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
-        { amount: totalPrice },
+        { amount: totalToPay },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // 2️⃣ Razorpay Options
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: razorpayOrder.amount,
@@ -44,14 +65,14 @@ const Checkout = () => {
         order_id: razorpayOrder.id,
         handler: async (response) => {
           try {
-            // 3️⃣ Verify Payment Signature
+            // verify…
             await axios.post(
               `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify`,
               { ...response },
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // 4️⃣ Create Order in DB with status "Paid"
+            // create order record with the discounted total
             const items = cartItems.map((item) => ({
               productId: item.product._id,
               quantity: item.quantity,
@@ -68,93 +89,100 @@ const Checkout = () => {
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // 5️⃣ Clear cart and redirect to confirmation page
+            // clear cart & go to confirmation
             dispatch({ type: "SET_CART", payload: [] });
-
             navigate("/order-confirmation", {
-              state: { orderId: newOrder._id, totalPrice: newOrder.totalPrice },
+              state: {
+                orderId: newOrder._id,
+                totalPrice: newOrder.totalPrice,
+              },
             });
-          } catch (error) {
-            console.error("Payment verification failed:", error);
-            alert("Payment verification failed.");
+          } catch (err) {
+            console.error(err);
+            alert("Payment verification failed");
           }
         },
         theme: { color: "#F37254" },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error) {
-      console.error("Payment initiation failed:", error);
-      alert("Payment initiation failed.");
+      new window.Razorpay(options).open();
+    } catch (err) {
+      console.error(err);
+      alert("Payment initiation failed");
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Checkout</h2>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          name="fullName"
-          placeholder="Full Name"
-          value={shipping.fullName}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
-        <input
-          type="text"
-          name="address"
-          placeholder="Address"
-          value={shipping.address}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
-        <input
-          type="text"
-          name="city"
-          placeholder="City"
-          value={shipping.city}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
-        <input
-          type="text"
-          name="postalCode"
-          placeholder="Postal Code"
-          value={shipping.postalCode}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
-        <input
-          type="text"
-          name="country"
-          placeholder="Country"
-          value={shipping.country}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
-        <input
-          type="text"
-          name="phone"
-          placeholder="Phone Number"
-          value={shipping.phone}
-          onChange={handleChange}
-          className="border p-2 rounded w-full mb-2"
-        />
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Billing / Shipping Form */}
+        <div>
+          <h4 className="font-semibold mb-4">Shipping Details</h4>
+          {[
+            { name: "fullName", placeholder: "Full Name" },
+            { name: "address", placeholder: "Address" },
+            { name: "city", placeholder: "City" },
+            { name: "postalCode", placeholder: "Postal Code" },
+            { name: "country", placeholder: "Country" },
+            { name: "phone", placeholder: "Phone Number" },
+          ].map((field) => (
+            <input
+              key={field.name}
+              name={field.name}
+              placeholder={field.placeholder}
+              value={shipping[field.name]}
+              onChange={handleChange}
+              className="block w-full border p-2 rounded mb-3"
+            />
+          ))}
+        </div>
+
+        {/* Order Summary */}
+        <div className="bg-white p-4 rounded shadow">
+          <h4 className="font-semibold mb-4">Order Summary</h4>
+
+          <ul className="divide-y">
+            {cartItems.map((item) => (
+              <li
+                key={item.product._id}
+                className="py-2 flex justify-between"
+              >
+                <span>
+                  {item.product.title} × {item.quantity}
+                </span>
+                <span>₹{item.product.price * item.quantity}</span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-4 space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>₹{subtotal.toFixed(2)}</span>
+            </div>
+            {discountPercent > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount ({discountPercent}%)</span>
+                <span>-₹{discountAmount.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="border-t my-2" />
+            <div className="flex justify-between font-bold text-lg">
+              <span>Total to Pay</span>
+              <span>₹{totalToPay.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handlePayment}
+            className="mt-6 w-full bg-orange-600 text-white py-3 rounded hover:bg-orange-700"
+          >
+            Proceed to Pay
+          </button>
+        </div>
       </div>
-
-      <div className="border p-4 rounded shadow mb-4">
-        <h3 className="text-xl font-bold">Total: ₹{totalPrice}</h3>
-      </div>
-
-      <button
-        onClick={handlePayment}
-        className="bg-orange-600 text-white py-2 px-4 rounded hover:bg-orange-700"
-      >
-        Proceed to Pay
-      </button>
     </div>
   );
 };
