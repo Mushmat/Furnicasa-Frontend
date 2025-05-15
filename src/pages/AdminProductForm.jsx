@@ -2,133 +2,154 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext";
 import { useDropzone } from "react-dropzone";
+import { useAuth } from "../context/AuthContext";
 
-/* -------------- helpers reused from your Add-product page -------------- */
-const ImageDrop = ({ existing, onUpload }) => {
-  const [preview, setPreview] = useState(existing || null);
+/* ---------- tiny helpers ---------- */
+const ImageDrop = ({ initial, onSelect }) => {
+  const [preview, setPre] = useState(initial);
   const { getRootProps, getInputProps } = useDropzone({
-    accept: { "image/*": [] }, multiple: false,
-    onDrop: ([file]) => { setPreview(URL.createObjectURL(file)); onUpload(file); }
+    accept: { "image/*": [] },
+    multiple: false,
+    onDrop: ([file]) => { setPre(URL.createObjectURL(file)); onSelect(file); }
   });
   return (
     <div {...getRootProps()}
-         className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer border-gray-300">
+      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer border-gray-300">
       <input {...getInputProps()} />
       {preview
-        ? <img src={preview} alt="" className="mx-auto h-40 object-contain"/>
+        ? <img src={preview} alt="" className="h-40 mx-auto object-contain" />
         : <p className="text-gray-500">Drag & drop image or click to browse</p>}
     </div>
   );
 };
-
-const CategorySelect = ({ value, onChange }) => {
-  const [cats, setCats] = useState([]);
-  const [newCat, setNewCat] = useState("");
-  useEffect(() => {
-    (async () => {
-      try {
-        const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/categories`);
-        setCats(data);
-      } catch { /* ignore */ }
-    })();
-  }, []);
-  const add = () => {
-    if (newCat && !cats.includes(newCat)) { setCats([...cats, newCat]); onChange(newCat); setNewCat(""); }
-  };
-  return (
-    <>
-      <select value={value} onChange={e=>onChange(e.target.value)}
-              className="w-full border rounded px-3 py-2 mb-2">
-        <option value="">Select category…</option>
-        {cats.map(c=> <option key={c} value={c}>{c}</option>)}
-      </select>
-      <div className="flex gap-2">
-        <input value={newCat}
-               onChange={e=>setNewCat(e.target.value)}
-               placeholder="New category"
-               className="flex-1 border rounded px-3 py-2"/>
-        <button type="button" onClick={add}
-                className="bg-gray-800 text-white px-4 rounded">Add</button>
-      </div>
-    </>
-  );
-};
-/* ----------------------------------------------------------------------- */
+/* ----------------------------------- */
 
 const AdminProductForm = () => {
-  const { id } = useParams();          // undefined when creating
-  const isEdit  = Boolean(id);
-  const { user } = useAuth();
-  const token   = localStorage.getItem("token");
-  const nav     = useNavigate();
+  const { id }        = useParams();          // undefined in “new” mode
+  const isEdit        = Boolean(id);
+  const nav           = useNavigate();
+  const { user }      = useAuth();
+  const token         = localStorage.getItem("token");
 
-  const [form, setForm]       = useState({ title:"", price:"", description:"", category:"" });
+  /* form state */
+  const [base, setBase]       = useState({ title:"", price:"", category:"" });
+  const [specs, setSpecs]     = useState([{ k:"", v:"" }]);   // array of pairs
   const [imageFile, setFile]  = useState(null);
-  const [imageUrl, setUrl]    = useState("");
+  const [imageUrl,  setUrl]   = useState("");
+  const [cats, setCats]       = useState([]);
   const [saving, setSaving]   = useState(false);
 
-  /* preload for edit */
+  /* fetch categories & product (if edit) */
   useEffect(() => {
-    if (!isEdit) return;
     (async () => {
-      try {
+      const { data: c } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/categories`);
+      setCats(c);
+
+      if (isEdit) {
         const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`);
-        const { title, price, description, category, imageUrl } = data;
-        setForm({ title, price, description, category });
+        const { title, price, category, imageUrl, specs } = data;
+        setBase({ title, price, category });
         setUrl(imageUrl);
-      } catch (err) { console.error(err); }
+        setSpecs(Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [{ k:"", v:"" }]);
+      }
     })();
-  }, [isEdit, id]);
+  }, [id, isEdit]);
 
   if (!user?.isAdmin) return <p className="p-4">Access denied.</p>;
 
-  const submit = async e => {
+  /* spec row handlers */
+  const changeSpec = (idx, field, val) =>
+    setSpecs(s => s.map((row,i)=> i===idx? { ...row, [field]:val }: row));
+  const addRow    = () => setSpecs(s => [...s, { k:"", v:"" }]);
+  const delRow    = (i) => setSpecs(s => s.filter((_,idx)=> idx!==i));
+
+  /* submit */
+  const save = async e => {
     e.preventDefault(); setSaving(true);
     try {
       let finalUrl = imageUrl;
       if (imageFile) {
         const fd = new FormData(); fd.append("file", imageFile);
         const { data } = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/admin/upload`,
-          fd,
+          `${import.meta.env.VITE_BACKEND_URL}/api/admin/upload`, fd,
           { headers:{ Authorization:`Bearer ${token}`, "Content-Type":"multipart/form-data" } }
         );
         finalUrl = data.url;
       }
 
-      const payload = { ...form, imageUrl: finalUrl };
-      if (isEdit) {
+      /* turn array → map */
+      const specObj = specs
+        .filter(r => r.k && r.v)
+        .reduce((acc,{k,v}) => ({ ...acc, [k]:v }), {});
+
+      const payload = { ...base, imageUrl: finalUrl, specs: specObj };
+
+      if (isEdit)
         await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${id}`,
                         payload, { headers:{ Authorization:`Bearer ${token}` } });
-      } else {
+      else
         await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/admin/products`,
                          payload, { headers:{ Authorization:`Bearer ${token}` } });
-      }
+
       nav("/admin/products");
-    } catch (err) { console.error(err); }
+    } catch (err) { alert(err.response?.data?.error || "Failed"); }
     finally { setSaving(false); }
   };
 
   return (
-    <div className="max-w-lg mx-auto px-6 py-8">
-      <h1 className="text-3xl font-bold mb-6">{isEdit ? "Edit Product" : "Add New Product"}</h1>
-      <form onSubmit={submit} className="space-y-4">
-        <input required value={form.title}
-               onChange={e=>setForm({...form, title:e.target.value})}
-               placeholder="Title" className="w-full border rounded px-3 py-2"/>
-        <input required type="number" value={form.price}
-               onChange={e=>setForm({...form, price:e.target.value})}
-               placeholder="Price (₹)" className="w-full border rounded px-3 py-2"/>
-        <textarea rows="4" value={form.description}
-                  onChange={e=>setForm({...form, description:e.target.value})}
-                  placeholder="Description" className="w-full border rounded px-3 py-2"/>
-        <ImageDrop existing={imageUrl} onUpload={setFile}/>
-        <CategorySelect value={form.category} onChange={c=>setForm({...form, category:c})}/>
+    <div className="max-w-xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-bold mb-6">
+        {isEdit? "Edit Product":"Add Product"}
+      </h1>
+
+      <form onSubmit={save} className="space-y-4">
+        <input required className="w-full border rounded px-3 py-2"
+          placeholder="Title" value={base.title}
+          onChange={e=>setBase({...base, title:e.target.value})} />
+
+        <input required type="number" className="w-full border rounded px-3 py-2"
+          placeholder="Price ₹" value={base.price}
+          onChange={e=>setBase({...base, price:e.target.value})} />
+
+        {/* category select + add */}
+        <div className="flex gap-2">
+          <select className="flex-1 border rounded px-3 py-2"
+                  value={base.category}
+                  onChange={e=>setBase({...base, category:e.target.value})}>
+            <option value="">Select category…</option>
+            {cats.map(c => <option key={c}>{c}</option>)}
+          </select>
+          <button type="button" onClick={()=> {
+            const n = prompt("New category name"); if(n){ setCats([...cats,n]); setBase({...base,category:n}); }
+          }} className="px-4 rounded bg-gray-800 text-white">Add</button>
+        </div>
+
+        {/* image */}
+        <ImageDrop initial={imageUrl} onSelect={setFile} />
+
+        {/* specs table */}
+        <div className="border rounded p-4">
+          <p className="font-medium mb-2">Product Specs</p>
+          {specs.map((row,i)=>(
+            <div key={i} className="flex gap-2 mb-2">
+              <input placeholder="Label"  className="flex-1 border rounded px-2 py-1"
+                     value={row.k} onChange={e=>changeSpec(i,"k",e.target.value)} />
+              <input placeholder="Value"  className="flex-1 border rounded px-2 py-1"
+                     value={row.v} onChange={e=>changeSpec(i,"v",e.target.value)} />
+              {specs.length>1 && (
+                <button type="button" onClick={()=>delRow(i)}
+                        className="px-2 text-red-600">✕</button>
+              )}
+            </div>
+          ))}
+          <button type="button" onClick={addRow}
+                  className="text-blue-600 text-sm">+ Add row</button>
+        </div>
+
         <button disabled={saving}
-                className="w-full bg-orange-600 text-white py-2 rounded">
-          {saving ? "Saving…" : isEdit ? "Update Product" : "Add Product"}
+          className="w-full bg-orange-600 text-white py-2 rounded">
+          {saving? "Saving…": isEdit? "Update":"Add"}
         </button>
       </form>
     </div>

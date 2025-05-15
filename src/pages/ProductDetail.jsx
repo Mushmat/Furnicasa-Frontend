@@ -135,7 +135,20 @@ const ProductDetail = () => {
           ))}
         </div>
         <div className="prose">
-          {activeTab === "description" && <p>{product.description}</p>}
+          {activeTab === "description" && (
+            Object.keys(product.specs || {}).length === 0 ? (
+              <p>{product.description || "No additional details."}</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1">
+                {Object.entries(product.specs).map(([k,v])=>(
+                  <React.Fragment key={k}>
+                    <p className="font-medium">{k}</p>
+                    <p className="text-gray-700">{v}</p>
+                  </React.Fragment>
+                ))}
+              </div>
+            )
+          )}
           {activeTab === "reviews" && <p>No reviews yet.</p>}
         </div>
       </div>
