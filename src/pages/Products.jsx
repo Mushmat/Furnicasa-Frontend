@@ -65,7 +65,7 @@ const Products = () => {
 
       {/* -------- page banner -------- */}
       <section
-        className="page-banner-section bg-cover bg-center h-[200px] mb-6"
+        className="page-banner-section bg-cover bg-center h-[330px] mb-12"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
       >
         <div className="container h-full flex flex-col justify-center text-white">
