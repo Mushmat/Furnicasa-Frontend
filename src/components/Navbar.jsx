@@ -300,5 +300,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-//TRIAL
-//TRIAL 2 commit
