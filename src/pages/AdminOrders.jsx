@@ -1,6 +1,18 @@
 // src/pages/AdminOrders.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
+import clsx from "clsx";
+
+const statusOptions = ["Pending", "Packed", "Shipped", "Out for Delivery", "Delivered", "Cancelled"];
+const badgeColor = (s) =>
+  ({
+    Pending:           "bg-yellow-100 text-yellow-800",
+    Packed:            "bg-indigo-100 text-indigo-800",
+    Shipped:           "bg-blue-100 text-blue-800",
+    "Out for Delivery":"bg-orange-100 text-orange-800",
+    Delivered:         "bg-green-100 text-green-800",
+    Cancelled:         "bg-red-100 text-red-800",
+  }[s] || "bg-gray-100 text-gray-800");
 
 const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
@@ -8,65 +20,85 @@ const AdminOrders = () => {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get(
+      const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      setOrders(res.data);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
+      setOrders(data);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
     }
   };
 
-  const updateOrderStatus = async (orderId, status) => {
+  const updateStatus = async (id, status) => {
     try {
-      const res = await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders/${orderId}`,
+      await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders/${id}`,
         { status },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Order updated:", res.data);
-      fetchOrders(); // Refresh the orders after update
-    } catch (error) {
-      console.error("Failed to update order status:", error);
+      fetchOrders();
+    } catch (err) {
+      console.error("Could not update order:", err);
     }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Admin Orders Management</h2>
-      {orders.map((order) => (
-        <div key={order._id} className="border p-4 rounded mb-4">
-          <p><strong>Order ID:</strong> {order._id}</p>
-          <p><strong>Status:</strong> {order.status}</p>
-          <p><strong>Total Price:</strong> ₹{order.totalPrice}</p>
-          <ul>
-            {order.items.map((item) => (
-              <li key={item.product._id}>
-                {item.product.title} - Qty: {item.quantity}
-              </li>
-            ))}
-          </ul>
-          <select
-            value={order.status}
-            onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-            className="border rounded p-2 mt-2"
-          >
-            <option value="Pending">Pending</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
-          </select>
-        </div>
-      ))}
+    <div className="max-w-6xl mx-auto px-6 py-8">
+      <h1 className="text-3xl font-bold mb-8">Orders</h1>
+
+      {orders.length === 0 ? (
+        <p>No orders yet.</p>
+      ) : (
+        orders.map((o) => (
+          <div key={o._id} className="bg-white shadow rounded-lg p-6 mb-6">
+            <div className="flex flex-wrap justify-between items-start gap-4">
+              <div>
+                <p className="font-semibold">
+                  Order&nbsp;ID:&nbsp;<span className="font-mono">{o._id.slice(-6)}</span>
+                </p>
+                <p>Total: <span className="font-semibold">₹{o.totalPrice}</span></p>
+                <p>
+                  Status:&nbsp;
+                  <span className={clsx("text-sm px-2 py-0.5 rounded-full", badgeColor(o.status))}>
+                    {o.status}
+                  </span>
+                </p>
+              </div>
+
+              <select
+                value={o.status}
+                onChange={(e) => updateStatus(o._id, e.target.value)}
+                className="border rounded px-3 py-2"
+              >
+                {statusOptions.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* --- ITEMS --- */}
+            <div className="mt-4 divide-y">
+              {o.items.map(({ product, quantity }) => (
+                <div key={product._id} className="flex items-center py-3 gap-4">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.title}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium">{product.title}</p>
+                    <p className="text-sm text-gray-500">Qty: {quantity}</p>
+                  </div>
+                  <p className="font-semibold whitespace-nowrap">₹{product.price * quantity}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };
