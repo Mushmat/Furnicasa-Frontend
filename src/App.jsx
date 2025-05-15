@@ -10,18 +10,16 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import RegisterAdvanced from "./pages/RegisterAdvanced";
 import VerifyOTP from "./pages/VerifyOTP";
 import LoginRegister from "./pages/LoginRegister";
-import Login from "./pages/Login";                // if you still use Login.jsx
 import MyAccount from "./pages/MyAccount";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
 // Admin
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
-import AdminAddProduct from "./pages/AdminAddProduct";
-
+import AdminProductList from "./pages/AdminProductList";
+import AdminProductForm from "./pages/AdminProductForm";
 function App() {
   return (
     <Router>
@@ -49,10 +47,13 @@ function App() {
             {/* Checkout */}
             <Route path="/checkout" element={<Checkout />} />
 
-            {/* Admin Panel */}
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/orders" element={<AdminOrders />} />
-            <Route path="/admin/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin"                element={<AdminDashboard />} />
+            <Route path="/admin/orders"         element={<AdminOrders />} />
+            
+           {/* product CRUD */}
+           <Route path="/admin/products"            element={<AdminProductList />} />
+           <Route path="/admin/products/new"        element={<AdminProductForm />} />        {/* create */}
+           <Route path="/admin/products/:id/edit"   element={<AdminProductForm />} />        {/* edit */}
           </Routes>
         </main>
         <Footer />

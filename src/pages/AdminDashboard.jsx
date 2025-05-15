@@ -45,7 +45,7 @@ const AdminDashboard = () => {
         <Link to="/admin/orders" className="text-lg text-blue-600 hover:underline">
           • Manage Orders
         </Link>
-        <Link to="/admin/add-product" className="text-lg text-blue-600 hover:underline">
+        <Link to="/admin/products" className="text-lg text-blue-600 hover:underline">
           • Add / Edit Products
         </Link>
       </div>
