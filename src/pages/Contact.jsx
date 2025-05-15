@@ -122,7 +122,7 @@ export default function Contact() {
         <iframe
           title="Furnicasa Location"
           className="w-full h-full rounded"
-          src="https://www.google.com/maps/embed?pb=!1m18!...YOUR_EMBED_PARAMS..."
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3561.531977081226!2d75.8365092!3d26.791184899999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x396dc94b59f2f347%3A0x4617ffa07002bb31!2sFurnicasa!5e0!3m2!1sen!2sin!4v1747296568265!5m2!1sen!2sin"
           allowFullScreen
           loading="lazy"
         ></iframe>
@@ -130,3 +130,5 @@ export default function Contact() {
     </div>
   );
 }
+
+
