@@ -1,3 +1,4 @@
+// src/components/Navbar.jsx
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -16,22 +17,6 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const handleMyOrdersClick = () => {
-    if (user) {
-      navigate("/my-orders");
-    } else {
-      navigate("/login");
-    }
-  };
-
-  const navLinks = [
-    { to: "/products",  label: "Products"  },
-    { to: "/about",     label: "About"     },
-    { to: "/contact",   label: "Contact"   },
-    // We’ll handle My Orders specially below
-    { to: "/my-orders", label: "My Orders" },
-  ];
-
   return (
     <>
       {/* Top Promo */}
@@ -43,7 +28,6 @@ const Navbar = () => {
       <nav className="bg-white sticky top-0 z-50 border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            
             {/* Brand */}
             <Link to="/" className="text-2xl font-bold text-orange-600">
               Furnicasa
@@ -51,42 +35,21 @@ const Navbar = () => {
 
             {/* Centered Links (desktop) */}
             <div className="hidden md:flex space-x-8">
-              {navLinks.map(({ to, label }) => {
-                // override My Orders button
-                if (to === "/my-orders") {
-                  return (
-                    <button
-                      key={to}
-                      onClick={handleMyOrdersClick}
-                      className="text-gray-700 hover:text-orange-600 uppercase tracking-wide"
-                    >
-                      {label}
-                    </button>
-                  );
-                }
-                // regular links
-                return (
-                  <Link
-                    key={to}
-                    to={to}
-                    className="text-gray-700 hover:text-orange-600 uppercase tracking-wide"
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-
-              {/* Admin Link */}
+              <Link to="/products" className="text-gray-700 hover:text-orange-600 uppercase tracking-wide">
+                Products
+              </Link>
+              <Link to="/about" className="text-gray-700 hover:text-orange-600 uppercase tracking-wide">
+                About
+              </Link>
+              <Link to="/contact" className="text-gray-700 hover:text-orange-600 uppercase tracking-wide">
+                Contact
+              </Link>
               {user?.isAdmin && (
                 <Link
                   to="/admin"
                   className="text-gray-700 hover:text-orange-600 uppercase tracking-wide flex items-center"
                 >
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
+                  <svg className="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11H9v-2h2v2zm0-4H9V5h2v4z" />
                   </svg>
                   Admin
@@ -96,19 +59,10 @@ const Navbar = () => {
 
             {/* Right-side icons */}
             <div className="flex items-center space-x-6">
-              {/* Search */}
-              <button className="hidden md:flex">
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/54/54481.png"
-                  alt="Search"
-                  className="w-5 h-5 text-gray-600"
-                />
-              </button>
-
-              {/* Profile Icon + Click-toggle Menu */}
+              {/* Profile */}
               <div className="relative">
                 <img
-                  onClick={() => setProfileOpen((open) => !open)}
+                  onClick={() => setProfileOpen((o) => !o)}
                   src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
                   alt="Account"
                   className="w-6 h-6 cursor-pointer"
@@ -124,24 +78,22 @@ const Navbar = () => {
                         >
                           Dashboard
                         </Link>
-                        <button
-                          onClick={() => {
-                            handleMyOrdersClick();
-                            setProfileOpen(false);
-                          }}
-                          className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                        <Link
+                          to="/my-account#orders"
+                          className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                          onClick={() => setProfileOpen(false)}
                         >
                           Orders
-                        </button>
+                        </Link>
                         <Link
-                          to="/my-account/address"
+                          to="/my-account#address"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                           onClick={() => setProfileOpen(false)}
                         >
                           Address
                         </Link>
                         <Link
-                          to="/my-account/details"
+                          to="/my-account#account"
                           className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
                           onClick={() => setProfileOpen(false)}
                         >
@@ -191,10 +143,7 @@ const Navbar = () => {
               </Link>
 
               {/* Mobile Hamburger */}
-              <button
-                className="md:hidden"
-                onClick={() => setMenuOpen((o) => !o)}
-              >
+              <button className="md:hidden" onClick={() => setMenuOpen((o) => !o)}>
                 <svg
                   className="w-6 h-6 text-gray-700"
                   fill="none"
@@ -202,19 +151,9 @@ const Navbar = () => {
                   viewBox="0 0 24 24"
                 >
                   {menuOpen ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 6h16M4 12h16M4 18h16"
-                    />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   )}
                 </svg>
               </button>
@@ -222,54 +161,34 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (no “My Orders” here either) */}
         {menuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-4 py-4 space-y-4">
-              {navLinks.map(({ to, label }) => {
-                if (to === "/my-orders") {
-                  return (
-                    <button
-                      key={to}
-                      onClick={() => {
-                        handleMyOrdersClick();
-                        setMenuOpen(false);
-                      }}
-                      className="block text-gray-700 hover:text-orange-600 w-full text-left"
-                    >
-                      {label}
-                    </button>
-                  );
-                }
-                return (
-                  <Link
-                    key={to}
-                    to={to}
-                    className="block text-gray-700 hover:text-orange-600"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-
+              <Link to="/products" className="block text-gray-700 hover:text-orange-600">
+                Products
+              </Link>
+              <Link to="/about" className="block text-gray-700 hover:text-orange-600">
+                About
+              </Link>
+              <Link to="/contact" className="block text-gray-700 hover:text-orange-600">
+                Contact
+              </Link>
               {user?.isAdmin && (
                 <Link
                   to="/admin"
                   className="block text-gray-700 hover:text-orange-600"
-                  onClick={() => setMenuOpen(false)}
                 >
                   Admin
                 </Link>
               )}
-
               {user ? (
                 <button
                   onClick={() => {
                     handleLogout();
                     setMenuOpen(false);
                   }}
-                  className="block w-full text-left text-gray-700 hover:text-orange-600"
+                  className="w-full text-left text-gray-700 hover:text-orange-600"
                 >
                   Logout
                 </button>

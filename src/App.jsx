@@ -40,7 +40,7 @@ function App() {
             {/* Account */}
             <Route path="/my-account" element={<MyAccount />} />
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
-
+            
             {/* Auth flows */}
             <Route path="/register-advanced" element={<LoginRegister />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />

@@ -1,11 +1,12 @@
 // src/pages/MyAccount.jsx
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
-/* ────────────────────────────────────────────────────────── */
-/*  tiny timeline helper                                      */
-/* ────────────────────────────────────────────────────────── */
+// ───────────────────────────────────────────────────
+//  tiny timeline helper
+// ───────────────────────────────────────────────────
 const steps = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"];
 
 const OrderTimeline = ({ status }) => {
@@ -13,7 +14,8 @@ const OrderTimeline = ({ status }) => {
     return <p className="text-red-600 font-semibold mt-2">Order Cancelled</p>;
   }
 
-  const current = steps.indexOf(status); // -1 if server sent an odd status
+  const current = steps.indexOf(status); // -1 if unknown status
+
   return (
     <div className="mt-4 space-y-2">
       {steps.map((step, i) => {
@@ -39,17 +41,26 @@ const OrderTimeline = ({ status }) => {
   );
 };
 
-/* ────────────────────────────────────────────────────────── */
-/*  main component                                            */
-/* ────────────────────────────────────────────────────────── */
+// ───────────────────────────────────────────────────
+//  main component
+// ───────────────────────────────────────────────────
 const MyAccount = () => {
-  const { user } = useAuth(); // logout lives in Navbar only
+  const { user }            = useAuth();          // logout is in Navbar
+  const { hash }            = useLocation();
   const [tab, setTab]       = useState("dashboard");
   const [orders, setOrders] = useState([]);
   const [fetchErr, setFetchErr] = useState("");
-  const token = localStorage.getItem("token");
+  const token               = localStorage.getItem("token");
 
-  /* fetch orders whenever Orders-tab is active */
+  // 1) if we arrived with a hash, switch to that tab
+  useEffect(() => {
+    const h = hash.replace("#", "");
+    if (["dashboard", "orders", "address", "account"].includes(h)) {
+      setTab(h);
+    }
+  }, [hash]);
+
+  // 2) fetch orders only when "orders" tab is active
   useEffect(() => {
     if (tab !== "orders") return;
     (async () => {
@@ -67,10 +78,9 @@ const MyAccount = () => {
     })();
   }, [tab, token]);
 
-  /* ───────────── render ───────────── */
   return (
     <div id="main-wrapper">
-      {/* page banner */}
+      {/* ────────────────── Page banner ────────────────── */}
       <section
         className="page-banner-section bg-cover bg-center h-[330px]"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
@@ -91,16 +101,16 @@ const MyAccount = () => {
         </div>
       </section>
 
-      {/* content */}
+      {/* ────────────────── Content ────────────────── */}
       <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
-        {/* sidebar */}
+        {/* Sidebar */}
         <aside className="lg:w-1/4">
           <nav className="bg-white shadow p-4 flex flex-col space-y-2">
             {[
               { key: "dashboard", label: "Dashboard" },
-              { key: "orders", label: "Orders" },
-              { key: "address", label: "Address" },
-              { key: "account", label: "Account Details" },
+              { key: "orders",    label: "Orders"    },
+              { key: "address",   label: "Address"   },
+              { key: "account",   label: "Account Details" },
             ].map(({ key, label }) => (
               <button
                 key={key}
@@ -117,9 +127,9 @@ const MyAccount = () => {
           </nav>
         </aside>
 
-        {/* main panel */}
+        {/* Main panel */}
         <main className="flex-1 bg-white shadow p-6">
-          {/* DASHBOARD -------------------------------------------------- */}
+          {/* Dashboard */}
           {tab === "dashboard" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">Dashboard</h3>
@@ -127,18 +137,18 @@ const MyAccount = () => {
                 Hello, <strong>{user?.fullName || user?.email}</strong>!
               </p>
               <p className="mt-2">
-                From here you can view recent orders, manage addresses &
-                update your account details.
+                From here you can view your recent orders, manage addresses,
+                and update your account details.
               </p>
             </>
           )}
 
-          {/* ORDERS ----------------------------------------------------- */}
+          {/* Orders */}
           {tab === "orders" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">My Orders</h3>
               {fetchErr && <p className="text-red-600">{fetchErr}</p>}
-              {orders.length === 0 && !fetchErr && (
+              {!fetchErr && orders.length === 0 && (
                 <p>You have no orders yet.</p>
               )}
               {orders.map((order) => (
@@ -177,7 +187,7 @@ const MyAccount = () => {
             </>
           )}
 
-          {/* ADDRESS ---------------------------------------------------- */}
+          {/* Address */}
           {tab === "address" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">Billing Address</h3>
@@ -195,13 +205,10 @@ const MyAccount = () => {
             </>
           )}
 
-          {/* ACCOUNT DETAILS ------------------------------------------- */}
+          {/* Account Details */}
           {tab === "account" && (
             <>
-              <h3 className="text-2xl font-semibold mb-4">
-                Account Details
-              </h3>
-              {/* (static form placeholders) */}
+              <h3 className="text-2xl font-semibold mb-4">Account Details</h3>
               <form className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
