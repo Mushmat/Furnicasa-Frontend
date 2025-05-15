@@ -42,7 +42,7 @@ function App() {
             <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
             {/* Auth flows */}
-            <Route path="/register-advanced" element={<RegisterAdvanced />} />
+            <Route path="/register-advanced" element={<LoginRegister />} />
             <Route path="/verify-otp" element={<VerifyOTP />} />
             <Route path="/login" element={<LoginRegister />} />
 
