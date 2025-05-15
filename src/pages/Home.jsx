@@ -42,7 +42,7 @@ const Home = () => {
             <div key={slide} className="relative h-[500px]">
               <Link to="/products" className="block w-full h-full">
                 <img
-                  src={`/assets/images/hero/hero-${slide}.jpg`}
+                  src={`/assets/images/hero/hero-${slide}.png`}
                   alt={`Slide ${slide}`}
                   className="w-full h-full object-cover"
                 />
