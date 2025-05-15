@@ -6,30 +6,43 @@ import { Link } from "react-router-dom";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-// ── Custom Arrows for react-slick ────────────────────────────────
+// ── Custom Prev/Next Arrows ─────────────────────────────────────
 const PrevArrow = ({ onClick }) => (
   <button
     onClick={onClick}
     className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white bg-opacity-60 rounded-full hover:bg-opacity-90"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    <svg xmlns="http://www.w3.org/2000/svg"
+         className="w-6 h-6 text-gray-800"
+         fill="none" viewBox="0 0 24 24"
+         stroke="currentColor">
+      <path strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7" />
     </svg>
   </button>
 );
+
 const NextArrow = ({ onClick }) => (
   <button
     onClick={onClick}
     className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 p-2 bg-white bg-opacity-60 rounded-full hover:bg-opacity-90"
   >
-    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    <svg xmlns="http://www.w3.org/2000/svg"
+         className="w-6 h-6 text-gray-800"
+         fill="none" viewBox="0 0 24 24"
+         stroke="currentColor">
+      <path strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M9 5l7 7-7 7" />
     </svg>
   </button>
 );
 
 const Home = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts]   = useState([]);
   const [activeTab, setActiveTab] = useState("home");
 
   useEffect(() => {
@@ -39,7 +52,7 @@ const Home = () => {
       .catch((err) => console.error("Failed to load products:", err));
   }, []);
 
-  // 0–1 for banners, 2–5 home, 6–9 office
+  // 0–1 → hero banners | 2–5 → home tab | 6–9 → office tab
   const bannerProducts = products.slice(0, 2);
   const homeProducts   = products.slice(2, 6);
   const officeProducts = products.slice(6, 10);
@@ -59,19 +72,21 @@ const Home = () => {
     <div id="main-wrapper">
       {/* ========== HERO SLIDER ========== */}
       <section className="hero-section relative">
-        <Slider {...heroSettings}>
-          {[1, 2].map((_, i) => (
-            <div key={i} className="relative h-[500px]">
-              <Link to="/products" className="block w-full h-full">
-                <img
-                  src={`/assets/images/hero/hero-${i + 1}.jpg`}
-                  alt={`Slide ${i + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </Link>
-            </div>
-          ))}
-        </Slider>
+        {bannerProducts.length > 0 && (
+          <Slider {...heroSettings}>
+            {bannerProducts.map((p) => (
+              <div key={p._id} className="relative h-[500px]">
+                <Link to={`/product/${p._id}`} className="block w-full h-full">
+                  <img
+                    src={p.imageUrl}
+                    alt={p.title}
+                    className="w-full h-full object-cover"
+                  />
+                </Link>
+              </div>
+            ))}
+          </Slider>
+        )}
       </section>
 
       {/* ========== CURRENTLY ON GREAT DEALS ========== */}
@@ -80,18 +95,16 @@ const Home = () => {
           <h2 className="text-3xl font-bold mb-4">Currently on Great Deals</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {bannerProducts.map((p) => (
-              <div
-                key={p._id}
-                className="relative w-full pb-[100%] overflow-hidden rounded-lg shadow-lg"
-              >
-                <Link to={`/product/${p._id}`}>
+              <Link key={p._id} to={`/product/${p._id}`} className="block">
+                <div className="w-full h-64 overflow-hidden rounded-lg shadow-lg">
                   <img
                     src={p.imageUrl}
                     alt={p.title}
-                    className="absolute top-0 left-0 w-full h-full object-cover"
+                    className="w-full h-full object-cover"
                   />
-                </Link>
-              </div>
+                </div>
+                <h3 className="mt-2 text-lg font-semibold">{p.title}</h3>
+              </Link>
             ))}
           </div>
         </div>
