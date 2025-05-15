@@ -53,14 +53,6 @@ h1 {
   @apply w-full bg-cover bg-center;
   height: 100vh;  /* Ensure the hero section takes up the full viewport height */
 }
-
-
-
-/* make room for the fixed navbar */
-#main-wrapper {
-  padding-top: 6rem; /* green bar + white bar */
-}
-
 /* center slick dots under a full-width slider */
 .slick-dots {
   bottom: 20px;
