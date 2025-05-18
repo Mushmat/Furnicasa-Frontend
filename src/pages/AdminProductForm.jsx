@@ -32,48 +32,42 @@ const ImageDrop = ({ initial, onSelect }) => {
   );
 };
 
-/* ---------- Main admin form ---------- */
 const AdminProductForm = () => {
-  const { id } = useParams();         // undefined in “new” mode
+  const { id } = useParams();                // undefined for “new”
   const isEdit = Boolean(id);
   const nav = useNavigate();
   const { user } = useAuth();
   const token = localStorage.getItem("token");
 
   /* form state */
-  const [base, setBase]     = useState({ title: "", price: "", category: "" });
-  const [specs, setSpecs]   = useState([{ k: "", v: "" }]);  // key/value rows
+  const [base, setBase] = useState({
+    title: "",
+    price: "",
+    category: "",
+  });
+  const [specs, setSpecs] = useState([{ k: "", v: "" }]);
+  const [specKeys, setSpecKeys] = useState([]);
   const [imageFile, setFile] = useState(null);
-  const [imageUrl, setUrl]  = useState("");
-  const [cats, setCats]     = useState([]);
-  const [specKeys, setSpecKeys] = useState([]);             // known keys
+  const [imageUrl, setUrl] = useState("");
+  const [cats, setCats] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  /* fetch categories, spec-keys, and product (if editing) */
+  /* fetch cats, spec-keys, and product (if editing) */
   useEffect(() => {
     (async () => {
-      // categories
       try {
-        const { data: c } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products/categories`
-        );
+        const [{ data: c }, { data: keys }] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/categories`),
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/spec-keys`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
         setCats(c);
-      } catch (err) {
-        console.error("Failed to load categories", err);
-      }
-
-      // spec keys
-      try {
-        const { data: keys } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/admin/spec-keys`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
         setSpecKeys(keys);
-      } catch (err) {
-        console.error("Failed to load spec keys", err);
+      } catch (e) {
+        console.error("Failed to load categories or spec-keys", e);
       }
 
-      // if editing, load existing product
       if (isEdit) {
         try {
           const { data } = await axios.get(
@@ -83,32 +77,39 @@ const AdminProductForm = () => {
           setBase({ title, price, category });
           setUrl(imageUrl);
           setSpecs(
-            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) ||
-              [{ k: "", v: "" }]
+            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
+              { k: "", v: "" },
+            ]
           );
-        } catch (err) {
-          console.error("Failed to load product", err);
+        } catch (e) {
+          console.error("Failed to load product", e);
         }
       }
     })();
   }, [id, isEdit, token]);
 
+  /* on “new” mode, seed rows from known keys */
+  useEffect(() => {
+    if (!isEdit && specKeys.length) {
+      setSpecs(specKeys.map((k) => ({ k, v: "" })));
+    }
+  }, [isEdit, specKeys]);
+
   if (!user?.isAdmin) return <p className="p-4">Access denied.</p>;
 
-  /* spec row handlers */
+  /* spec-row handlers */
   const changeSpec = (idx, field, val) =>
     setSpecs((s) =>
-      s.map((row, i) => (i === idx ? { ...row, [field]: val } : row))
+      s.map((r, i) => (i === idx ? { ...r, [field]: val } : r))
     );
   const addRow = () => setSpecs((s) => [...s, { k: "", v: "" }]);
   const delRow = (i) => setSpecs((s) => s.filter((_, idx) => idx !== i));
 
-  /* form submit */
+  /* save handler */
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      // upload image if new
       let finalUrl = imageUrl;
       if (imageFile) {
         const fd = new FormData();
@@ -126,12 +127,10 @@ const AdminProductForm = () => {
         finalUrl = data.url;
       }
 
-      // specs array → map
       const specObj = specs
         .filter((r) => r.k && r.v)
         .reduce((acc, { k, v }) => ({ ...acc, [k]: v }), {});
 
-      // payload
       const payload = { ...base, imageUrl: finalUrl, specs: specObj };
 
       if (isEdit) {
@@ -147,9 +146,10 @@ const AdminProductForm = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
+
       nav("/admin/products");
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to save product");
+      alert(err.response?.data?.error || "Failed to save");
     } finally {
       setSaving(false);
     }
@@ -208,10 +208,10 @@ const AdminProductForm = () => {
           </button>
         </div>
 
-        {/* Image uploader */}
+        {/* Image */}
         <ImageDrop initial={imageUrl} onSelect={setFile} />
 
-        {/* Specs table */}
+        {/* Specs */}
         <datalist id="spec-keys">
           {specKeys.map((key) => (
             <option key={key} value={key} />
