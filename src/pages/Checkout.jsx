@@ -1,4 +1,3 @@
-// src/pages/Checkout.jsx
 import React, { useState, useMemo } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
@@ -6,51 +5,36 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 const Checkout = () => {
   const { cartItems, dispatch } = useCart();
-  const navigate = useNavigate();
-  const location = useLocation();
-  // get discount percent or default to 0
+  const navigate  = useNavigate();
+  const location  = useLocation();
   const discountPercent = location.state?.discountPercent || 0;
 
-  // shipping form state
-  const [shipping, setShipping] = useState({
-    fullName: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    country: "",
-    phone: "",
-  });
+  const priceAfterDisc = (p) =>
+    Math.round(p.price * (1 - (p.discount || 0) / 100));
 
-  // compute subtotal using discounted unit prices
   const subtotal = useMemo(
     () =>
-      cartItems.reduce((sum, item) => {
-        const orig = item.product.price;
-        const disc = item.product.discount || 0;
-        const unit = orig * (100 - disc) / 100;
-        return sum + unit * item.quantity;
-      }, 0),
+      cartItems.reduce(
+        (sum, item) => sum + priceAfterDisc(item.product) * item.quantity,
+        0
+      ),
     [cartItems]
   );
+  const couponDisc = (subtotal * discountPercent) / 100;
+  const totalToPay = subtotal - couponDisc;
 
-  const discountAmount = useMemo(
-    () => (subtotal * discountPercent) / 100,
-    [subtotal, discountPercent]
-  );
-
-  const totalToPay = useMemo(() => subtotal - discountAmount, [
-    subtotal,
-    discountAmount,
-  ]);
-
+  /* shipping form */
+  const [shipping, setShipping] = useState({
+    fullName: "", address: "", city: "", postalCode: "", country: "", phone: "",
+  });
   const handleChange = (e) =>
     setShipping({ ...shipping, [e.target.name]: e.target.value });
 
   const handlePayment = async () => {
     const token = localStorage.getItem("token");
     try {
-      // 1️⃣ Create Razorpay order for the discounted total
-      const { data: razorpayOrder } = await axios.post(
+      // create Razorpay order
+      const { data: rzOrder } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
         { amount: totalToPay },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -58,44 +42,34 @@ const Checkout = () => {
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: razorpayOrder.amount,
-        currency: razorpayOrder.currency,
+        amount: rzOrder.amount,
+        currency: rzOrder.currency,
         name: "Furnicasa",
         description: "Furniture Purchase",
-        order_id: razorpayOrder.id,
-        handler: async (response) => {
+        order_id: rzOrder.id,
+        handler: async (resp) => {
           try {
-            // verify…
             await axios.post(
               `${import.meta.env.VITE_BACKEND_URL}/api/payment/verify`,
-              { ...response },
+              resp,
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // create order record with discounted total
-            const items = cartItems.map((item) => ({
-              productId: item.product._id,
-              quantity: item.quantity,
-              price: item.product.price * (100 - (item.product.discount||0)) / 100,
+            const items = cartItems.map(({ product, quantity }) => ({
+              productId: product._id,
+              quantity,
+              price: priceAfterDisc(product),
             }));
 
             const { data: newOrder } = await axios.post(
               `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
-              {
-                items,
-                shippingAddress: shipping,
-                status: "Paid",
-              },
+              { items, shippingAddress: shipping, status: "Paid" },
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // clear cart & go to confirmation
             dispatch({ type: "SET_CART", payload: [] });
             navigate("/order-confirmation", {
-              state: {
-                orderId: newOrder._id,
-                totalPrice: newOrder.totalPrice,
-              },
+              state: { orderId: newOrder._id, totalPrice: newOrder.totalPrice },
             });
           } catch (err) {
             console.error(err);
@@ -112,71 +86,62 @@ const Checkout = () => {
     }
   };
 
+  /* ────────── render ────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Shipping Form */}
+        {/* form */}
         <div>
           <h4 className="font-semibold mb-4">Shipping Details</h4>
           {[
-            { name: "fullName", placeholder: "Full Name" },
-            { name: "address", placeholder: "Address" },
-            { name: "city", placeholder: "City" },
-            { name: "postalCode", placeholder: "Postal Code" },
-            { name: "country", placeholder: "Country" },
-            { name: "phone", placeholder: "Phone Number" },
-          ].map((field) => (
+            ["fullName", "Full Name"],
+            ["address", "Address"],
+            ["city", "City"],
+            ["postalCode", "Postal Code"],
+            ["country", "Country"],
+            ["phone", "Phone Number"],
+          ].map(([name, ph]) => (
             <input
-              key={field.name}
-              name={field.name}
-              placeholder={field.placeholder}
-              value={shipping[field.name]}
+              key={name}
+              name={name}
+              placeholder={ph}
+              value={shipping[name]}
               onChange={handleChange}
               className="block w-full border p-2 rounded mb-3"
             />
           ))}
         </div>
 
-        {/* Order Summary */}
+        {/* summary */}
         <div className="bg-white p-4 rounded shadow">
           <h4 className="font-semibold mb-4">Order Summary</h4>
 
           <ul className="divide-y">
-            {cartItems.map((item) => {
-              const orig = item.product.price;
-              const disc = item.product.discount || 0;
-              const unit = orig * (100 - disc) / 100;
-              return (
-                <li
-                  key={item.product._id}
-                  className="py-2 flex justify-between"
-                >
-                  <span>
-                    {item.product.title} × {item.quantity}
-                  </span>
-                  <span>₹{(unit * item.quantity).toFixed(2)}</span>
-                </li>
-              );
-            })}
+            {cartItems.map(({ product, quantity }) => (
+              <li key={product._id} className="py-2 flex justify-between">
+                <span>{product.title} × {quantity}</span>
+                <span>₹{priceAfterDisc(product) * quantity}</span>
+              </li>
+            ))}
           </ul>
 
           <div className="mt-4 space-y-2">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>₹{subtotal.toFixed(2)}</span>
+              <span>₹{subtotal.toLocaleString()}</span>
             </div>
             {discountPercent > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Coupon ({discountPercent}%)</span>
-                <span>-₹{discountAmount.toFixed(2)}</span>
+                <span>-₹{couponDisc.toLocaleString()}</span>
               </div>
             )}
             <div className="border-t my-2" />
             <div className="flex justify-between font-bold text-lg">
               <span>Total to Pay</span>
-              <span>₹{totalToPay.toFixed(2)}</span>
+              <span>₹{totalToPay.toLocaleString()}</span>
             </div>
           </div>
 
@@ -193,4 +158,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-//changes

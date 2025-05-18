@@ -1,18 +1,17 @@
-// src/pages/AdminProductForm.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { useAuth } from "../context/AuthContext";
 
-/* ---------- Image upload dropzone ---------- */
+/* ────────── Image drop helper ────────── */
 const ImageDrop = ({ initial, onSelect }) => {
-  const [preview, setPre] = useState(initial);
+  const [preview, setPreview] = useState(initial);
   const { getRootProps, getInputProps } = useDropzone({
     accept: { "image/*": [] },
     multiple: false,
     onDrop: ([file]) => {
-      setPre(URL.createObjectURL(file));
+      setPreview(URL.createObjectURL(file));
       onSelect(file);
     },
   });
@@ -31,29 +30,27 @@ const ImageDrop = ({ initial, onSelect }) => {
     </div>
   );
 };
+/* ─────────────────────────────────────── */
 
 const AdminProductForm = () => {
-  const { id } = useParams();                // undefined for “new”
+  const { id } = useParams();               // undefined on “new”
   const isEdit = Boolean(id);
-  const nav = useNavigate();
+  const nav    = useNavigate();
   const { user } = useAuth();
-  const token = localStorage.getItem("token");
+  const token  = localStorage.getItem("token");
 
-  /* form state */
+  /* ────────── form state ────────── */
   const [base, setBase] = useState({
-    title: "",
-    price: "",
-    discount: 0,
-    category: "",
+    title: "", price: "", category: "", discount: 0,
   });
-  const [specs, setSpecs] = useState([{ k: "", v: "" }]);
-  const [specKeys, setSpecKeys] = useState([]);
-  const [imageFile, setFile] = useState(null);
-  const [imageUrl, setUrl] = useState("");
-  const [cats, setCats] = useState([]);
-  const [saving, setSaving] = useState(false);
+  const [specs,     setSpecs]     = useState([{ k: "", v: "" }]);
+  const [specKeys,  setSpecKeys]  = useState([]);
+  const [imageFile, setFile]      = useState(null);
+  const [imageUrl,  setUrl]       = useState("");
+  const [cats,      setCats]      = useState([]);
+  const [saving,    setSaving]    = useState(false);
 
-  /* fetch cats, spec-keys, and product (if editing) */
+  /* ────────── load categories + spec keys + product (if edit) ────────── */
   useEffect(() => {
     (async () => {
       try {
@@ -65,8 +62,8 @@ const AdminProductForm = () => {
         ]);
         setCats(c);
         setSpecKeys(keys);
-      } catch (e) {
-        console.error("Failed to load categories or spec-keys", e);
+      } catch (err) {
+        console.error("Failed loading categories / spec-keys", err);
       }
 
       if (isEdit) {
@@ -74,21 +71,22 @@ const AdminProductForm = () => {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
           );
-          const { title, price, discount, category, imageUrl, specs } = data;
-          setBase({ title, price, discount, category });
+          const { title, price, category, imageUrl, specs, discount = 0 } = data;
+          setBase({ title, price, category, discount });
           setUrl(imageUrl);
           setSpecs(
-            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) ||
-              [{ k: "", v: "" }]
+            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
+              { k: "", v: "" },
+            ]
           );
-        } catch (e) {
-          console.error("Failed to load product", e);
+        } catch (err) {
+          console.error("Failed loading product", err);
         }
       }
     })();
   }, [id, isEdit, token]);
 
-  /* on “new” mode, seed rows from known keys */
+  /* when adding a brand-new product, pre-seed empty rows from known keys */
   useEffect(() => {
     if (!isEdit && specKeys.length) {
       setSpecs(specKeys.map((k) => ({ k, v: "" })));
@@ -97,15 +95,13 @@ const AdminProductForm = () => {
 
   if (!user?.isAdmin) return <p className="p-4">Access denied.</p>;
 
-  /* spec-row handlers */
+  /* ────────── spec-helpers ────────── */
   const changeSpec = (idx, field, val) =>
-    setSpecs((s) =>
-      s.map((r, i) => (i === idx ? { ...r, [field]: val } : r))
-    );
+    setSpecs((s) => s.map((row, i) => (i === idx ? { ...row, [field]: val } : row)));
   const addRow = () => setSpecs((s) => [...s, { k: "", v: "" }]);
   const delRow = (i) => setSpecs((s) => s.filter((_, idx) => idx !== i));
 
-  /* save handler */
+  /* ────────── save ────────── */
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -128,16 +124,10 @@ const AdminProductForm = () => {
       }
 
       const specObj = specs
-        .filter((r) => r.k && r.v)
+        .filter(({ k, v }) => k && v)
         .reduce((acc, { k, v }) => ({ ...acc, [k]: v }), {});
 
-      const payload = {
-        ...base,
-        price: Number(base.price),
-        discount: Number(base.discount),
-        imageUrl: finalUrl,
-        specs: specObj,
-      };
+      const payload = { ...base, imageUrl: finalUrl, specs: specObj };
 
       if (isEdit) {
         await axios.put(
@@ -161,6 +151,7 @@ const AdminProductForm = () => {
     }
   };
 
+  /* ────────── render ────────── */
   return (
     <div className="max-w-xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-bold mb-6">
@@ -168,7 +159,7 @@ const AdminProductForm = () => {
       </h1>
 
       <form onSubmit={save} className="space-y-4">
-        {/* Title */}
+        {/* title */}
         <input
           required
           className="w-full border rounded px-3 py-2"
@@ -177,29 +168,28 @@ const AdminProductForm = () => {
           onChange={(e) => setBase({ ...base, title: e.target.value })}
         />
 
-        {/* Price */}
+        {/* price */}
         <input
           required
           type="number"
           className="w-full border rounded px-3 py-2"
-          placeholder="Price ₹"
+          placeholder="List Price ₹"
           value={base.price}
           onChange={(e) => setBase({ ...base, price: e.target.value })}
         />
 
-        {/* Discount */}
+        {/* discount */}
         <input
-          required
           type="number"
           min="0"
-          max="100"
+          max="90"
           className="w-full border rounded px-3 py-2"
-          placeholder="Discount %"
+          placeholder="Discount % (0-90)"
           value={base.discount}
           onChange={(e) => setBase({ ...base, discount: e.target.value })}
         />
 
-        {/* Category */}
+        {/* category picker + quick add */}
         <div className="flex gap-2">
           <select
             className="flex-1 border rounded px-3 py-2"
@@ -226,22 +216,23 @@ const AdminProductForm = () => {
           </button>
         </div>
 
-        {/* Image */}
+        {/* image */}
         <ImageDrop initial={imageUrl} onSelect={setFile} />
 
-        {/* Specs */}
+        {/* specs */}
         <datalist id="spec-keys">
-          {specKeys.map((key) => (
-            <option key={key} value={key} />
+          {specKeys.map((k) => (
+            <option key={k} value={k} />
           ))}
         </datalist>
+
         <div className="border rounded p-4">
           <p className="font-medium mb-2">Product Specs</p>
           {specs.map((row, i) => (
             <div key={i} className="flex gap-2 mb-2">
               <input
-                placeholder="Label"
                 list="spec-keys"
+                placeholder="Label"
                 className="flex-1 border rounded px-2 py-1"
                 value={row.k}
                 onChange={(e) => changeSpec(i, "k", e.target.value)}
@@ -263,20 +254,13 @@ const AdminProductForm = () => {
               )}
             </div>
           ))}
-          <button
-            type="button"
-            onClick={addRow}
-            className="text-blue-600 text-sm"
-          >
+          <button type="button" onClick={addRow} className="text-blue-600 text-sm">
             + Add row
           </button>
         </div>
 
-        {/* Submit */}
-        <button
-          disabled={saving}
-          className="w-full bg-orange-600 text-white py-2 rounded"
-        >
+        {/* submit */}
+        <button disabled={saving} className="w-full bg-orange-600 text-white py-2 rounded">
           {saving ? "Saving…" : isEdit ? "Update" : "Add"}
         </button>
       </form>

@@ -1,4 +1,3 @@
-// src/pages/Cart.jsx
 import React, { useState, useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import axios from "axios";
@@ -8,75 +7,71 @@ import { Link } from "react-router-dom";
 const Cart = () => {
   const { cartItems, dispatch } = useCart();
 
-  // coupon state
-  const [couponCode, setCouponCode] = useState("");
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [couponError, setCouponError] = useState("");
+  /* coupon */
+  const [couponCode, setCouponCode]       = useState("");
+  const [discountPercent, setDiscountPct] = useState(0);
+  const [couponError, setCouponError]     = useState("");
 
   const token = localStorage.getItem("token");
 
+  /* helpers */
+  const discountedPrice = (p) =>
+    Math.round(p.price * (1 - (p.discount || 0) / 100));
+
   const removeFromCart = async (productId) => {
     try {
-      const res = await axios.delete(
+      const { data } = await axios.delete(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/remove/${productId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch({ type: "SET_CART", payload: res.data });
-    } catch (error) {
-      console.error("Failed to remove item:", error);
+      dispatch({ type: "SET_CART", payload: data });
+    } catch (err) {
+      console.error("Remove failed", err);
     }
   };
-
   const updateQuantity = async (productId, newQuantity) => {
     try {
-      const res = await axios.patch(
+      const { data } = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/update/${productId}`,
         { newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch({ type: "SET_CART", payload: res.data });
-    } catch (error) {
-      console.error("Failed to update quantity:", error);
+      dispatch({ type: "SET_CART", payload: data });
+    } catch (err) {
+      console.error("Qty update failed", err);
     }
   };
 
-  // compute line prices and totals
+  /* totals */
   const subtotal = useMemo(
     () =>
-      cartItems.reduce((sum, item) => {
-        const orig = item.product.price;
-        const disc = item.product.discount || 0;
-        const unit = orig * (100 - disc) / 100;
-        return sum + unit * item.quantity;
-      }, 0),
+      cartItems.reduce(
+        (sum, item) => sum + discountedPrice(item.product) * item.quantity,
+        0
+      ),
     [cartItems]
   );
-
-  const discountAmount = useMemo(
+  const couponDisc = useMemo(
     () => (subtotal * discountPercent) / 100,
     [subtotal, discountPercent]
   );
-
-  const grandTotal = useMemo(() => subtotal - discountAmount, [
-    subtotal,
-    discountAmount,
-  ]);
+  const grandTotal = subtotal - couponDisc;
 
   const handleApplyCoupon = () => {
     const code = couponCode.trim().toUpperCase();
     if (code === "FIRST10") {
-      setDiscountPercent(10);
+      setDiscountPct(10);
       setCouponError("");
     } else if (code === "BUMPER15") {
-      setDiscountPercent(15);
+      setDiscountPct(15);
       setCouponError("");
     } else {
-      setDiscountPercent(0);
+      setDiscountPct(0);
       setCouponError("Invalid coupon code");
     }
   };
 
-  if (!cartItems.length) {
+  if (!cartItems.length)
     return (
       <div className="p-4 text-center">
         <p className="text-lg">Your cart is empty.</p>
@@ -85,66 +80,58 @@ const Cart = () => {
         </Link>
       </div>
     );
-  }
 
+  /* ────────── render ────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Shopping Cart</h2>
 
-      {/* Cart Table */}
       <div className="overflow-x-auto mb-6">
         <table className="w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100">
               <th className="p-3 text-left">Image</th>
               <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-right">Unit Price</th>
-              <th className="p-3 text-center">Quantity</th>
+              <th className="p-3 text-right">Price</th>
+              <th className="p-3 text-center">Qty</th>
               <th className="p-3 text-right">Subtotal</th>
               <th className="p-3 text-center">Remove</th>
             </tr>
           </thead>
           <tbody>
-            {cartItems.map((item) => {
-              const orig = item.product.price;
-              const disc = item.product.discount || 0;
-              const unit = orig * (100 - disc) / 100;
+            {cartItems.map(({ product, quantity }) => {
+              const priceEach = discountedPrice(product);
               return (
-                <tr key={item.product._id} className="border-b">
+                <tr key={product._id} className="border-b">
                   <td className="p-3">
                     <img
-                      src={item.product.imageUrl}
-                      alt={item.product.title}
+                      src={product.imageUrl}
+                      alt={product.title}
                       className="h-16 w-16 object-contain"
                     />
                   </td>
                   <td className="p-3">
-                    <h3 className="font-medium">{item.product.title}</h3>
+                    <h3 className="font-medium">{product.title}</h3>
+                    {product.discount > 0 && (
+                      <p className="text-green-600 text-sm">
+                        -{product.discount}% off
+                      </p>
+                    )}
                   </td>
-                  <td className="p-3 text-right">
-                    ₹{unit.toFixed(2)}
-                  </td>
+                  <td className="p-3 text-right">₹{priceEach}</td>
                   <td className="p-3 text-center">
                     <div className="inline-flex items-center space-x-2">
                       <button
                         onClick={() =>
-                          updateQuantity(
-                            item.product._id,
-                            Math.max(1, item.quantity - 1)
-                          )
+                          updateQuantity(product._id, Math.max(1, quantity - 1))
                         }
                         className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
                       >
                         −
                       </button>
-                      <span>{item.quantity}</span>
+                      <span>{quantity}</span>
                       <button
-                        onClick={() =>
-                          updateQuantity(
-                            item.product._id,
-                            item.quantity + 1
-                          )
-                        }
+                        onClick={() => updateQuantity(product._id, quantity + 1)}
                         className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
                       >
                         +
@@ -152,14 +139,14 @@ const Cart = () => {
                     </div>
                   </td>
                   <td className="p-3 text-right">
-                    ₹{(unit * item.quantity).toFixed(2)}
+                    ₹{priceEach * quantity}
                   </td>
                   <td className="p-3 text-center">
                     <button
-                      onClick={() => removeFromCart(item.product._id)}
+                      onClick={() => removeFromCart(product._id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      <FiTrash2 size={18}/>
+                      <FiTrash2 size={18} />
                     </button>
                   </td>
                 </tr>
@@ -169,9 +156,8 @@ const Cart = () => {
         </table>
       </div>
 
-      {/* Coupon & Summary */}
+      {/* coupon + summary */}
       <div className="flex flex-col lg:flex-row lg:justify-between gap-6">
-        {/* Coupon */}
         <div className="flex-1 bg-white p-4 rounded shadow">
           <h4 className="font-semibold mb-3">Have a coupon?</h4>
           <div className="flex items-center space-x-2">
@@ -189,9 +175,7 @@ const Cart = () => {
               Apply
             </button>
           </div>
-          {couponError && (
-            <p className="mt-2 text-sm text-red-600">{couponError}</p>
-          )}
+          {couponError && <p className="mt-2 text-sm text-red-600">{couponError}</p>}
           {discountPercent > 0 && (
             <p className="mt-2 text-sm text-green-600">
               Code applied: {discountPercent}% off
@@ -199,23 +183,22 @@ const Cart = () => {
           )}
         </div>
 
-        {/* Totals */}
         <div className="w-full lg:w-1/3 bg-white p-4 rounded shadow">
           <h4 className="font-semibold mb-4">Cart Totals</h4>
           <div className="flex justify-between mb-2">
             <span>Subtotal</span>
-            <span>₹{subtotal.toFixed(2)}</span>
+            <span>₹{subtotal.toLocaleString()}</span>
           </div>
           {discountPercent > 0 && (
             <div className="flex justify-between text-green-600 mb-2">
-              <span>Discount ({discountPercent}%)</span>
-              <span>-₹{discountAmount.toFixed(2)}</span>
+              <span>Coupon ({discountPercent}%)</span>
+              <span>-₹{couponDisc.toLocaleString()}</span>
             </div>
           )}
-          <div className="border-t my-2"></div>
+          <div className="border-t my-2" />
           <div className="flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span>₹{grandTotal.toFixed(2)}</span>
+            <span>₹{grandTotal.toLocaleString()}</span>
           </div>
           <Link
             to="/checkout"
