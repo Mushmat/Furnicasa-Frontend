@@ -94,33 +94,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Call-to-Action Banner */}
-      <section
-        className="relative h-80 bg-cover bg-center flex items-center"
-        style={{
-          backgroundImage: "url('/assets/images/banner/banner3.jpg')",
-        }}
-      >
-        <div className="absolute inset-0 bg-black opacity-50" />
-        <div className="relative z-10 text-center w-full px-4">
-          <span className="block text-white uppercase mb-2">
-            Discounted up to 50%
-          </span>
-          <h2 className="text-4xl text-white font-bold mb-2">
-            Zigzag King Chair
-          </h2>
-          <span className="block text-white uppercase mb-4">
-            Limited Time Offer
-          </span>
-          <Link
-            to="/products"
-            className="inline-block bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700 transition"
-          >
-            Shop Now
-          </Link>
-        </div>
-      </section>
-
       {/* Features */}
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4 grid gap-8 md:grid-cols-3">
