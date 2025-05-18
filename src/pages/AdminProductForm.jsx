@@ -43,6 +43,7 @@ const AdminProductForm = () => {
   const [base, setBase] = useState({
     title: "",
     price: "",
+    discount: 0,
     category: "",
   });
   const [specs, setSpecs] = useState([{ k: "", v: "" }]);
@@ -73,13 +74,12 @@ const AdminProductForm = () => {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
           );
-          const { title, price, category, imageUrl, specs } = data;
-          setBase({ title, price, category });
+          const { title, price, discount, category, imageUrl, specs } = data;
+          setBase({ title, price, discount, category });
           setUrl(imageUrl);
           setSpecs(
-            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
-              { k: "", v: "" },
-            ]
+            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) ||
+              [{ k: "", v: "" }]
           );
         } catch (e) {
           console.error("Failed to load product", e);
@@ -131,7 +131,13 @@ const AdminProductForm = () => {
         .filter((r) => r.k && r.v)
         .reduce((acc, { k, v }) => ({ ...acc, [k]: v }), {});
 
-      const payload = { ...base, imageUrl: finalUrl, specs: specObj };
+      const payload = {
+        ...base,
+        price: Number(base.price),
+        discount: Number(base.discount),
+        imageUrl: finalUrl,
+        specs: specObj,
+      };
 
       if (isEdit) {
         await axios.put(
@@ -179,6 +185,18 @@ const AdminProductForm = () => {
           placeholder="Price ₹"
           value={base.price}
           onChange={(e) => setBase({ ...base, price: e.target.value })}
+        />
+
+        {/* Discount */}
+        <input
+          required
+          type="number"
+          min="0"
+          max="100"
+          className="w-full border rounded px-3 py-2"
+          placeholder="Discount %"
+          value={base.discount}
+          onChange={(e) => setBase({ ...base, discount: e.target.value })}
         />
 
         {/* Category */}

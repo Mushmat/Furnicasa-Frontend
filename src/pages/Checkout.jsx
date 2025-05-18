@@ -21,27 +21,27 @@ const Checkout = () => {
     phone: "",
   });
 
-  // Subtotal
+  // compute subtotal using discounted unit prices
   const subtotal = useMemo(
     () =>
-      cartItems.reduce(
-        (sum, item) => sum + item.product.price * item.quantity,
-        0
-      ),
+      cartItems.reduce((sum, item) => {
+        const orig = item.product.price;
+        const disc = item.product.discount || 0;
+        const unit = orig * (100 - disc) / 100;
+        return sum + unit * item.quantity;
+      }, 0),
     [cartItems]
   );
 
-  // Discount amount
   const discountAmount = useMemo(
     () => (subtotal * discountPercent) / 100,
     [subtotal, discountPercent]
   );
 
-  // Final total to pay
-  const totalToPay = useMemo(
-    () => subtotal - discountAmount,
-    [subtotal, discountAmount]
-  );
+  const totalToPay = useMemo(() => subtotal - discountAmount, [
+    subtotal,
+    discountAmount,
+  ]);
 
   const handleChange = (e) =>
     setShipping({ ...shipping, [e.target.name]: e.target.value });
@@ -72,11 +72,11 @@ const Checkout = () => {
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // create order record with the discounted total
+            // create order record with discounted total
             const items = cartItems.map((item) => ({
               productId: item.product._id,
               quantity: item.quantity,
-              price: item.product.price,
+              price: item.product.price * (100 - (item.product.discount||0)) / 100,
             }));
 
             const { data: newOrder } = await axios.post(
@@ -117,7 +117,7 @@ const Checkout = () => {
       <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
 
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Billing / Shipping Form */}
+        {/* Shipping Form */}
         <div>
           <h4 className="font-semibold mb-4">Shipping Details</h4>
           {[
@@ -144,17 +144,22 @@ const Checkout = () => {
           <h4 className="font-semibold mb-4">Order Summary</h4>
 
           <ul className="divide-y">
-            {cartItems.map((item) => (
-              <li
-                key={item.product._id}
-                className="py-2 flex justify-between"
-              >
-                <span>
-                  {item.product.title} × {item.quantity}
-                </span>
-                <span>₹{item.product.price * item.quantity}</span>
-              </li>
-            ))}
+            {cartItems.map((item) => {
+              const orig = item.product.price;
+              const disc = item.product.discount || 0;
+              const unit = orig * (100 - disc) / 100;
+              return (
+                <li
+                  key={item.product._id}
+                  className="py-2 flex justify-between"
+                >
+                  <span>
+                    {item.product.title} × {item.quantity}
+                  </span>
+                  <span>₹{(unit * item.quantity).toFixed(2)}</span>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="mt-4 space-y-2">
@@ -164,7 +169,7 @@ const Checkout = () => {
             </div>
             {discountPercent > 0 && (
               <div className="flex justify-between text-green-600">
-                <span>Discount ({discountPercent}%)</span>
+                <span>Coupon ({discountPercent}%)</span>
                 <span>-₹{discountAmount.toFixed(2)}</span>
               </div>
             )}

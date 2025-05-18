@@ -40,23 +40,15 @@ const Cart = () => {
     }
   };
 
-  const incrementQuantity = (productId, currentQty) => {
-    updateQuantity(productId, currentQty + 1);
-  };
-
-  const decrementQuantity = (productId, currentQty) => {
-    if (currentQty > 1) {
-      updateQuantity(productId, currentQty - 1);
-    }
-  };
-
-  // compute subtotal
+  // compute line prices and totals
   const subtotal = useMemo(
     () =>
-      cartItems.reduce(
-        (sum, item) => sum + item.product.price * item.quantity,
-        0
-      ),
+      cartItems.reduce((sum, item) => {
+        const orig = item.product.price;
+        const disc = item.product.discount || 0;
+        const unit = orig * (100 - disc) / 100;
+        return sum + unit * item.quantity;
+      }, 0),
     [cartItems]
   );
 
@@ -65,10 +57,10 @@ const Cart = () => {
     [subtotal, discountPercent]
   );
 
-  const grandTotal = useMemo(
-    () => subtotal - discountAmount,
-    [subtotal, discountAmount]
-  );
+  const grandTotal = useMemo(() => subtotal - discountAmount, [
+    subtotal,
+    discountAmount,
+  ]);
 
   const handleApplyCoupon = () => {
     const code = couponCode.trim().toUpperCase();
@@ -84,7 +76,7 @@ const Cart = () => {
     }
   };
 
-  if (!cartItems || cartItems.length === 0) {
+  if (!cartItems.length) {
     return (
       <div className="p-4 text-center">
         <p className="text-lg">Your cart is empty.</p>
@@ -98,7 +90,7 @@ const Cart = () => {
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Shopping Cart</h2>
-      
+
       {/* Cart Table */}
       <div className="overflow-x-auto mb-6">
         <table className="w-full table-auto border-collapse">
@@ -106,60 +98,73 @@ const Cart = () => {
             <tr className="bg-gray-100">
               <th className="p-3 text-left">Image</th>
               <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-right">Price</th>
+              <th className="p-3 text-right">Unit Price</th>
               <th className="p-3 text-center">Quantity</th>
               <th className="p-3 text-right">Subtotal</th>
               <th className="p-3 text-center">Remove</th>
             </tr>
           </thead>
           <tbody>
-            {cartItems.map((item) => (
-              <tr key={item.product._id} className="border-b">
-                <td className="p-3">
-                  <img
-                    src={item.product.imageUrl}
-                    alt={item.product.title}
-                    className="h-16 w-16 object-contain"
-                  />
-                </td>
-                <td className="p-3">
-                  <h3 className="font-medium">{item.product.title}</h3>
-                </td>
-                <td className="p-3 text-right">₹{item.product.price}</td>
-                <td className="p-3 text-center">
-                  <div className="inline-flex items-center space-x-2">
+            {cartItems.map((item) => {
+              const orig = item.product.price;
+              const disc = item.product.discount || 0;
+              const unit = orig * (100 - disc) / 100;
+              return (
+                <tr key={item.product._id} className="border-b">
+                  <td className="p-3">
+                    <img
+                      src={item.product.imageUrl}
+                      alt={item.product.title}
+                      className="h-16 w-16 object-contain"
+                    />
+                  </td>
+                  <td className="p-3">
+                    <h3 className="font-medium">{item.product.title}</h3>
+                  </td>
+                  <td className="p-3 text-right">
+                    ₹{unit.toFixed(2)}
+                  </td>
+                  <td className="p-3 text-center">
+                    <div className="inline-flex items-center space-x-2">
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item.product._id,
+                            Math.max(1, item.quantity - 1)
+                          )
+                        }
+                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                      >
+                        −
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button
+                        onClick={() =>
+                          updateQuantity(
+                            item.product._id,
+                            item.quantity + 1
+                          )
+                        }
+                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </td>
+                  <td className="p-3 text-right">
+                    ₹{(unit * item.quantity).toFixed(2)}
+                  </td>
+                  <td className="p-3 text-center">
                     <button
-                      onClick={() =>
-                        decrementQuantity(item.product._id, item.quantity)
-                      }
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                      onClick={() => removeFromCart(item.product._id)}
+                      className="text-red-600 hover:text-red-800"
                     >
-                      −
+                      <FiTrash2 size={18}/>
                     </button>
-                    <span>{item.quantity}</span>
-                    <button
-                      onClick={() =>
-                        incrementQuantity(item.product._id, item.quantity)
-                      }
-                      className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                    >
-                      +
-                    </button>
-                  </div>
-                </td>
-                <td className="p-3 text-right">
-                  ₹{item.product.price * item.quantity}
-                </td>
-                <td className="p-3 text-center">
-                  <button
-                    onClick={() => removeFromCart(item.product._id)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <FiTrash2 size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -214,7 +219,7 @@ const Cart = () => {
           </div>
           <Link
             to="/checkout"
-            state={{ discountPercent }} 
+            state={{ discountPercent }}
             className="mt-4 block text-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
           >
             Proceed to Checkout

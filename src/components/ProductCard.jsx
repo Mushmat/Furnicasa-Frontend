@@ -28,22 +28,29 @@ const ProductCard = ({ product }) => {
     }
   };
 
+  const orig = product.price;
+  const disc = product.discount || 0;
+  const priceAfter = Math.round(orig * (100 - disc) / 100);
+
   const imgSrc =
     Array.isArray(product.images) && product.images.length
       ? product.images[0]
       : product.imageUrl || "/assets/images/placeholder/270x290.png";
 
   return (
-    <div className="single-grid-product bg-white rounded shadow hover:shadow-lg overflow-hidden">
+    <div className="single-grid-product bg-white rounded shadow hover:shadow-lg overflow-hidden relative">
+      {disc > 0 && (
+        <div className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 text-sm rounded">
+          -{disc}%
+        </div>
+      )}
       <Link to={`/product/${product._id}`} className="block relative group">
         <img
           src={imgSrc}
-          alt={product.name}
+          alt={product.title}
           className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-110"
         />
-
-        {/* text-only overlay */}
-        <div className="overlay absolute inset-0 flex items-center justify-center text-white text-lg font-semibold">
+        <div className="overlay absolute inset-0 flex items-center justify-center text-white text-lg font-semibold opacity-0 group-hover:opacity-100 bg-black/30">
           View Details
         </div>
       </Link>
@@ -51,13 +58,20 @@ const ProductCard = ({ product }) => {
       <div className="p-4">
         <h3 className="title text-lg font-semibold mb-2">
           <Link to={`/product/${product._id}`} className="hover:text-orange-600">
-            {product.name}
+            {product.title}
           </Link>
         </h3>
 
-        <p className="product-price mb-1 text-red-500 font-semibold">
-          ₹{product.price.toLocaleString()}
-        </p>
+        {disc > 0 ? (
+          <p className="product-price mb-1">
+            <span className="line-through text-gray-500 mr-2">₹{orig}</span>
+            <span className="text-red-500 font-semibold">₹{priceAfter}</span>
+          </p>
+        ) : (
+          <p className="product-price mb-1 text-red-500 font-semibold">
+            ₹{orig}
+          </p>
+        )}
 
         <button
           onClick={addToCart}
