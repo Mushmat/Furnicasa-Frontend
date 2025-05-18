@@ -73,7 +73,7 @@ export default function About() {
       {/* About Us split */}
       <section className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 items-center">
         <img
-          src="/assets/images/blog/blog-6.jpg"
+          src="/assets/images/blog/blog-6.png"
           alt="About Furnicasa"
           className="w-full rounded shadow"
         />
