@@ -1,3 +1,4 @@
+// src/pages/Checkout.jsx
 import React, { useState, useMemo } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
@@ -7,11 +8,22 @@ const Checkout = () => {
   const { cartItems, dispatch } = useCart();
   const navigate  = useNavigate();
   const location  = useLocation();
+  const token     = localStorage.getItem("token");
+
   const discountPercent = location.state?.discountPercent || 0;
 
+  /* helpers */
   const priceAfterDisc = (p) =>
-    Math.round(p.price * (1 - (p.discount || 0) / 100));
+    Math.round(p.price * (1 - (p.discountPercent || 0) / 100));
 
+  /* shipping form */
+  const [ship, setShip] = useState({
+    fullName: "", address: "", city: "", postalCode: "", country: "", phone: ""
+  });
+  const handleChange = (e) =>
+    setShip({ ...ship, [e.target.name]: e.target.value });
+
+  /* totals */
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
@@ -20,33 +32,25 @@ const Checkout = () => {
       ),
     [cartItems]
   );
-  const couponDisc = (subtotal * discountPercent) / 100;
-  const totalToPay = subtotal - couponDisc;
+  const discountAmt = (subtotal * discountPercent) / 100;
+  const totalToPay  = subtotal - discountAmt;
 
-  /* shipping form */
-  const [shipping, setShipping] = useState({
-    fullName: "", address: "", city: "", postalCode: "", country: "", phone: "",
-  });
-  const handleChange = (e) =>
-    setShipping({ ...shipping, [e.target.name]: e.target.value });
-
-  const handlePayment = async () => {
-    const token = localStorage.getItem("token");
+  /* pay */
+  const pay = async () => {
     try {
-      // create Razorpay order
-      const { data: rzOrder } = await axios.post(
+      const { data: rzpOrder } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
         { amount: totalToPay },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      const options = {
+      const opts = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: rzOrder.amount,
-        currency: rzOrder.currency,
+        amount: rzpOrder.amount,
+        currency: rzpOrder.currency,
         name: "Furnicasa",
         description: "Furniture Purchase",
-        order_id: rzOrder.id,
+        order_id: rzpOrder.id,
         handler: async (resp) => {
           try {
             await axios.post(
@@ -55,21 +59,21 @@ const Checkout = () => {
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            const items = cartItems.map(({ product, quantity }) => ({
-              productId: product._id,
-              quantity,
-              price: priceAfterDisc(product),
+            const items = cartItems.map((i) => ({
+              productId: i.product._id,
+              quantity : i.quantity,
+              price    : priceAfterDisc(i.product),
             }));
 
-            const { data: newOrder } = await axios.post(
+            const { data: order } = await axios.post(
               `${import.meta.env.VITE_BACKEND_URL}/api/orders`,
-              { items, shippingAddress: shipping, status: "Paid" },
+              { items, shippingAddress: ship, status: "Paid" },
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
             dispatch({ type: "SET_CART", payload: [] });
             navigate("/order-confirmation", {
-              state: { orderId: newOrder._id, totalPrice: newOrder.totalPrice },
+              state: { orderId: order._id, totalPrice: order.totalPrice },
             });
           } catch (err) {
             console.error(err);
@@ -78,21 +82,18 @@ const Checkout = () => {
         },
         theme: { color: "#F37254" },
       };
-
-      new window.Razorpay(options).open();
+      new window.Razorpay(opts).open();
     } catch (err) {
       console.error(err);
       alert("Payment initiation failed");
     }
   };
 
-  /* ────────── render ────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
-
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* form */}
+        {/* shipping */}
         <div>
           <h4 className="font-semibold mb-4">Shipping Details</h4>
           {[
@@ -106,10 +107,10 @@ const Checkout = () => {
             <input
               key={name}
               name={name}
-              placeholder={ph}
-              value={shipping[name]}
+              value={ship[name]}
               onChange={handleChange}
-              className="block w-full border p-2 rounded mb-3"
+              placeholder={ph}
+              className="w-full border p-2 rounded mb-3"
             />
           ))}
         </div>
@@ -119,10 +120,14 @@ const Checkout = () => {
           <h4 className="font-semibold mb-4">Order Summary</h4>
 
           <ul className="divide-y">
-            {cartItems.map(({ product, quantity }) => (
-              <li key={product._id} className="py-2 flex justify-between">
-                <span>{product.title} × {quantity}</span>
-                <span>₹{priceAfterDisc(product) * quantity}</span>
+            {cartItems.map((i) => (
+              <li key={i.product._id} className="py-2 flex justify-between">
+                <span>
+                  {i.product.title} × {i.quantity}
+                </span>
+                <span>
+                  ₹{(priceAfterDisc(i.product) * i.quantity).toLocaleString()}
+                </span>
               </li>
             ))}
           </ul>
@@ -135,7 +140,7 @@ const Checkout = () => {
             {discountPercent > 0 && (
               <div className="flex justify-between text-green-600">
                 <span>Coupon ({discountPercent}%)</span>
-                <span>-₹{couponDisc.toLocaleString()}</span>
+                <span>-₹{discountAmt.toLocaleString()}</span>
               </div>
             )}
             <div className="border-t my-2" />
@@ -146,7 +151,7 @@ const Checkout = () => {
           </div>
 
           <button
-            onClick={handlePayment}
+            onClick={pay}
             className="mt-6 w-full bg-orange-600 text-white py-3 rounded hover:bg-orange-700"
           >
             Proceed to Pay

@@ -1,10 +1,11 @@
+// src/pages/AdminProductForm.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
 import { useAuth } from "../context/AuthContext";
 
-/* ────────── Image drop helper ────────── */
+/* ───────────────────────── image drop ───────────────────────── */
 const ImageDrop = ({ initial, onSelect }) => {
   const [preview, setPreview] = useState(initial);
   const { getRootProps, getInputProps } = useDropzone({
@@ -15,7 +16,6 @@ const ImageDrop = ({ initial, onSelect }) => {
       onSelect(file);
     },
   });
-
   return (
     <div
       {...getRootProps()}
@@ -30,86 +30,79 @@ const ImageDrop = ({ initial, onSelect }) => {
     </div>
   );
 };
-/* ─────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────────── */
 
 const AdminProductForm = () => {
-  const { id } = useParams();               // undefined on “new”
-  const isEdit = Boolean(id);
-  const nav    = useNavigate();
-  const { user } = useAuth();
-  const token  = localStorage.getItem("token");
+  const { id }    = useParams();
+  const isEdit    = Boolean(id);
+  const nav       = useNavigate();
+  const { user }  = useAuth();
+  const token     = localStorage.getItem("token");
 
-  /* ────────── form state ────────── */
+  /* base fields + discount */
   const [base, setBase] = useState({
-    title: "", price: "", category: "", discount: 0,
+    title: "", price: "", category: "", discountPercent: 0,
   });
-  const [specs,     setSpecs]     = useState([{ k: "", v: "" }]);
-  const [specKeys,  setSpecKeys]  = useState([]);
-  const [imageFile, setFile]      = useState(null);
-  const [imageUrl,  setUrl]       = useState("");
-  const [cats,      setCats]      = useState([]);
-  const [saving,    setSaving]    = useState(false);
 
-  /* ────────── load categories + spec keys + product (if edit) ────────── */
+  const [specs, setSpecs]     = useState([{ k: "", v: "" }]);
+  const [specKeys, setKeys]   = useState([]);
+  const [cats, setCats]       = useState([]);
+  const [imgFile, setFile]    = useState(null);
+  const [imgUrl,  setUrl]     = useState("");
+  const [saving,  setSaving]  = useState(false);
+
+  /* load cats, keys, product */
   useEffect(() => {
     (async () => {
       try {
-        const [{ data: c }, { data: keys }] = await Promise.all([
+        const [{ data: c }, { data: k }] = await Promise.all([
           axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/categories`),
           axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/admin/spec-keys`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        setCats(c);
-        setSpecKeys(keys);
-      } catch (err) {
-        console.error("Failed loading categories / spec-keys", err);
-      }
+        setCats(c);  setKeys(k);
+      } catch (e) { console.error(e); }
 
-      if (isEdit) {
+      if (isEdit)
         try {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
           );
-          const { title, price, category, imageUrl, specs, discount = 0 } = data;
-          setBase({ title, price, category, discount });
+          const { title, price, category, imageUrl, specs, discountPercent = 0 } = data;
+          setBase({ title, price, category, discountPercent });
           setUrl(imageUrl);
           setSpecs(
             Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
               { k: "", v: "" },
             ]
           );
-        } catch (err) {
-          console.error("Failed loading product", err);
-        }
-      }
+        } catch (e) { console.error(e); }
     })();
   }, [id, isEdit, token]);
 
-  /* when adding a brand-new product, pre-seed empty rows from known keys */
+  /* seed on new */
   useEffect(() => {
-    if (!isEdit && specKeys.length) {
-      setSpecs(specKeys.map((k) => ({ k, v: "" })));
-    }
+    if (!isEdit && specKeys.length) setSpecs(specKeys.map((k) => ({ k, v: "" })));
   }, [isEdit, specKeys]);
 
   if (!user?.isAdmin) return <p className="p-4">Access denied.</p>;
 
-  /* ────────── spec-helpers ────────── */
-  const changeSpec = (idx, field, val) =>
-    setSpecs((s) => s.map((row, i) => (i === idx ? { ...row, [field]: val } : row)));
+  /* spec helpers */
+  const changeSpec = (i, f, v) =>
+    setSpecs((s) => s.map((row, idx) => (idx === i ? { ...row, [f]: v } : row)));
   const addRow = () => setSpecs((s) => [...s, { k: "", v: "" }]);
   const delRow = (i) => setSpecs((s) => s.filter((_, idx) => idx !== i));
 
-  /* ────────── save ────────── */
+  /* save */
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      let finalUrl = imageUrl;
-      if (imageFile) {
+      let finalUrl = imgUrl;
+      if (imgFile) {
         const fd = new FormData();
-        fd.append("file", imageFile);
+        fd.append("file", imgFile);
         const { data } = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/admin/upload`,
           fd,
@@ -129,19 +122,18 @@ const AdminProductForm = () => {
 
       const payload = { ...base, imageUrl: finalUrl, specs: specObj };
 
-      if (isEdit) {
+      if (isEdit)
         await axios.put(
           `${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-      } else {
+      else
         await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/admin/products`,
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-      }
 
       nav("/admin/products");
     } catch (err) {
@@ -151,7 +143,7 @@ const AdminProductForm = () => {
     }
   };
 
-  /* ────────── render ────────── */
+  /* render */
   return (
     <div className="max-w-xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-bold mb-6">
@@ -159,7 +151,6 @@ const AdminProductForm = () => {
       </h1>
 
       <form onSubmit={save} className="space-y-4">
-        {/* title */}
         <input
           required
           className="w-full border rounded px-3 py-2"
@@ -168,7 +159,6 @@ const AdminProductForm = () => {
           onChange={(e) => setBase({ ...base, title: e.target.value })}
         />
 
-        {/* price */}
         <input
           required
           type="number"
@@ -178,18 +168,18 @@ const AdminProductForm = () => {
           onChange={(e) => setBase({ ...base, price: e.target.value })}
         />
 
-        {/* discount */}
         <input
           type="number"
           min="0"
           max="90"
           className="w-full border rounded px-3 py-2"
-          placeholder="Discount % (0-90)"
-          value={base.discount}
-          onChange={(e) => setBase({ ...base, discount: e.target.value })}
+          placeholder="Discount %"
+          value={base.discountPercent}
+          onChange={(e) =>
+            setBase({ ...base, discountPercent: e.target.value })
+          }
         />
 
-        {/* category picker + quick add */}
         <div className="flex gap-2">
           <select
             className="flex-1 border rounded px-3 py-2"
@@ -203,6 +193,7 @@ const AdminProductForm = () => {
           </select>
           <button
             type="button"
+            className="px-4 rounded bg-gray-800 text-white"
             onClick={() => {
               const n = prompt("New category name");
               if (n) {
@@ -210,16 +201,13 @@ const AdminProductForm = () => {
                 setBase({ ...base, category: n });
               }
             }}
-            className="px-4 rounded bg-gray-800 text-white"
           >
             Add
           </button>
         </div>
 
-        {/* image */}
-        <ImageDrop initial={imageUrl} onSelect={setFile} />
+        <ImageDrop initial={imgUrl} onSelect={setFile} />
 
-        {/* specs */}
         <datalist id="spec-keys">
           {specKeys.map((k) => (
             <option key={k} value={k} />
@@ -254,13 +242,19 @@ const AdminProductForm = () => {
               )}
             </div>
           ))}
-          <button type="button" onClick={addRow} className="text-blue-600 text-sm">
+          <button
+            type="button"
+            onClick={addRow}
+            className="text-blue-600 text-sm"
+          >
             + Add row
           </button>
         </div>
 
-        {/* submit */}
-        <button disabled={saving} className="w-full bg-orange-600 text-white py-2 rounded">
+        <button
+          disabled={saving}
+          className="w-full bg-orange-600 text-white py-2 rounded"
+        >
           {saving ? "Saving…" : isEdit ? "Update" : "Add"}
         </button>
       </form>

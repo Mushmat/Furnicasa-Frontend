@@ -1,21 +1,26 @@
+// src/pages/ProductDetail.jsx
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
 
 const ProductDetail = () => {
-  const { id }  = useParams();
+  const { id } = useParams();
   const { dispatch } = useCart();
 
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
-  const [qty, setQty]         = useState(1);
-  const [activeTab, setActiveTab] = useState("description");
+  const [qty, setQty] = useState(1);
+  const [tab, setTab] = useState("description");
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState("");
+  const [error, setError] = useState("");
+
+  /* helper */
+  const priceAfterDisc = (p) =>
+    Math.round(p.price * (1 - (p.discountPercent || 0) / 100));
 
   useEffect(() => {
-    const fetchData = async () => {
+    (async () => {
       setLoading(true);
       try {
         const { data } = await axios.get(
@@ -26,30 +31,30 @@ const ProductDetail = () => {
         const { data: all } = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/products`
         );
-        const others = all
-          .filter((p) => p._id !== data._id)
-          .sort(() => 0.5 - Math.random())
-          .slice(0, 4);
-        setRelated(others);
+        setRelated(
+          all
+            .filter((p) => p._id !== data._id)
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4)
+        );
       } catch (err) {
         console.error(err);
         setError("Failed to load product.");
       } finally {
         setLoading(false);
       }
-    };
-    fetchData();
+    })();
   }, [id]);
 
   const addToCart = async () => {
     try {
       const token = localStorage.getItem("token");
-      const { data: updatedCart } = await axios.post(
+      const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
         { productId: product._id, quantity: qty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch({ type: "SET_CART", payload: updatedCart });
+      dispatch({ type: "SET_CART", payload: data });
       alert("Added to cart!");
     } catch (err) {
       console.error(err);
@@ -58,49 +63,47 @@ const ProductDetail = () => {
   };
 
   if (loading) return <p className="p-4">Loading…</p>;
-  if (error)   return <p className="p-4 text-red-600">{error}</p>;
+  if (error) return <p className="p-4 text-red-600">{error}</p>;
 
-  /* prices */
-  const { price, discount = 0 } = product;
-  const finalPrice = Math.round(price * (1 - discount / 100));
+  const finalPrice = priceAfterDisc(product);
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* breadcrumb */}
       <nav className="text-sm text-gray-600 mb-6">
         <Link to="/">Home</Link> / <span>{product.title}</span>
       </nav>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div>
-          <img
-            src={product.imageUrl}
-            alt={product.title}
-            className="w-full h-auto object-contain rounded-lg shadow"
-          />
-        </div>
+      {/* top section */}
+      <div className="grid md:grid-cols-2 gap-8">
+        <img
+          src={product.imageUrl}
+          alt={product.title}
+          className="w-full h-auto object-contain rounded-lg shadow"
+        />
 
         <div>
           <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
 
           <p className="text-2xl mb-4">
-            {discount > 0 && (
+            {product.discountPercent > 0 && (
               <span className="line-through text-gray-500 mr-2">
-                ₹{price.toLocaleString()}
+                ₹{product.price.toLocaleString()}
               </span>
             )}
             <span className="text-orange-600 font-semibold">
               ₹{finalPrice.toLocaleString()}
             </span>
-            {discount > 0 && (
+            {product.discountPercent > 0 && (
               <span className="ml-1 text-green-600 text-base">
-                (-{discount}%)
+                (-{product.discountPercent}%)
               </span>
             )}
           </p>
 
           <p className="mb-6">{product.description}</p>
 
-          {/* qty */}
+          {/* qty selector */}
           <div className="flex items-center space-x-4 mb-6">
             <button
               onClick={() => setQty((q) => Math.max(1, q - 1))}
@@ -129,26 +132,27 @@ const ProductDetail = () => {
       {/* tabs */}
       <div className="mt-12">
         <div className="flex border-b mb-4">
-          {["description", "reviews"].map((tab) => (
+          {["description", "reviews"].map((t) => (
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
+              key={t}
+              onClick={() => setTab(t)}
               className={`py-2 px-4 ${
-                activeTab === tab
+                tab === t
                   ? "border-b-2 border-blue-600 font-semibold"
                   : "text-gray-600"
               }`}
             >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              {t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
         </div>
-        <div className="prose">
-          {activeTab === "description" &&
-            (Object.keys(product.specs || {}).length === 0 ? (
+
+        {tab === "description" && (
+          <div className="prose">
+            {Object.keys(product.specs || {}).length === 0 ? (
               <p>{product.description || "No additional details."}</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1">
+              <div className="grid sm:grid-cols-2 gap-y-1">
                 {Object.entries(product.specs).map(([k, v]) => (
                   <React.Fragment key={k}>
                     <p className="font-medium">{k}</p>
@@ -156,35 +160,35 @@ const ProductDetail = () => {
                   </React.Fragment>
                 ))}
               </div>
-            ))}
-          {activeTab === "reviews" && <p>No reviews yet.</p>}
-        </div>
+            )}
+          </div>
+        )}
+        {tab === "reviews" && <p className="prose">No reviews yet.</p>}
       </div>
 
       {/* related */}
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-4">Related Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {related.map((p) => {
-            const fp = Math.round(p.price * (1 - (p.discount || 0) / 100));
-            return (
-              <Link
-                key={p._id}
-                to={`/product/${p._id}`}
-                className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
-              >
-                <img
-                  src={p.imageUrl}
-                  alt={p.title}
-                  className="w-full h-40 object-contain bg-white"
-                />
-                <div className="p-4">
-                  <h3 className="font-medium mb-1 line-clamp-2">{p.title}</h3>
-                  <p className="text-orange-600 font-semibold">₹{fp}</p>
-                </div>
-              </Link>
-            );
-          })}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {related.map((p) => (
+            <Link
+              key={p._id}
+              to={`/product/${p._id}`}
+              className="block border rounded-lg overflow-hidden hover:shadow-lg transition"
+            >
+              <img
+                src={p.imageUrl}
+                alt={p.title}
+                className="w-full h-40 object-contain bg-white"
+              />
+              <div className="p-4">
+                <h3 className="font-medium mb-1 line-clamp-2">{p.title}</h3>
+                <p className="text-orange-600 font-semibold">
+                  ₹{priceAfterDisc(p).toLocaleString()}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
     </div>

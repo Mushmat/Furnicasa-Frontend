@@ -1,3 +1,4 @@
+// src/pages/Cart.jsx
 import React, { useState, useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import axios from "axios";
@@ -6,39 +7,39 @@ import { Link } from "react-router-dom";
 
 const Cart = () => {
   const { cartItems, dispatch } = useCart();
-
-  /* coupon */
-  const [couponCode, setCouponCode]       = useState("");
-  const [discountPercent, setDiscountPct] = useState(0);
-  const [couponError, setCouponError]     = useState("");
-
   const token = localStorage.getItem("token");
 
-  /* helpers */
-  const discountedPrice = (p) =>
-    Math.round(p.price * (1 - (p.discount || 0) / 100));
+  /* coupon */
+  const [couponCode,      setCouponCode]      = useState("");
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [couponError,     setCouponError]     = useState("");
 
-  const removeFromCart = async (productId) => {
+  /* helpers */
+  const priceAfterDisc = (p) =>
+    Math.round(p.price * (1 - (p.discountPercent || 0) / 100));
+
+  /* mutations */
+  const remove = async (id) => {
     try {
       const { data } = await axios.delete(
-        `${import.meta.env.VITE_BACKEND_URL}/api/cart/remove/${productId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart/remove/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch({ type: "SET_CART", payload: data });
     } catch (err) {
-      console.error("Remove failed", err);
+      console.error(err);
     }
   };
-  const updateQuantity = async (productId, newQuantity) => {
+  const updateQty = async (id, q) => {
     try {
       const { data } = await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/cart/update/${productId}`,
-        { newQuantity },
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart/update/${id}`,
+        { newQuantity: q },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch({ type: "SET_CART", payload: data });
     } catch (err) {
-      console.error("Qty update failed", err);
+      console.error(err);
     }
   };
 
@@ -46,107 +47,93 @@ const Cart = () => {
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + discountedPrice(item.product) * item.quantity,
+        (sum, item) => sum + priceAfterDisc(item.product) * item.quantity,
         0
       ),
     [cartItems]
   );
-  const couponDisc = useMemo(
-    () => (subtotal * discountPercent) / 100,
-    [subtotal, discountPercent]
-  );
-  const grandTotal = subtotal - couponDisc;
+  const discountAmt = (subtotal * discountPercent) / 100;
+  const grandTotal  = subtotal - discountAmt;
 
-  const handleApplyCoupon = () => {
+  /* coupon apply */
+  const apply = () => {
     const code = couponCode.trim().toUpperCase();
-    if (code === "FIRST10") {
-      setDiscountPct(10);
-      setCouponError("");
-    } else if (code === "BUMPER15") {
-      setDiscountPct(15);
-      setCouponError("");
-    } else {
-      setDiscountPct(0);
-      setCouponError("Invalid coupon code");
-    }
+    if (code === "FIRST10")      { setDiscountPercent(10); setCouponError(""); }
+    else if (code === "BUMPER15"){ setDiscountPercent(15); setCouponError(""); }
+    else                         { setDiscountPercent(0);  setCouponError("Invalid code"); }
   };
 
   if (!cartItems.length)
     return (
       <div className="p-4 text-center">
-        <p className="text-lg">Your cart is empty.</p>
+        <p>Your cart is empty.</p>
         <Link to="/products" className="text-green-600 hover:underline">
           Continue shopping →
         </Link>
       </div>
     );
 
-  /* ────────── render ────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Shopping Cart</h2>
 
+      {/* table */}
       <div className="overflow-x-auto mb-6">
-        <table className="w-full table-auto border-collapse">
+        <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="p-3 text-left">Image</th>
-              <th className="p-3 text-left">Product</th>
-              <th className="p-3 text-right">Price</th>
-              <th className="p-3 text-center">Qty</th>
-              <th className="p-3 text-right">Subtotal</th>
-              <th className="p-3 text-center">Remove</th>
+              {["Image", "Product", "Price", "Qty", "Subtotal", ""].map((h) => (
+                <th key={h} className="p-3 text-left">
+                  {h}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {cartItems.map(({ product, quantity }) => {
-              const priceEach = discountedPrice(product);
+            {cartItems.map((item) => {
+              const fp = priceAfterDisc(item.product);
               return (
-                <tr key={product._id} className="border-b">
+                <tr key={item.product._id} className="border-b">
                   <td className="p-3">
                     <img
-                      src={product.imageUrl}
-                      alt={product.title}
+                      src={item.product.imageUrl}
+                      alt={item.product.title}
                       className="h-16 w-16 object-contain"
                     />
                   </td>
+                  <td className="p-3">{item.product.title}</td>
+                  <td className="p-3 text-right">₹{fp}</td>
                   <td className="p-3">
-                    <h3 className="font-medium">{product.title}</h3>
-                    {product.discount > 0 && (
-                      <p className="text-green-600 text-sm">
-                        -{product.discount}% off
-                      </p>
-                    )}
-                  </td>
-                  <td className="p-3 text-right">₹{priceEach}</td>
-                  <td className="p-3 text-center">
                     <div className="inline-flex items-center space-x-2">
                       <button
                         onClick={() =>
-                          updateQuantity(product._id, Math.max(1, quantity - 1))
+                          item.quantity > 1 &&
+                          updateQty(item.product._id, item.quantity - 1)
                         }
-                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        className="px-2 py-1 bg-gray-200 rounded"
                       >
                         −
                       </button>
-                      <span>{quantity}</span>
+                      <span>{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(product._id, quantity + 1)}
-                        className="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                        onClick={() =>
+                          updateQty(item.product._id, item.quantity + 1)
+                        }
+                        className="px-2 py-1 bg-gray-200 rounded"
                       >
                         +
                       </button>
                     </div>
                   </td>
                   <td className="p-3 text-right">
-                    ₹{priceEach * quantity}
+                    ₹{(fp * item.quantity).toLocaleString()}
                   </td>
                   <td className="p-3 text-center">
                     <button
-                      onClick={() => removeFromCart(product._id)}
-                      className="text-red-600 hover:text-red-800"
+                      onClick={() => remove(item.product._id)}
+                      className="text-red-600"
                     >
-                      <FiTrash2 size={18} />
+                      <FiTrash2 />
                     </button>
                   </td>
                 </tr>
@@ -156,29 +143,28 @@ const Cart = () => {
         </table>
       </div>
 
-      {/* coupon + summary */}
-      <div className="flex flex-col lg:flex-row lg:justify-between gap-6">
+      {/* coupon & totals */}
+      <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 bg-white p-4 rounded shadow">
           <h4 className="font-semibold mb-3">Have a coupon?</h4>
-          <div className="flex items-center space-x-2">
+          <div className="flex gap-2">
             <input
-              type="text"
-              placeholder="Enter code"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
-              className="flex-1 border px-3 py-2 rounded focus:outline-none"
+              placeholder="Enter code"
+              className="flex-1 border px-3 py-2 rounded"
             />
             <button
-              onClick={handleApplyCoupon}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={apply}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
             >
               Apply
             </button>
           </div>
-          {couponError && <p className="mt-2 text-sm text-red-600">{couponError}</p>}
+          {couponError && <p className="text-red-600 mt-2">{couponError}</p>}
           {discountPercent > 0 && (
-            <p className="mt-2 text-sm text-green-600">
-              Code applied: {discountPercent}% off
+            <p className="text-green-600 mt-2">
+              Applied {discountPercent}% off
             </p>
           )}
         </div>
@@ -192,7 +178,7 @@ const Cart = () => {
           {discountPercent > 0 && (
             <div className="flex justify-between text-green-600 mb-2">
               <span>Coupon ({discountPercent}%)</span>
-              <span>-₹{couponDisc.toLocaleString()}</span>
+              <span>-₹{discountAmt.toLocaleString()}</span>
             </div>
           )}
           <div className="border-t my-2" />
@@ -200,10 +186,11 @@ const Cart = () => {
             <span>Total</span>
             <span>₹{grandTotal.toLocaleString()}</span>
           </div>
+
           <Link
             to="/checkout"
             state={{ discountPercent }}
-            className="mt-4 block text-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="mt-4 block text-center bg-green-600 text-white px-4 py-2 rounded"
           >
             Proceed to Checkout
           </Link>
