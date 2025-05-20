@@ -65,12 +65,16 @@ const ProductDetail = () => {
 
       {/* top section */}
       <div className="grid md:grid-cols-2 gap-8">
-        <img
-          src={product.imageUrl.replace("http://", "https://")}
-          alt={product.title}
-          className="w-full object-contain border"
-        />
+        {/* image wrapper enforces consistent aspect/height */}
+        <div className="w-full h-64 md:h-96 lg:h-[500px] flex items-center justify-center border">
+          <img
+            src={product.imageUrl.replace("http://", "https://")}
+            alt={product.title}
+            className="max-w-full max-h-full object-contain"
+          />
+        </div>
 
+        {/* details */}
         <div>
           <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
 
