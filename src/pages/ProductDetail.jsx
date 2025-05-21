@@ -6,12 +6,15 @@ import { useCart } from "../context/CartContext";
 
 const fetchCart = async (dispatch) => {
   const token = localStorage.getItem("token");
+  if (!token) return;
+
   const { data } = await axios.get(
     `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
-  // assuming the route returns { items: [...] }
-  dispatch({ type: "SET_CART", payload: data.items || [] });
+  /* accept either shape → []  OR  {items:[]} */
+  const items = Array.isArray(data) ? data : data.items || [];
+  dispatch({ type: "SET_CART", payload: items });
 };
 
 
@@ -54,36 +57,26 @@ export default function ProductDetail() {
     })();
   }, [id]);
 
-  /* ── cart action with qty ≤ 5 ─────────────────────────────────── */
   const addToCart = async () => {
-  const token = localStorage.getItem("token");
-
-  /* ── 1️⃣ Try server-side add if we have a token ─────────────── */
-  if (token) {
+    const token = localStorage.getItem("token");
+  
+    /* guests must sign in first */
+    if (!token) {
+      alert("Please sign in to add items to your cart.");
+      return;
+    }
+  
     try {
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
         { productId: product._id, quantity: qty },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchCart(dispatch);          // keep context in sync
-      return;
+      await fetchCart(dispatch);                // refresh context
     } catch (err) {
-      // if the token is expired / 401, fall through to guest logic
-      if (err.response?.status !== 401) {
-        alert("Couldn’t add to cart. Please try again.");
-        return;
-      }
+      alert("Couldn’t add to cart. Please try again.");
     }
-  }
-
-  /* ── 2️⃣ Guest / offline cart update ───────────────────────── */
-  dispatch({
-    type: "ADD",
-    payload: { product, quantity: qty },
-  });
-  alert("Item added to cart (guest session). Sign in to save it permanently.");
-};
+  };
 
 
   /* ── qty helpers with cap + polite notice ─────────────────────── */
