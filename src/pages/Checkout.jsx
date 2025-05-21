@@ -1,33 +1,73 @@
 // src/pages/Checkout.jsx
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const Checkout = () => {
+/* ─── helper: look up Indian PIN-code ─────────────────────────── */
+const lookupPin = async (pin) => {
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+    const json = await res.json();
+    const office = json?.[0]?.PostOffice?.[0];
+    if (!office) return null;
+    return {
+      city:     office.District,
+      state:    office.State,
+      country:  "India",
+    };
+  } catch {
+    return null;
+  }
+};
+
+export default function Checkout() {
   const { cartItems, dispatch } = useCart();
   const navigate  = useNavigate();
   const location  = useLocation();
   const token     = localStorage.getItem("token");
 
   const discountPercent = location.state?.discountPercent || 0;
-
-  /* helpers */
-  const priceAfterDisc = (p) =>
+  const priceAfterDisc  = (p) =>
     Math.round(p.price * (1 - (p.discountPercent || 0) / 100));
 
-  /* shipping form */
+  /* ─── shipping form state ──────────────────────────────────── */
   const [ship, setShip] = useState({
-    fullName: "", address: "", city: "", postalCode: "", country: "", phone: ""
+    fullName: "",
+    address : "",
+    city    : "",
+    state   : "",
+    postalCode: "",
+    country : "",
+    phone   : "",
   });
+
   const handleChange = (e) =>
     setShip({ ...ship, [e.target.name]: e.target.value });
 
-  /* totals */
+  /* ─── auto-fill city/state/country from PIN-code ───────────── */
+  useEffect(() => {
+    const pin = ship.postalCode.trim();
+    if (pin.length === 6 && /^\d{6}$/.test(pin)) {
+      (async () => {
+        const data = await lookupPin(pin);
+        if (data) {
+          setShip((s) => ({
+            ...s,
+            city   : s.city   || data.city,
+            state  : s.state  || data.state,
+            country: s.country|| data.country,
+          }));
+        }
+      })();
+    }
+  }, [ship.postalCode]);
+
+  /* ─── totals ──────────────────────────────────────────────── */
   const subtotal = useMemo(
     () =>
       cartItems.reduce(
-        (sum, item) => sum + priceAfterDisc(item.product) * item.quantity,
+        (sum, i) => sum + priceAfterDisc(i.product) * i.quantity,
         0
       ),
     [cartItems]
@@ -35,7 +75,7 @@ const Checkout = () => {
   const discountAmt = (subtotal * discountPercent) / 100;
   const totalToPay  = subtotal - discountAmt;
 
-  /* pay */
+  /* ─── payment handler (unchanged except added state) ───────── */
   const pay = async () => {
     try {
       const { data: rzpOrder } = await axios.post(
@@ -75,20 +115,19 @@ const Checkout = () => {
             navigate("/order-confirmation", {
               state: { orderId: order._id, totalPrice: order.totalPrice },
             });
-          } catch (err) {
-            console.error(err);
+          } catch {
             alert("Payment verification failed");
           }
         },
         theme: { color: "#F37254" },
       };
       new window.Razorpay(opts).open();
-    } catch (err) {
-      console.error(err);
+    } catch {
       alert("Payment initiation failed");
     }
   };
 
+  /* ─── UI ───────────────────────────────────────────────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
@@ -99,8 +138,9 @@ const Checkout = () => {
           {[
             ["fullName", "Full Name"],
             ["address", "Address"],
+            ["postalCode", "PIN-code"],
             ["city", "City"],
-            ["postalCode", "Postal Code"],
+            ["state", "State"],
             ["country", "Country"],
             ["phone", "Phone Number"],
           ].map(([name, ph]) => (
@@ -160,6 +200,4 @@ const Checkout = () => {
       </div>
     </div>
   );
-};
-
-export default Checkout;
+}
