@@ -4,6 +4,17 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
 
+const fetchCart = async (dispatch) => {
+  const token = localStorage.getItem("token");
+  const { data } = await axios.get(
+    `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  // assuming the route returns { items: [...] }
+  dispatch({ type: "SET_CART", payload: data.items || [] });
+};
+
+
 const MAX_QTY = 10;      // 🚦 hard-cap per item
 
 export default function ProductDetail() {
@@ -45,14 +56,19 @@ export default function ProductDetail() {
 
   /* ── cart action with qty ≤ 5 ─────────────────────────────────── */
   const addToCart = async () => {
-    const token = localStorage.getItem("token");
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
-      { productId: product._id, quantity: qty },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    dispatch({ type: "ADD", payload: { product, quantity: qty } });
-  };
+  const token = localStorage.getItem("token");
+
+  // 1️⃣ send the add request
+  await axios.post(
+    `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
+    { productId: product._id, quantity: qty },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  // 2️⃣ pull the fresh cart and hydrate context
+  await fetchCart(dispatch);
+};
+
 
   /* ── qty helpers with cap + polite notice ─────────────────────── */
   const changeQty = (delta) => {
