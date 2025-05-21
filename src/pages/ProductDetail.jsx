@@ -59,7 +59,7 @@ export default function ProductDetail() {
     const next = qty + delta;
     if (next < 1) return;
     if (next > MAX_QTY) {
-      alert("For orders above 5 units please contact us directly.");
+      alert("For orders above 10 units please contact us directly.");
       return;
     }
     setQty(next);
