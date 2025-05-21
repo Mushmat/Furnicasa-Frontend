@@ -1,26 +1,29 @@
 // src/context/CartContext.jsx
-import { createContext, useContext, useReducer, useEffect } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useReducer, useEffect } from "react";
+import axios from "axios";
 
 const CartContext = createContext();
+export const useCart = () => useContext(CartContext);
 
+/* ────────────── initial state ────────────── */
 const initialState = {
-  cartItems: [],
+  cartItems: [], // [{ product, quantity }, …]
 };
 
+/* ────────────── reducer ────────────── */
 const reducer = (state, action) => {
   switch (action.type) {
+    /* ① full replacement (authoritative copy from server) */
     case "SET_CART":
-      // Replace entire cart with the new array
       return { ...state, cartItems: action.payload };
 
+    /* ② optimistic/guest add (used when no token) */
+    case "ADD":
     case "ADD_TO_CART":
-      // Not used if we always set the entire array from backend,
-      // but we can keep it if needed for single-item additions
       return { ...state, cartItems: [...state.cartItems, action.payload] };
 
+    /* ③ optional local remove */
     case "REMOVE_FROM_CART":
-      // Removes a single product by ID (if you want local remove)
       return {
         ...state,
         cartItems: state.cartItems.filter(
@@ -33,34 +36,52 @@ const reducer = (state, action) => {
   }
 };
 
+/* ────────────── provider ────────────── */
 export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Fetch cart on initial load if there's a token
-  const fetchCart = async () => {
+  /* pulls the latest cart from the API and stores it in context */
+  const syncWithServer = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return; // No user logged in, skip
-      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/cart`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      dispatch({ type: "SET_CART", payload: res.data });
-    } catch (error) {
-      console.error("Failed to fetch cart:", error);
+      if (!token) return; // guest session → nothing to sync
+      const res = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // server may send { items: [...] } OR plain array
+      const items = Array.isArray(res.data)
+        ? res.data
+        : res.data.items || [];
+
+      dispatch({ type: "SET_CART", payload: items });
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
     }
   };
 
+  /* run once on mount (if user already logged in) */
   useEffect(() => {
-    fetchCart();
+    syncWithServer();
   }, []);
 
+  /* derived data you might find handy elsewhere */
+  const itemCount = state.cartItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
+
   return (
-    <CartContext.Provider value={{ ...state, dispatch }}>
+    <CartContext.Provider
+      value={{
+        cartItems: state.cartItems,
+        itemCount,
+        dispatch,
+        syncWithServer, // expose manual refresh if needed
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
 };
-
-export const useCart = () => useContext(CartContext);

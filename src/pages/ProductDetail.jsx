@@ -58,15 +58,31 @@ export default function ProductDetail() {
   const addToCart = async () => {
   const token = localStorage.getItem("token");
 
-  // 1️⃣ send the add request
-  await axios.post(
-    `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
-    { productId: product._id, quantity: qty },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  /* ── 1️⃣ Try server-side add if we have a token ─────────────── */
+  if (token) {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
+        { productId: product._id, quantity: qty },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      await fetchCart(dispatch);          // keep context in sync
+      return;
+    } catch (err) {
+      // if the token is expired / 401, fall through to guest logic
+      if (err.response?.status !== 401) {
+        alert("Couldn’t add to cart. Please try again.");
+        return;
+      }
+    }
+  }
 
-  // 2️⃣ pull the fresh cart and hydrate context
-  await fetchCart(dispatch);
+  /* ── 2️⃣ Guest / offline cart update ───────────────────────── */
+  dispatch({
+    type: "ADD",
+    payload: { product, quantity: qty },
+  });
+  alert("Item added to cart (guest session). Sign in to save it permanently.");
 };
 
 
