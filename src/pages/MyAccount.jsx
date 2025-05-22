@@ -9,7 +9,8 @@ const OrderTimeline = ({ status }) => {
   if (status === "Cancelled") {
     return <p className="text-red-600 font-semibold mt-2">Order Cancelled</p>;
   }
-  const current = steps.indexOf(status);
+  const current =
+    steps.findIndex((s) => s.toLowerCase() === status?.toLowerCase()) || 0;
   return (
     <div className="mt-4 space-y-2">
       {steps.map((step, i) => {
