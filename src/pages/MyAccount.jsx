@@ -4,23 +4,60 @@ import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 /* timeline helper */
+
 const steps = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"];
-const OrderTimeline = ({ status }) => {
-  if (status === "Cancelled") {
-    return <p className="text-red-600 font-semibold mt-2">Order Cancelled</p>;
-  }
+
+/* ↳ tweak these two numbers anytime */
+const ETA_DAYS = {
+  Shipped: 13,            // days after order date
+  Delivered: 21,
+};
+
+const OrderTimeline = ({ status, placedDate }) => {
+  /* Cancelled shortcut */
+  if (status === "Cancelled")
+    return <p className="text-red-600 font-semibold mt-4">Order Cancelled</p>;
+
+  /* which step is current? (case-insensitive) */
   const current =
     steps.findIndex((s) => s.toLowerCase() === status?.toLowerCase()) || 0;
+
+  /* helper to add N days */
+  const addDays = (dateStr, n) =>
+    new Date(new Date(dateStr).getTime() + n * 86400000).toLocaleDateString(
+      "en-IN",
+      { day: "2-digit", month: "short" }
+    );
+
   return (
-    <div className="mt-4 space-y-2">
+    <div className="mt-6 flex items-center justify-between gap-2 overflow-x-auto">
       {steps.map((step, i) => {
         const done = i <= current;
+        const eta =
+          step === "Order Placed"
+            ? new Date(placedDate).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+              })
+            : addDays(placedDate, ETA_DAYS[step] ?? ETA_DAYS.Delivered - 1);
+
         return (
-          <div key={step} className="flex items-center">
-            <span className={`w-3 h-3 rounded-full ${done ? "bg-green-600" : "bg-gray-300"}`} />
-            <span className={`ml-2 text-sm ${done ? "text-green-600" : "text-gray-500"}`}>
+          <div key={step} className="flex-1 min-w-[70px] text-center">
+            <div
+              className={`mx-auto w-4 h-4 rounded-full ${
+                done ? "bg-green-600" : "bg-gray-300"
+              }`}
+            />
+            <p
+              className={`text-xs mt-1 ${
+                done ? "text-green-600" : "text-gray-500"
+              }`}
+            >
               {step}
-            </span>
+            </p>
+            {step !== "Order Placed" && (
+              <p className="text-[11px] text-gray-400">{eta}</p>
+            )}
           </div>
         );
       })}
@@ -158,7 +195,7 @@ export default function MyAccount() {
                     ))}
                   </div>
 
-                  <OrderTimeline status={order.status} />
+<OrderTimeline status={order.status} placedDate={order.createdAt} />
                 </div>
               ))}
             </>
