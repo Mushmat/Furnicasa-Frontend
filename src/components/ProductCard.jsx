@@ -5,23 +5,23 @@ import axios from "axios";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
-const ProductCard = ({ product }) => {
+export default function ProductCard({ product }) {
   const { dispatch } = useCart();
   const { user }     = useAuth();
   const navigate     = useNavigate();
 
-  /* ────────── secure image URL ────────── */
+  /* secure image url */
   const imgSrc = (
     product.imageUrl || "/assets/images/placeholder/270x290.png"
   ).replace("http://", "https://");
 
-  /* ────────── price after discount ────────── */
+  /* pricing */
   const { price, discountPercent: discount = 0 } = product;
   const finalPrice = Math.round(price * (1 - discount / 100));
 
-  /* ────────── add-to-cart ────────── */
+  /* add to cart */
   const addToCart = async (e) => {
-    e.preventDefault();           // keep the card link from firing
+    e.preventDefault();
     if (!user) return navigate("/login");
 
     try {
@@ -32,25 +32,36 @@ const ProductCard = ({ product }) => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch({ type: "SET_CART", payload: data });
-    } catch (err) {
-      console.error(err);
-      alert("Could not add to cart.");
+    } catch {
+      alert("Could not add to cart, please try again.");
     }
   };
 
   return (
     <div className="single-grid-product bg-white rounded shadow hover:shadow-lg">
-      <Link to={`/product/${product._id}`} className="block">
+      <Link to={`/product/${product._id}`} className="block relative">
+        {/* discount badge */}
+        {discount > 0 && (
+          <span className="absolute top-2 left-2 z-10 bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded">
+            -{discount}%
+          </span>
+        )}
+
+        {/* product image */}
         <img
           src={imgSrc}
           alt={product.title}
-          className="w-full h-64 object-cover"
+          className="w-full h-64 object-cover rounded-t"
         />
       </Link>
 
+      {/* details */}
       <div className="p-4">
         <h3 className="line-clamp-2 font-semibold mb-2">
-          <Link to={`/product/${product._id}`} className="hover:text-orange-600">
+          <Link
+            to={`/product/${product._id}`}
+            className="hover:text-orange-600"
+          >
             {product.title}
           </Link>
         </h3>
@@ -78,6 +89,4 @@ const ProductCard = ({ product }) => {
       </div>
     </div>
   );
-};
-
-export default ProductCard;
+}
