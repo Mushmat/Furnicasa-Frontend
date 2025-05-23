@@ -1,53 +1,70 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { fetchProducts } from '../services/api';
-import ProductCard from '../components/ProductCard';
+// src/pages/Products.jsx
+import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
+import { fetchProducts } from "../services/api";
+import ProductCard from "../components/ProductCard";
 
-const Products = () => {
-  /* ------------ data ------------ */
+export default function Products() {
+  /* ───── routing state ───── */
+  const location = useLocation();
+  const startCat = (location.state?.category || "All").toLowerCase();
+
+  /* ───── data state ───── */
   const [products, setProducts] = useState([]);
   const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
+  const [error,    setError]    = useState("");
 
-  /* ------------ UI / filter state ------------ */
-  const [category,  setCategory]  = useState('all');
+  /* ───── ui / filter state ───── */
+  const [category,  setCategory]  = useState(startCat); // 'all' | 'sofas' | …
   const [minPrice,  setMinPrice]  = useState(0);
   const [maxPrice,  setMaxPrice]  = useState(Infinity);
-  const [sortBy,    setSortBy]    = useState('');
+  const [sortBy,    setSortBy]    = useState("");
   const [page,      setPage]      = useState(1);
 
-  /* ------------ fetch once ------------ */
+  /* ───── fetch once ───── */
   useEffect(() => {
     fetchProducts()
-      .then(data => setProducts(data))
-      .catch(err  => setError(err.message))
+      .then(setProducts)
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  /* ------------ build category list ------------ */
+  /* ───── react when Navbar pushes a new category via state ───── */
+  useEffect(() => {
+    const newCat = (location.state?.category || "All").toLowerCase();
+    setCategory(newCat);
+    setPage(1);
+  }, [location.state?.category]);
+
+  /* ───── build category list ───── */
   const categories = useMemo(() => {
-    const cats = new Set(products.map(p => p.category || 'Uncategorized'));
-    return ['all', ...cats];
+    const set = new Set(
+      products.map((p) => (p.category || "Uncategorized").toLowerCase())
+    );
+    return ["all", ...Array.from(set)];
   }, [products]);
 
-  /* ------------ filter / sort / paginate ------------ */
+  /* ───── filter / sort / paginate ───── */
   const perPage = 12;
 
   const filtered = useMemo(() => {
-    let list = products;
+    let list = [...products];
 
-    /* category */
-    if (category !== 'all') {
-      list = list.filter(p => p.category === category);
+    if (category !== "all") {
+      list = list.filter(
+        (p) => (p.category || "").toLowerCase() === category
+      );
     }
 
-    /* price range */
-    list = list.filter(p => p.price >= minPrice && p.price <= maxPrice);
+    list = list.filter((p) => p.price >= minPrice && p.price <= maxPrice);
 
-    /* sort */
-    if (sortBy === 'price_asc')  list = list.sort((a,b) => a.price - b.price);
-    if (sortBy === 'price_desc') list = list.sort((a,b) => b.price - a.price);
-    if (sortBy === 'name_asc')   list = list.sort((a,b) => a.name.localeCompare(b.name));
-    if (sortBy === 'name_desc')  list = list.sort((a,b) => b.name.localeCompare(a.name));
+    const sorters = {
+      price_asc:  (a, b) => a.price - b.price,
+      price_desc: (a, b) => b.price - a.price,
+      name_asc:   (a, b) => a.title.localeCompare(b.title),
+      name_desc:  (a, b) => b.title.localeCompare(a.title),
+    };
+    if (sortBy) list.sort(sorters[sortBy]);
 
     return list;
   }, [products, category, minPrice, maxPrice, sortBy]);
@@ -55,15 +72,20 @@ const Products = () => {
   const pages     = Math.ceil(filtered.length / perPage);
   const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
 
-  /* ------------ loading / error guard ------------ */
+  /* ───── loading / error guard ───── */
   if (loading) return <p className="p-8 text-center">Loading…</p>;
   if (error)   return <p className="p-8 text-center text-red-600">{error}</p>;
 
-  /* ================================================ */
+  /* ───── helpers ───── */
+  const nice = (cat) =>
+    cat === "all"
+      ? "All"
+      : cat.replace(/\b\w/g, (c) => c.toUpperCase()); // title-case
+
+  /* ───── render ───── */
   return (
     <div id="main-wrapper">
-
-      {/* -------- page banner -------- */}
+      {/* banner */}
       <section
         className="page-banner-section bg-cover bg-center h-[330px] mb-12"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
@@ -72,7 +94,11 @@ const Products = () => {
           <h1 className="text-4xl font-bold">Shop</h1>
           <nav className="mt-2">
             <ol className="flex space-x-2 text-sm">
-              <li><a href="/" className="hover:underline">Home</a></li>
+              <li>
+                <a href="/" className="hover:underline">
+                  Home
+                </a>
+              </li>
               <li>/</li>
               <li>Shop</li>
             </ol>
@@ -81,24 +107,26 @@ const Products = () => {
       </section>
 
       <div className="container mx-auto px-6 flex flex-col lg:flex-row gap-8">
-
-        {/* -------- SIDEBAR -------- */}
+        {/* ───── sidebar ───── */}
         <aside className="lg:w-1/4 space-y-6">
-
           {/* categories */}
           <div>
             <h3 className="font-semibold mb-2">Product categories</h3>
             <ul className="space-y-1">
-              {categories.map(cat => (
+              {categories.map((cat) => (
                 <li key={cat}>
                   <button
-                    onClick={() => { setCategory(cat); setPage(1); }}
-                    className={`w-full text-left px-3 py-1 rounded
-                      ${category === cat
-                        ? 'bg-gray-800 text-white'
-                        : 'hover:bg-gray-100'}`}
+                    onClick={() => {
+                      setCategory(cat);
+                      setPage(1);
+                    }}
+                    className={`w-full text-left px-3 py-1 rounded ${
+                      category === cat
+                        ? "bg-gray-800 text-white"
+                        : "hover:bg-gray-100"
+                    }`}
                   >
-                    {cat === 'all' ? 'All' : cat}
+                    {nice(cat)}
                   </button>
                 </li>
               ))}
@@ -113,33 +141,36 @@ const Products = () => {
                 <input
                   type="number"
                   value={minPrice}
-                  onChange={e => setMinPrice(Number(e.target.value))}
+                  onChange={(e) => setMinPrice(Number(e.target.value))}
                   className="w-1/2 border px-2 py-1 rounded"
                   placeholder="Min"
                 />
                 <input
                   type="number"
-                  value={maxPrice === Infinity ? '' : maxPrice}
-                  onChange={e => {
+                  value={maxPrice === Infinity ? "" : maxPrice}
+                  onChange={(e) => {
                     const v = e.target.value;
-                    setMaxPrice(v === '' ? Infinity : Number(v));
+                    setMaxPrice(v === "" ? Infinity : Number(v));
                   }}
                   className="w-1/2 border px-2 py-1 rounded"
                   placeholder="Max"
                 />
               </div>
 
-              {/* --- apply + clear --- */}
               <button
                 className="btn w-full"
-                onClick={() => setPage(1)}   /* restart at page 1 */
+                onClick={() => setPage(1)}
               >
                 Apply filter
               </button>
 
               <button
                 className="btn w-full"
-                onClick={() => { setMinPrice(0); setMaxPrice(Infinity); setPage(1); }}
+                onClick={() => {
+                  setMinPrice(0);
+                  setMaxPrice(Infinity);
+                  setPage(1);
+                }}
               >
                 Clear filter
               </button>
@@ -151,7 +182,10 @@ const Products = () => {
             <h3 className="font-semibold mb-2">Sort by</h3>
             <select
               value={sortBy}
-              onChange={e => { setSortBy(e.target.value); setPage(1); }}
+              onChange={(e) => {
+                setSortBy(e.target.value);
+                setPage(1);
+              }}
               className="w-full border px-3 py-1 rounded"
             >
               <option value="">Default</option>
@@ -161,16 +195,15 @@ const Products = () => {
               <option value="name_desc">Name: Z → A</option>
             </select>
           </div>
-
         </aside>
 
-        {/* -------- PRODUCT GRID -------- */}
+        {/* ───── product grid ───── */}
         <main className="flex-1">
           {pageItems.length === 0 ? (
             <p>No products match your filters.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {pageItems.map(prod => (
+              {pageItems.map((prod) => (
                 <ProductCard key={prod._id} product={prod} />
               ))}
             </div>
@@ -183,14 +216,17 @@ const Products = () => {
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={`px-3 py-1 rounded
-                    ${page === i + 1 ? 'bg-gray-800 text-white' : 'hover:bg-gray-100'}`}
+                  className={`px-3 py-1 rounded ${
+                    page === i + 1
+                      ? "bg-gray-800 text-white"
+                      : "hover:bg-gray-100"
+                  }`}
                 >
-                  {String(i + 1).padStart(2, '0')}
+                  {String(i + 1).padStart(2, "0")}
                 </button>
               ))}
               <button
-                onClick={() => setPage(p => Math.min(p + 1, pages))}
+                onClick={() => setPage((p) => Math.min(p + 1, pages))}
                 className="px-3 py-1 hover:bg-gray-100 rounded"
               >
                 Next
@@ -198,10 +234,7 @@ const Products = () => {
             </div>
           )}
         </main>
-
       </div>
     </div>
   );
-};
-
-export default Products;
+}
