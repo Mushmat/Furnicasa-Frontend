@@ -4,7 +4,7 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 
 /* 📝 edit / reorder any time */
-const categories = ["Sofas", "Beds", "Dining Sets", "Chairs"];
+const categories = ["Sofas", "Bed", "Dining Sets", "Chairs"];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen]       = useState(false);
