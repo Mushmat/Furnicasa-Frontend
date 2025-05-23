@@ -17,6 +17,7 @@ import LoginRegister from "./pages/LoginRegister";
 import MyAccount from "./pages/MyAccount";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
+import Wishlist from "./pages/Wishlist";
 
 /* Admin */
 import AdminDashboard from "./pages/AdminDashboard";
@@ -33,6 +34,8 @@ export default function App() {
 
           <main className="flex-grow pt-20">
             <Routes>
+              <Route path="/wishlist" element={<Wishlist />} />
+
               {/* Public */}
               <Route path="/"               element={<Home />} />
               <Route path="/products"       element={<Products />} />

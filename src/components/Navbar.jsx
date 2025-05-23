@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
+import { useWishlist } from "../context/WishlistContext";
+import { Heart } from "lucide-react";
 
 /* 📝 edit / reorder any time */
 const categories = ["Sofas", "Bed", "Dining Sets", "Chairs"];
@@ -9,7 +11,10 @@ const categories = ["Sofas", "Bed", "Dining Sets", "Chairs"];
 export default function Navbar() {
   const [menuOpen, setMenuOpen]       = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
   const { cartItems } = useCart();
+  const { items: wishItems } = useWishlist();
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -61,9 +66,12 @@ export default function Navbar() {
 
           {/* right icons */}
           <div className="flex items-center space-x-6">
-              {/* profile */}
+            {/* profile */}
             <div className="relative">
-              <button onClick={() => setProfileOpen((o) => !o)} className="w-7 h-7 flex items-center justify-center">
+              <button
+                onClick={() => setProfileOpen((o) => !o)}
+                className="w-7 h-7 flex items-center justify-center"
+              >
                 {/* Heroicons user-circle outline */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -103,6 +111,16 @@ export default function Navbar() {
                 </div>
               )}
             </div>
+
+            {/* wishlist */}
+            <Link to="/wishlist" className="relative">
+              <Heart className="w-6 h-6 text-gray-700 hover:text-orange-600" />
+              {wishItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {wishItems.length}
+                </span>
+              )}
+            </Link>
 
             {/* cart */}
             <Link to="/cart" className="relative">
@@ -146,6 +164,7 @@ export default function Navbar() {
                 {txt}
               </Link>
             ))}
+
             {/* categories */}
             <div className="border-t pt-3">
               {categories.map((cat) => (
@@ -154,8 +173,15 @@ export default function Navbar() {
                 </button>
               ))}
             </div>
+
+            <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="block">
+              Wishlist
+            </Link>
+
             {user ? (
-              <button onClick={handleLogout} className="block text-left w-full">Logout</button>
+              <button onClick={handleLogout} className="block text-left w-full">
+                Logout
+              </button>
             ) : (
               <>
                 <Link to="/login"             onClick={() => setMenuOpen(false)} className="block">Login</Link>
