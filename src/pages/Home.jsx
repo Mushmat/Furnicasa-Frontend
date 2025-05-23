@@ -1,6 +1,6 @@
 // src/pages/Home.jsx
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
 import axios from "axios";
 
@@ -38,22 +38,45 @@ const heroSettings = {
   nextArrow: <Arrow direction="next" />,
 };
 
-const Home = () => {
-  /* data */
+export default function Home() {
   const [products, setProducts] = useState([]);
+  const [loading,  setLoading]  = useState(true);
+  const [activeCat, setActiveCat] = useState("");      // will fill after fetch
+  const navigate   = useNavigate();
 
+  /* ───── fetch all products once ───── */
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`)
-      .then(({ data }) => setProducts(data))
-      .catch((err) => console.error("Failed loading products:", err));
+      .then(({ data }) => {
+        setProducts(data);
+        /* first category becomes default tab */
+        const first = data[0]?.category || "All";
+        setActiveCat(first);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const bannerProducts = products.slice(0, 2);
-  const homeProducts   = products.slice(2, 6);
-  const officeProducts = products.slice(6, 10);
+  /* ───── derived category list ───── */
+  const categories = useMemo(() => {
+    const set = new Set(products.map((p) => p.category || "Uncategorized"));
+    return Array.from(set);
+  }, [products]);
 
-  const [activeTab, setActiveTab] = useState("home");
+  /* ───── helper: link to products page with preset filter ───── */
+  const jumpToCategoryPage = (cat) =>
+    navigate("/products", { state: { category: cat } });
+
+  /* ───── small banner pair stays unchanged (first 2 items) ───── */
+  const bannerProducts = products.slice(0, 2);
+
+  /* ───── popular items for active tab (max 4) ───── */
+  const tabItems = products
+    .filter((p) => p.category === activeCat)
+    .slice(0, 4);
+
+  /* ───── render ───── */
+  if (loading) return <p className="p-8 text-center">Loading…</p>;
 
   return (
     <div id="main-wrapper">
@@ -108,68 +131,86 @@ const Home = () => {
         </section>
       )}
 
-      {/* ────────── POPULAR FURNITURE TABS ────────── */}
+      {/* ────────── POPULAR BY CATEGORY ────────── */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-6">
             Popular Furniture
           </h2>
 
-          <div className="flex justify-center space-x-4 mb-8">
-            {["home", "office"].map((tab) => (
+          {/* dynamic tabs */}
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {categories.map((cat) => (
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                key={cat}
+                onClick={() => setActiveCat(cat)}
                 className={`px-6 py-2 border rounded ${
-                  activeTab === tab
+                  activeCat === cat
                     ? "border-black bg-white font-bold"
                     : "border-gray-300 bg-transparent"
                 }`}
               >
-                {tab.toUpperCase()}
+                {cat.toUpperCase()}
               </button>
             ))}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-            {(activeTab === "home" ? homeProducts : officeProducts).map((p) => {
-              const fp = Math.round(
-                p.price * (1 - (p.discountPercent || 0) / 100)
-              );
-              return (
-                <Link
-                  key={p._id}
-                  to={`/product/${p._id}`}
-                  className="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
-                >
-                  <img
-                    src={p.imageUrl.replace("http://", "https://")}
-                    alt={p.title}
-                    className="w-full h-40 object-contain mb-3"
-                  />
+          {/* grid */}
+          {tabItems.length === 0 ? (
+            <p className="text-center">No items in this category yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {tabItems.map((p) => {
+                const fp = Math.round(
+                  p.price * (1 - (p.discountPercent || 0) / 100)
+                );
+                return (
+                  <Link
+                    key={p._id}
+                    to={`/product/${p._id}`}
+                    className="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
+                  >
+                    <img
+                      src={p.imageUrl.replace("http://", "https://")}
+                      alt={p.title}
+                      className="w-full h-40 object-contain mb-3"
+                    />
 
-                  <h4 className="font-medium line-clamp-2 flex-1">{p.title}</h4>
+                    <h4 className="font-medium line-clamp-2 flex-1">
+                      {p.title}
+                    </h4>
 
-                  {p.discountPercent > 0 ? (
-                    <p className="mt-1">
-                      <span className="line-through text-gray-500 mr-1">
+                    {p.discountPercent > 0 ? (
+                      <p className="mt-1">
+                        <span className="line-through text-gray-500 mr-1">
+                          ₹{p.price.toLocaleString()}
+                        </span>
+                        <span className="text-orange-600 font-bold">
+                          ₹{fp.toLocaleString()}
+                        </span>
+                        <span className="ml-1 text-green-600 text-sm">
+                          -{p.discountPercent}%
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-lg font-bold mt-1">
                         ₹{p.price.toLocaleString()}
-                      </span>
-                      <span className="text-orange-600 font-bold">
-                        ₹{fp.toLocaleString()}
-                      </span>
-                      <span className="ml-1 text-green-600 text-sm">
-                        -{p.discountPercent}%
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="text-lg font-bold mt-1">
-                      ₹{p.price.toLocaleString()}
-                    </p>
-                  )}
-                </Link>
-              );
-            })}
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* quick link to full list */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={() => jumpToCategoryPage(activeCat)}
+              className="btn"
+            >
+              View all {activeCat} →
+            </button>
           </div>
         </div>
       </section>
@@ -211,6 +252,4 @@ const Home = () => {
       </section>
     </div>
   );
-};
-
-export default Home;
+}
