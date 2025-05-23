@@ -61,14 +61,31 @@ export default function Navbar() {
 
           {/* right icons */}
           <div className="flex items-center space-x-6">
-            {/* profile */}
+              {/* profile */}
             <div className="relative">
-              <img
-                onClick={() => setProfileOpen((o) => !o)}
-                src="https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png"
-                alt="Account"
-                className="w-6 h-6 cursor-pointer"
-              />
+              <button onClick={() => setProfileOpen((o) => !o)} className="w-7 h-7 flex items-center justify-center">
+                {/* Heroicons user-circle outline */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  className="w-7 h-7 text-gray-700 hover:text-orange-600 transition-colors"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 19.5a8.999 8.999 0 0115 0"
+                  />
+                  <circle cx="12" cy="12" r="9" />
+                </svg>
+              </button>
               {profileOpen && (
                 <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded shadow-lg z-50">
                   {user ? (
