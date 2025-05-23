@@ -25,8 +25,9 @@ export default function ProductCard({ product }) {
   const finalPrice = Math.round(price * (1 - discount / 100));
 
   /* already in wishlist?  (backend GET /api/wishlist returns populated product) */
-  const wishedItem = items.find((i) => i.product._id === product._id);
-
+ const wishedItem = items.find(
+   (i) => (i.product?._id || i?._id) === product._id   // safe & tolerant
+ );
   /* ───── add-to-cart ───── */
   const addToCart = async (e) => {
     e.preventDefault();                 // keep <Link> navigation intact

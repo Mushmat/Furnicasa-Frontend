@@ -13,44 +13,52 @@ const reducer = (state, action) => {
   }
 };
 
-export function WishlistProvider({ children }) {
-  const [items, dispatch] = useReducer(reducer, []);
+export const WishlistProvider = ({ children }) => {
+  const [items, setItems] = useState([]);
 
-  /* fetch once if logged in */
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    axios
-      .get(`${import.meta.env.VITE_BACKEND_URL}/api/wishlist`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(({ data }) => dispatch({ type: "SET", payload: data }))
-      .catch(() => {});
-  }, []);
-
-  /* helpers */
+  // --- ADD -----------------------------------------------------------
   const add = async (product) => {
-    const token = localStorage.getItem("token");
+    const token  = localStorage.getItem("token");
     const { data } = await axios.post(
       `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/add`,
       { productId: product._id },
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    dispatch({ type: "ADD", payload: data }); // backend returns new item
+
+    /* data.item === { _id, user, product } thanks to backend */
+    setItems((prev) => [...prev, data.item]);
   };
 
-  const remove = async (id) => {
+  // --- REMOVE --------------------------------------------------------
+  const remove = async (wishlistId) => {
     const token = localStorage.getItem("token");
     await axios.delete(
-      `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/${id}`,
+      `${import.meta.env.VITE_BACKEND_URL}/api/wishlist/${wishlistId}`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    dispatch({ type: "REMOVE", payload: id });
+    setItems((prev) => prev.filter((it) => it._id !== wishlistId));
   };
+
+  // --- initial load --------------------------------------------------
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/wishlist`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setItems(data);                 // data is already [{ _id, product, … }]
+      } catch (err) {
+        console.error("Wishlist fetch failed:", err);
+      }
+    })();
+  }, []);
 
   return (
     <WishlistContext.Provider value={{ items, add, remove }}>
       {children}
     </WishlistContext.Provider>
   );
-}
+};
