@@ -15,10 +15,10 @@ export default function ProductCard({ product }) {
   const { items, add, remove }    = useWishlist();
   const navigate                  = useNavigate();
 
-  /* secure image URL */
-  const imgSrc = (
-    product.imageUrl || "/assets/images/placeholder/270x290.png"
-  ).replace("http://", "https://");
+const placeholder = "/assets/images/placeholder/270x290.png";
+const imgSrc = product?.imageUrl
+  ? product.imageUrl.replace("http://", "https://")
+  : placeholder;
 
   /* pricing */
   const { price, discountPercent: discount = 0 } = product;
