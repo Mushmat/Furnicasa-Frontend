@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import Field from "../components/Field";   // shared input component
 
 export default function LoginRegister() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function LoginRegister() {
     email: "",
     password: "",
   });
-  const [agree, setAgree]       = useState(false); // ← NEW
+  const [agree, setAgree]       = useState(false);
   const [statusMessage, setMsg] = useState("");
 
   const handleRegChange = (e) =>
@@ -42,7 +43,7 @@ export default function LoginRegister() {
 
   const handleRegSubmit = async (e) => {
     e.preventDefault();
-    if (!agree) return; // extra guard
+    if (!agree) return;
     try {
       const { data } = await axios.post(
         "https://furnicasa.onrender.com/api/auth/register",
@@ -54,21 +55,6 @@ export default function LoginRegister() {
       alert(err.response?.data?.error || "Registration failed");
     }
   };
-
-  /* ───── reusable field component ───── */
-  const Field = ({ label, name, type = "text", value, onChange }) => (
-    <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        required
-        className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-      />
-    </div>
-  );
 
   /* ───── JSX ───── */
   return (
@@ -189,12 +175,11 @@ export default function LoginRegister() {
             <button
               type="submit"
               disabled={!agree}
-              className={`w-full py-2 px-4 rounded-md font-semibold shadow
-                         ${
-                           agree
-                             ? "bg-orange-600 text-white hover:bg-orange-700"
-                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                         }`}
+              className={`w-full py-2 px-4 rounded-md font-semibold shadow ${
+                agree
+                  ? "bg-orange-600 text-white hover:bg-orange-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Register
             </button>
