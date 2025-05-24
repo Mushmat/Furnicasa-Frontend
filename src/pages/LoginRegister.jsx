@@ -67,7 +67,7 @@ export default function LoginRegister() {
             <Link to="/" className="hover:underline">
               Home
             </Link>{" "}
-            / Login/&nbsp;Register
+            / Login&nbsp;Register
           </nav>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function LoginRegister() {
                 value={loginData.email}
                 onChange={handleLoginChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -102,7 +102,7 @@ export default function LoginRegister() {
                 value={loginData.password}
                 onChange={handleLoginChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
 
@@ -146,7 +146,7 @@ export default function LoginRegister() {
                 value={regData.fullName}
                 onChange={handleRegChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -159,7 +159,7 @@ export default function LoginRegister() {
                 value={regData.phone}
                 onChange={handleRegChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -172,7 +172,7 @@ export default function LoginRegister() {
                 value={regData.email}
                 onChange={handleRegChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
             <div>
@@ -185,7 +185,7 @@ export default function LoginRegister() {
                 value={regData.password}
                 onChange={handleRegChange}
                 required
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
               />
             </div>
 
