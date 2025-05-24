@@ -1,61 +1,110 @@
 // src/pages/About.jsx
 import { Link } from "react-router-dom";
 
+/* ───────────────────────── helpers & data ───────────────────────── */
+
 const features = [
   {
     icon: "/assets/images/icons/feature-1.png",
     title: "Free home delivery",
-    desc: "We provide free home delivery on all orders over ₹10,000.",
+    desc: "We provide free home delivery on all orders over ₹10 000.",
   },
   {
     icon: "/assets/images/icons/feature-2.png",
-    title: "Quality Products",
-    desc: "We ensure top-notch materials and craftsmanship.",
+    title: "Quality products",
+    desc: "Meticulous materials and craftsmanship, always.",
   },
   {
     icon: "/assets/images/icons/feature-3.png",
-    title: "3 Days Return",
+    title: "3-day return",
     desc: "Not happy? Return within 3 days for a full refund.",
   },
 ];
 
-const team = [
-  { img: "/assets/images/team/team-1.jpg", name: "Marcos Alonso" },
-  { img: "/assets/images/team/team-2.jpg", name: "Isaac Newton" },
-  { img: "/assets/images/team/team-3.jpg", name: "Charlotte Taylor" },
+/* one-person “team” (your profile) */
+const ME = {
+  img: "/assets/images/team/placeholder-dev.jpg", // 🖼️ drop any 400×400 headshot
+  name: "Chirayu Choudhary",
+  role: "Full-Stack Developer",
+  bio: `I’m an Integrated M.Tech (CSE) student at the International
+  Institute of Information Technology, Bangalore.  
+  This entire website—front & back—was built in-house for my father’s company,
+  letting me blend academic learning with real-world product engineering.`,
+  links: {
+    github: "https://github.com/your-handle",
+    linkedin: "https://linkedin.com/in/your-handle",
+    mail: "mailto:chirayu@example.com",
+  },
+};
+
+/* six hard-coded customer reviews */
+const reviews = [
+  {
+    name: "Riya Patel",
+    rating: 5,
+    comment:
+      "Loved the midnight-blue sofa — plush, sturdy and delivered on time!",
+  },
+  {
+    name: "Aakash Verma",
+    rating: 4,
+    comment:
+      "Dining set quality is excellent. Minor scratch on one chair, customer-care handled it quickly.",
+  },
+  {
+    name: "Meera Nair",
+    rating: 5,
+    comment:
+      "Website UI is smooth and the AR preview feature saved me a showroom trip.",
+  },
+  {
+    name: "Kabir Singh",
+    rating: 4,
+    comment:
+      "Got a custom bookshelf made; communication and finish were spot-on.",
+  },
+  {
+    name: "Tanvi Kulkarni",
+    rating: 5,
+    comment:
+      "Three-day return actually works — I exchanged a coffee table hassle-free.",
+  },
+  {
+    name: "Rahul Menon",
+    rating: 5,
+    comment:
+      "Great mix of modern and classic designs at sane prices. Highly recommend Furnicasa.",
+  },
 ];
 
-const testimonials = [
-  {
-    img: "/assets/images/testimonial/testimonial-2.png",
-    authorImg: "/assets/images/author/author-1.png",
-    author: "Zeniyea Henderson",
-    role: "CTO & Co-Founder, Axels",
-    quote:
-      "I’m thrilled with my Furnicasa purchase—excellent quality and super stylish!",
-  },
-  {
-    img: "/assets/images/testimonial/testimonial-1.png",
-    authorImg: "/assets/images/author/author-1.png",
-    author: "Alex Tuntuni",
-    role: "Product Designer",
-    quote:
-      "The modern designs and customer service are top-notch. Highly recommend!",
-  },
-];
+/* quick stars renderer */
+const Stars = ({ n }) => (
+  <div className="flex">
+    {[...Array(5)].map((_, i) => (
+      <svg
+        key={i}
+        className={`h-4 w-4 ${i < n ? "text-yellow-400" : "text-gray-300"}`}
+        fill="currentColor"
+        viewBox="0 0 20 20"
+      >
+        <path d="M10 15l-5.878 3.09 1.123-6.545L.49 6.91l6.563-.955L10 .5l2.947 5.455 6.563.955-4.755 4.635 1.123 6.545z" />
+      </svg>
+    ))}
+  </div>
+);
+
+/* ───────────────────────── component ───────────────────────── */
 
 export default function About() {
   return (
     <div className="space-y-24">
-      {/* Hero banner */}
+      {/* ───── Hero banner ───── */}
       <section
         className="h-64 bg-cover bg-center flex items-center"
-        style={{
-          backgroundImage: "url('/assets/images/bg/breadcrumb.png')",
-        }}
+        style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
       >
         <div className="container mx-auto px-4 text-white">
-          <h1 className="text-4xl font-bold">About Us</h1>
+          <h1 className="text-4xl font-bold">About&nbsp;Us</h1>
           <nav className="mt-2 text-sm">
             <ol className="flex space-x-2">
               <li>
@@ -70,7 +119,7 @@ export default function About() {
         </div>
       </section>
 
-      {/* About Us split */}
+      {/* ───── Company intro ───── */}
       <section className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 items-center">
         <img
           src="/assets/images/blog/blog-6.png"
@@ -80,21 +129,21 @@ export default function About() {
         <div className="space-y-4">
           <span className="text-orange-600 font-medium">Since 2019</span>
           <h2 className="text-3xl font-semibold">
-            Providing the Best Quality Furniture for You
+            Providing quality furniture for modern living
           </h2>
           <p className="text-gray-700">
-            At Furnicasa, we believe your home should tell the story of who
-            you are. That’s why we curate only the finest pieces—modern,
-            affordable, and built to last.
+            At Furnicasa we believe your home should tell the story of who you
+            are. That’s why every piece is curated for style, durability and
+            value.
           </p>
           <p className="text-gray-700">
-            From sleek sofas to elegant dining sets, our range is designed
-            to elevate every corner of your space.
+            From sleek sofas to handcrafted dining sets, our catalogue elevates
+            every corner of your space — minus the showroom mark-up.
           </p>
         </div>
       </section>
 
-      {/* Features */}
+      {/* ───── Key features ───── */}
       <section className="bg-gray-50 py-16">
         <div className="container mx-auto px-4 grid gap-8 md:grid-cols-3">
           {features.map((f) => (
@@ -110,71 +159,51 @@ export default function About() {
         </div>
       </section>
 
-      {/* Our Team */}
+      {/* ───── Customer reviews ───── */}
       <section className="container mx-auto px-4 space-y-8">
-        <h2 className="text-3xl font-semibold text-center">Our Team</h2>
+        <h2 className="text-3xl font-semibold text-center">What customers say</h2>
         <div className="grid gap-8 md:grid-cols-3">
-          {team.map((m) => (
+          {reviews.map((r, i) => (
             <div
-              key={m.name}
-              className="group overflow-hidden rounded shadow relative"
+              key={i}
+              className="bg-white rounded shadow p-6 flex flex-col space-y-4"
             >
-              <img
-                src={m.img}
-                alt={m.name}
-                className="w-full h-80 object-cover transition-transform group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-white translate-y-full group-hover:translate-y-0 transition">
-                <h3 className="font-semibold">{m.name}</h3>
-                <div className="flex space-x-3 mt-2 text-gray-600">
-                  <a href="#" aria-label="Twitter">
-                    <i className="fab fa-twitter"></i>
-                  </a>
-                  <a href="#" aria-label="Instagram">
-                    <i className="fab fa-instagram"></i>
-                  </a>
-                  <a href="#" aria-label="Facebook">
-                    <i className="fab fa-facebook"></i>
-                  </a>
-                </div>
-              </div>
+              <Stars n={r.rating} />
+              <p className="text-gray-700 flex-1 italic">“{r.comment}”</p>
+              <p className="font-semibold text-right">— {r.name}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="bg-gray-50 py-16">
-        <div className="container mx-auto px-4 space-y-12">
-          {testimonials.map((t, i) => (
-            <div
-              key={i}
-              className="grid gap-8 lg:grid-cols-2 items-center"
-            >
-              <img
-                src={t.img}
-                alt=""
-                className="w-full rounded shadow"
-              />
-              <div className="space-y-4">
-                <blockquote className="text-lg italic text-gray-700">
-                  “{t.quote}”
-                </blockquote>
-                <div className="flex items-center space-x-4">
-                  <img
-                    src={t.authorImg}
-                    alt={t.author}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <p className="font-semibold">{t.author}</p>
-                    <p className="text-sm text-gray-500">{t.role}</p>
-                  </div>
-                </div>
-              </div>
+      {/* ───── “Team” (solo) ───── */}
+      <section className="container mx-auto px-4 space-y-8">
+        <h2 className="text-3xl font-semibold text-center">Our Team</h2>
+
+        <div className="max-w-md mx-auto bg-white rounded shadow overflow-hidden">
+          <img
+            src={ME.img}
+            alt={ME.name}
+            className="w-full h-72 object-cover"
+          />
+
+          <div className="p-6 space-y-3 text-center">
+            <h3 className="text-xl font-semibold">{ME.name}</h3>
+            <p className="text-orange-600">{ME.role}</p>
+            <p className="text-gray-700 whitespace-pre-line">{ME.bio}</p>
+
+            <div className="flex justify-center space-x-4 pt-2 text-gray-600">
+              <a href={ME.links.github}  target="_blank" rel="noreferrer" aria-label="GitHub">
+                <i className="fab fa-github text-xl hover:text-gray-800" />
+              </a>
+              <a href={ME.links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
+                <i className="fab fa-linkedin text-xl hover:text-blue-700" />
+              </a>
+              <a href={ME.links.mail} aria-label="e-mail">
+                <i className="fas fa-envelope text-xl hover:text-red-500" />
+              </a>
             </div>
-          ))}
+          </div>
         </div>
       </section>
     </div>
