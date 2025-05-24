@@ -67,7 +67,7 @@ export default function LoginRegister() {
             <Link to="/" className="hover:underline">
               Home
             </Link>{" "}
-            / Login&nbsp;Register
+            / Login/&nbsp;Register
           </nav>
         </div>
       </div>
