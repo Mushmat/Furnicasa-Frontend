@@ -18,6 +18,7 @@ import MyAccount from "./pages/MyAccount";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
 import Wishlist from "./pages/Wishlist";
+import Terms from "./pages/Terms";
 
 /* Admin */
 import AdminDashboard from "./pages/AdminDashboard";
@@ -52,6 +53,7 @@ export default function App() {
               <Route path="/register-advanced" element={<LoginRegister />} />
               <Route path="/verify-otp"       element={<VerifyOTP />} />
               <Route path="/login"            element={<LoginRegister />} />
+              <Route path="/terms" element={<Terms />} />
 
               {/* Checkout */}
               <Route path="/checkout" element={<Checkout />} />

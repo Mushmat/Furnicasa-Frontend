@@ -12,16 +12,16 @@ export default function LoginRegister() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const handleLoginChange = (e) =>
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
+
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
+      const { data } = await axios.post(
         "https://furnicasa.onrender.com/api/auth/login",
         loginData
       );
-      const { token, isAdmin } = res.data;
-      login(loginData.email, token, isAdmin);
-      navigate(isAdmin ? "/admin" : "/");
+      login(loginData.email, data.token, data.isAdmin);
+      navigate(data.isAdmin ? "/admin" : "/");
     } catch (err) {
       alert(err.response?.data?.error || "Login failed");
     }
@@ -34,27 +34,46 @@ export default function LoginRegister() {
     email: "",
     password: "",
   });
-  const [statusMessage, setStatusMessage] = useState("");
+  const [agree, setAgree]       = useState(false); // ← NEW
+  const [statusMessage, setMsg] = useState("");
+
   const handleRegChange = (e) =>
     setRegData({ ...regData, [e.target.name]: e.target.value });
+
   const handleRegSubmit = async (e) => {
     e.preventDefault();
+    if (!agree) return; // extra guard
     try {
-      const res = await axios.post(
+      const { data } = await axios.post(
         "https://furnicasa.onrender.com/api/auth/register",
         regData
       );
-      setStatusMessage(res.data.message);
+      setMsg(data.message);
       navigate("/verify-otp", { state: { email: regData.email } });
     } catch (err) {
       alert(err.response?.data?.error || "Registration failed");
     }
   };
 
+  /* ───── reusable field component ───── */
+  const Field = ({ label, name, type = "text", value, onChange }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
+        className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
+      />
+    </div>
+  );
+
   /* ───── JSX ───── */
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
-      {/* ─── breadcrumb banner ─── */}
+      {/* breadcrumb banner */}
       <div
         className="w-full max-w-5xl h-48 rounded-lg bg-cover bg-center mb-12"
         style={{ backgroundImage: "url(/assets/images/bg/breadcrumb.png)" }}
@@ -72,39 +91,27 @@ export default function LoginRegister() {
         </div>
       </div>
 
-      {/* ─── cards wrapper ─── */}
+      {/* cards */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-10">
-        {/* ───── LOGIN CARD ───── */}
+        {/* LOGIN CARD */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
 
           <form onSubmit={handleLoginSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={loginData.email}
-                onChange={handleLoginChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={loginData.password}
-                onChange={handleLoginChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-              />
-            </div>
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={loginData.email}
+              onChange={handleLoginChange}
+            />
+            <Field
+              label="Password"
+              name="password"
+              type="password"
+              value={loginData.password}
+              onChange={handleLoginChange}
+            />
 
             <div className="flex items-center justify-between">
               <label className="flex items-center text-sm">
@@ -131,67 +138,63 @@ export default function LoginRegister() {
           </form>
         </div>
 
-        {/* ───── REGISTER CARD ───── */}
+        {/* REGISTER CARD */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
 
           <form onSubmit={handleRegSubmit} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Full&nbsp;Name
-              </label>
+            <Field
+              label="Full Name"
+              name="fullName"
+              value={regData.fullName}
+              onChange={handleRegChange}
+            />
+            <Field
+              label="Phone"
+              name="phone"
+              value={regData.phone}
+              onChange={handleRegChange}
+            />
+            <Field
+              label="Email"
+              name="email"
+              type="email"
+              value={regData.email}
+              onChange={handleRegChange}
+            />
+            <Field
+              label="Password"
+              name="password"
+              type="password"
+              value={regData.password}
+              onChange={handleRegChange}
+            />
+
+            {/* Terms & Conditions checkbox */}
+            <label className="flex items-start text-sm gap-2">
               <input
-                type="text"
-                name="fullName"
-                value={regData.fullName}
-                onChange={handleRegChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
+                type="checkbox"
+                className="h-4 w-4 mt-1 text-orange-600 border-gray-300 rounded"
+                checked={agree}
+                onChange={(e) => setAgree(e.target.checked)}
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Phone
-              </label>
-              <input
-                type="text"
-                name="phone"
-                value={regData.phone}
-                onChange={handleRegChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={regData.email}
-                onChange={handleRegChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={regData.password}
-                onChange={handleRegChange}
-                required
-                className="mt-1 block w-full border-2 border-gray-400 rounded-md focus:border-orange-500 focus:ring-orange-500"
-              />
-            </div>
+              <span>
+                By clicking this, you agree to the&nbsp;
+                <Link to="/terms" className="text-orange-600 underline">
+                  Terms&nbsp;&amp;&nbsp;Conditions
+                </Link>
+              </span>
+            </label>
 
             <button
               type="submit"
-              className="w-full py-2 px-4 bg-orange-600 text-white font-semibold rounded-md shadow hover:bg-orange-700"
+              disabled={!agree}
+              className={`w-full py-2 px-4 rounded-md font-semibold shadow
+                         ${
+                           agree
+                             ? "bg-orange-600 text-white hover:bg-orange-700"
+                             : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                         }`}
             >
               Register
             </button>
