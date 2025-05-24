@@ -7,6 +7,8 @@ import ProductCard from "../components/ProductCard";
 export default function Products() {
   /* ───── routing state ───── */
   const location = useLocation();
+  const queryParam = new URLSearchParams(location.search).get("q")?.toLowerCase() || "";
+
   const startCat = (location.state?.category || "All").toLowerCase();
 
   /* ───── data state ───── */
@@ -36,6 +38,7 @@ export default function Products() {
     setPage(1);
   }, [location.state?.category]);
 
+  useEffect(() => setPage(1), [queryParam]);
   /* ───── build category list ───── */
   const categories = useMemo(() => {
     const set = new Set(
@@ -56,6 +59,13 @@ export default function Products() {
       );
     }
 
+    if (queryParam) {
+      list = list.filter(p =>
+        p.title.toLowerCase().includes(queryParam) ||
+        (p.category || "").toLowerCase().includes(queryParam)
+      );
+    }
+
     list = list.filter((p) => p.price >= minPrice && p.price <= maxPrice);
 
     const sorters = {
@@ -67,7 +77,7 @@ export default function Products() {
     if (sortBy) list.sort(sorters[sortBy]);
 
     return list;
-  }, [products, category, minPrice, maxPrice, sortBy]);
+  }, [products, category, minPrice, maxPrice, sortBy, queryParam]);
 
   const pages     = Math.ceil(filtered.length / perPage);
   const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
