@@ -1,5 +1,7 @@
-// ─── tiny helper placed above the component, or in a separate file ───
-function Field({ label, name, type = "text", value, onChange }) {
+// src/components/Field.jsx
+import React from "react";
+
+export default function Field({ label, name, type = "text", value, onChange }) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700">{label}</label>

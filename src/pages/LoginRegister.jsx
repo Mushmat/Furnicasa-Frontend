@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import Field from "../components/Field";   // shared input component
+import { Field } from "../components/Field";
 
 export default function LoginRegister() {
   const navigate = useNavigate();
