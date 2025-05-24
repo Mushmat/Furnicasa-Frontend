@@ -31,9 +31,9 @@ const ME = {
   This entire website—front & back—was built in-house for my father’s company,
   letting me blend academic learning with real-world product engineering.`,
   links: {
-    github: "https://github.com/your-handle",
-    linkedin: "https://linkedin.com/in/your-handle",
-    mail: "mailto:chirayu@example.com",
+    github: "https://github.com/Mushmat",
+    linkedin: "https://www.linkedin.com/in/chirayu-choudhary-560837277",
+    mail: "mailto:edu.chirayu2005@gmail.com",
   },
 };
 
