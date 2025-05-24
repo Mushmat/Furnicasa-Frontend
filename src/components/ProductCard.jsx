@@ -1,4 +1,3 @@
-// src/components/ProductCard.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -10,27 +9,28 @@ import { useWishlist } from "../context/WishlistContext";
 import { Heart } from "lucide-react";
 
 export default function ProductCard({ product }) {
-  const { dispatch }              = useCart();
-  const { user }                  = useAuth();
-  const { items, add, remove }    = useWishlist();
-  const navigate                  = useNavigate();
+  const { dispatch }           = useCart();
+  const { user }               = useAuth();
+  const { items, add, remove } = useWishlist();
+  const navigate               = useNavigate();
 
-const placeholder = "/assets/images/placeholder/270x290.png";
-const imgSrc = product?.imageUrl
-  ? product.imageUrl.replace("http://", "https://")
-  : placeholder;
+  const placeholder = "/assets/images/placeholder/270x290.png";
+  const imgSrc = product?.imageUrl
+    ? product.imageUrl.replace("http://", "https://")
+    : placeholder;
 
-  /* pricing */
+  /* ───── pricing ───── */
   const { price, discountPercent: discount = 0 } = product;
   const finalPrice = Math.round(price * (1 - discount / 100));
 
-  /* already in wishlist?  (backend GET /api/wishlist returns populated product) */
- const wishedItem = items.find(
-   (i) => (i.product?._id || i?._id) === product._id   // safe & tolerant
- );
+  /* already wished? */
+  const wishedItem = items.find(
+    (i) => (i.product?._id || i?._id) === product._id
+  );
+
   /* ───── add-to-cart ───── */
   const addToCart = async (e) => {
-    e.preventDefault();                 // keep <Link> navigation intact
+    e.preventDefault();
     if (!user) return navigate("/login");
 
     try {
@@ -49,7 +49,7 @@ const imgSrc = product?.imageUrl
 
   /* ───── wishlist toggle ───── */
   const toggleWish = async (e) => {
-    e.preventDefault();                 // stop <Link> from firing
+    e.preventDefault();
     if (!user) return navigate("/login");
 
     try {
@@ -64,7 +64,7 @@ const imgSrc = product?.imageUrl
   return (
     <div className="single-grid-product bg-white rounded shadow hover:shadow-lg">
       <Link to={`/product/${product._id}`} className="block relative group">
-        {/* ♥ button (shows on hover) */}
+        {/* ♥ button */}
         <button
           onClick={toggleWish}
           className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/90 opacity-0 group-hover:opacity-100 transition"
@@ -83,25 +83,17 @@ const imgSrc = product?.imageUrl
           </span>
         )}
 
-        {/* product image */}
+        {/* product image (taller) */}
         <img
           src={imgSrc}
           alt={product.title}
-          className="w-full h-64 object-cover rounded-t"
+          className="w-full h-72 object-cover rounded-t"
         />
       </Link>
 
       {/* details */}
-      <div className="p-4">
-        <h3 className="line-clamp-2 font-semibold mb-2">
-          <Link
-            to={`/product/${product._id}`}
-            className="hover:text-orange-600"
-          >
-            {product.title}
-          </Link>
-        </h3>
-
+      <div className="p-4 flex flex-col items-center text-center">
+        {/* price first */}
         <p className="mb-1">
           {discount > 0 && (
             <span className="line-through text-gray-500 mr-1">
@@ -115,6 +107,13 @@ const imgSrc = product?.imageUrl
             <span className="ml-1 text-green-600 text-sm">-{discount}%</span>
           )}
         </p>
+
+        {/* title below price */}
+        <h3 className="line-clamp-2 font-semibold mb-2">
+          <Link to={`/product/${product._id}`} className="hover:text-orange-600">
+            {product.title}
+          </Link>
+        </h3>
 
         <button
           onClick={addToCart}

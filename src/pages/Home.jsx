@@ -1,4 +1,3 @@
-// src/pages/Home.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Slider from "react-slick";
@@ -7,7 +6,7 @@ import axios from "axios";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-/* ────────── pick up any images you drop into /src/assets/hero/ ────────── */
+/* pick up any images you drop into /src/assets/hero/ */
 const heroImages = Object.values(
   import.meta.glob("/src/assets/hero/*.{jpg,jpeg,png}", {
     eager: true,
@@ -15,7 +14,7 @@ const heroImages = Object.values(
   })
 );
 
-/* ────────── slider arrows ────────── */
+/* slider arrows */
 const Arrow = ({ onClick, direction }) => (
   <button
     type="button"
@@ -41,46 +40,45 @@ const heroSettings = {
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading,  setLoading]  = useState(true);
-  const [activeCat, setActiveCat] = useState("");      // will fill after fetch
+  const [activeCat, setActiveCat] = useState("");
   const navigate   = useNavigate();
 
-  /* ───── fetch all products once ───── */
+  /* fetch all products once */
   useEffect(() => {
     axios
       .get(`${import.meta.env.VITE_BACKEND_URL}/api/products`)
       .then(({ data }) => {
         setProducts(data);
-        /* first category becomes default tab */
         const first = data[0]?.category || "All";
         setActiveCat(first);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  /* ───── derived category list ───── */
+  /* derived category list */
   const categories = useMemo(() => {
     const set = new Set(products.map((p) => p.category || "Uncategorized"));
     return Array.from(set);
   }, [products]);
 
-  /* ───── helper: link to products page with preset filter ───── */
+  /* helper: link to products page with preset filter */
   const jumpToCategoryPage = (cat) =>
     navigate("/products", { state: { category: cat } });
 
-  /* ───── small banner pair stays unchanged (first 2 items) ───── */
+  /* banner pair (first 2 items) */
   const bannerProducts = products.slice(0, 2);
 
-  /* ───── popular items for active tab (max 4) ───── */
+  /* popular items for active tab (max 4) */
   const tabItems = products
     .filter((p) => p.category === activeCat)
     .slice(0, 4);
 
-  /* ───── render ───── */
+  /* render */
   if (loading) return <p className="p-8 text-center">Loading…</p>;
 
   return (
     <div id="main-wrapper">
-      {/* ────────── HERO SLIDER ────────── */}
+      {/* HERO SLIDER */}
       <section className="hero-section relative">
         <Slider {...heroSettings}>
           {heroImages.map((src, i) => (
@@ -103,7 +101,7 @@ export default function Home() {
         </Slider>
       </section>
 
-      {/* ────────── GREAT DEALS BANNER PAIR ────────── */}
+      {/* GREAT DEALS BANNER PAIR */}
       {bannerProducts.length === 2 && (
         <section className="py-8">
           <div className="container mx-auto px-4">
@@ -115,6 +113,13 @@ export default function Home() {
                   to={`/product/${p._id}`}
                   className="relative overflow-hidden rounded-lg shadow group"
                 >
+                  {/* discount badge */}
+                  {p.discountPercent > 0 && (
+                    <span className="absolute top-2 left-2 z-10 bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                      -{p.discountPercent}%
+                    </span>
+                  )}
+
                   <img
                     src={p.imageUrl.replace("http://", "https://")}
                     alt={p.title}
@@ -131,7 +136,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* ────────── POPULAR BY CATEGORY ────────── */}
+      {/* POPULAR BY CATEGORY */}
       <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-6">
@@ -168,20 +173,27 @@ export default function Home() {
                   <Link
                     key={p._id}
                     to={`/product/${p._id}`}
-                    className="bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
+                    className="relative bg-white rounded-lg shadow hover:shadow-md transition p-4 flex flex-col"
                   >
+                    {/* discount badge */}
+                    {p.discountPercent > 0 && (
+                      <span className="absolute top-2 left-2 z-10 bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                        -{p.discountPercent}%
+                      </span>
+                    )}
+
                     <img
                       src={p.imageUrl.replace("http://", "https://")}
                       alt={p.title}
-                      className="w-full h-40 object-contain mb-3"
+                      className="w-full h-48 object-contain mb-3"
                     />
 
-                    <h4 className="font-medium line-clamp-2 flex-1">
+                    <h4 className="font-medium line-clamp-2 flex-1 text-center">
                       {p.title}
                     </h4>
 
                     {p.discountPercent > 0 ? (
-                      <p className="mt-1">
+                      <p className="mt-1 text-center">
                         <span className="line-through text-gray-500 mr-1">
                           ₹{p.price.toLocaleString()}
                         </span>
@@ -193,7 +205,7 @@ export default function Home() {
                         </span>
                       </p>
                     ) : (
-                      <p className="text-lg font-bold mt-1">
+                      <p className="text-lg font-bold mt-1 text-center">
                         ₹{p.price.toLocaleString()}
                       </p>
                     )}
@@ -215,7 +227,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ────────── FEATURES STRIP (unchanged) ────────── */}
+      {/* FEATURES STRIP */}
       <section className="py-12">
         <div className="container mx-auto px-4 grid md:grid-cols-3 gap-6">
           {[

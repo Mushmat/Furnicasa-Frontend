@@ -1,4 +1,3 @@
-// src/pages/Products.jsx
 import React, { useEffect, useState, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchProducts } from "../services/api";
@@ -6,8 +5,9 @@ import ProductCard from "../components/ProductCard";
 
 export default function Products() {
   /* ───── routing state ───── */
-  const location = useLocation();
-  const queryParam = new URLSearchParams(location.search).get("q")?.toLowerCase() || "";
+  const location   = useLocation();
+  const queryParam =
+    new URLSearchParams(location.search).get("q")?.toLowerCase() || "";
 
   const startCat = (location.state?.category || "All").toLowerCase();
 
@@ -17,7 +17,7 @@ export default function Products() {
   const [error,    setError]    = useState("");
 
   /* ───── ui / filter state ───── */
-  const [category,  setCategory]  = useState(startCat); // 'all' | 'sofas' | …
+  const [category,  setCategory]  = useState(startCat);
   const [minPrice,  setMinPrice]  = useState(0);
   const [maxPrice,  setMaxPrice]  = useState(Infinity);
   const [sortBy,    setSortBy]    = useState("");
@@ -31,7 +31,7 @@ export default function Products() {
       .finally(() => setLoading(false));
   }, []);
 
-  /* ───── react when Navbar pushes a new category via state ───── */
+  /* react to category changes from navbar */
   useEffect(() => {
     const newCat = (location.state?.category || "All").toLowerCase();
     setCategory(newCat);
@@ -39,7 +39,8 @@ export default function Products() {
   }, [location.state?.category]);
 
   useEffect(() => setPage(1), [queryParam]);
-  /* ───── build category list ───── */
+
+  /* category list */
   const categories = useMemo(() => {
     const set = new Set(
       products.map((p) => (p.category || "Uncategorized").toLowerCase())
@@ -47,7 +48,7 @@ export default function Products() {
     return ["all", ...Array.from(set)];
   }, [products]);
 
-  /* ───── filter / sort / paginate ───── */
+  /* filter / sort / paginate */
   const perPage = 12;
 
   const filtered = useMemo(() => {
@@ -60,9 +61,10 @@ export default function Products() {
     }
 
     if (queryParam) {
-      list = list.filter(p =>
-        p.title.toLowerCase().includes(queryParam) ||
-        (p.category || "").toLowerCase().includes(queryParam)
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(queryParam) ||
+          (p.category || "").toLowerCase().includes(queryParam)
       );
     }
 
@@ -82,15 +84,15 @@ export default function Products() {
   const pages     = Math.ceil(filtered.length / perPage);
   const pageItems = filtered.slice((page - 1) * perPage, page * perPage);
 
-  /* ───── loading / error guard ───── */
+  /* guards */
   if (loading) return <p className="p-8 text-center">Loading…</p>;
   if (error)   return <p className="p-8 text-center text-red-600">{error}</p>;
 
-  /* ───── helpers ───── */
+  /* helper */
   const nice = (cat) =>
     cat === "all"
       ? "All"
-      : cat.replace(/\b\w/g, (c) => c.toUpperCase()); // title-case
+      : cat.replace(/\b\w/g, (c) => c.toUpperCase());
 
   /* ───── render ───── */
   return (
@@ -117,8 +119,8 @@ export default function Products() {
       </section>
 
       <div className="container mx-auto px-6 flex flex-col lg:flex-row gap-8">
-        {/* ───── sidebar ───── */}
-        <aside className="lg:w-1/4 space-y-6">
+        {/* ───── sidebar (narrower) ───── */}
+        <aside className="lg:w-1/5 space-y-6">
           {/* categories */}
           <div>
             <h3 className="font-semibold mb-2">Product categories</h3>
@@ -167,10 +169,7 @@ export default function Products() {
                 />
               </div>
 
-              <button
-                className="btn w-full"
-                onClick={() => setPage(1)}
-              >
+              <button className="btn w-full" onClick={() => setPage(1)}>
                 Apply filter
               </button>
 
