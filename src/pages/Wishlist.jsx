@@ -1,16 +1,14 @@
 // src/pages/Wishlist.jsx
 import React from "react";
-import axios from "axios";                     // ← NEW
-import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Link } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
 
 export default function Wishlist() {
-  const { items, remove } = useWishlist();
-  const { dispatch }      = useCart();
-  const navigate           = useNavigate();
+  const { items /*, remove */ } = useWishlist();   // keep remove for the “Remove” button
+  const { dispatch } = useCart();
 
-  /* add to cart then remove from wishlist */
   const moveToCart = async (wish) => {
     try {
       const token = localStorage.getItem("token");
@@ -20,8 +18,7 @@ export default function Wishlist() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       dispatch({ type: "ADD", payload: { product: wish.product, quantity: 1 } });
-      await remove(wish._id);
-      // (optional) navigate("/cart");
+      // 👉 DO NOT delete from wishlist any more
     } catch (err) {
       console.error(err);
       alert("Could not add to cart, please try again.");
@@ -39,6 +36,7 @@ export default function Wishlist() {
           {items.map((wish) => {
             const p   = wish.product;
             const img = p.imageUrl.replace("http://", "https://");
+
             return (
               <div key={wish._id} className="bg-white rounded shadow p-4 flex flex-col">
                 <Link to={`/product/${p._id}`}>
