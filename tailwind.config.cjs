@@ -9,9 +9,10 @@ module.exports = {
     extend: {
       fontFamily: {
         // override the default "sans" stack with your Google font first
-        sans: ['"Sour Gummy"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Bodoni Moda"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
   plugins: [],
 };
+//
