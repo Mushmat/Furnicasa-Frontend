@@ -1,3 +1,6 @@
+// src/pages/Wishlist.jsx
+import React from "react";
+import axios from "axios";                     // ← NEW
 import { Link, useNavigate } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
@@ -7,15 +10,22 @@ export default function Wishlist() {
   const { dispatch }      = useCart();
   const navigate           = useNavigate();
 
+  /* add to cart then remove from wishlist */
   const moveToCart = async (wish) => {
-    const token = localStorage.getItem("token");
-    await axios.post(
-      `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
-      { productId: wish.product._id, quantity: 1 },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-    dispatch({ type: "ADD", payload: { product: wish.product, quantity: 1 } });
-    await remove(wish._id);
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
+        { productId: wish.product._id, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      dispatch({ type: "ADD", payload: { product: wish.product, quantity: 1 } });
+      await remove(wish._id);
+      // (optional) navigate("/cart");
+    } catch (err) {
+      console.error(err);
+      alert("Could not add to cart, please try again.");
+    }
   };
 
   return (
@@ -27,7 +37,7 @@ export default function Wishlist() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {items.map((wish) => {
-            const p = wish.product;
+            const p   = wish.product;
             const img = p.imageUrl.replace("http://", "https://");
             return (
               <div key={wish._id} className="bg-white rounded shadow p-4 flex flex-col">
