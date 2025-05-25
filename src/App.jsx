@@ -14,6 +14,8 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import VerifyOTP from "./pages/VerifyOTP";
 import LoginRegister from "./pages/LoginRegister";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword  from "./pages/ResetPassword";
 import MyAccount from "./pages/MyAccount";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
@@ -52,6 +54,8 @@ export default function App() {
               {/* Auth flows */}
               <Route path="/register-advanced" element={<LoginRegister />} />
               <Route path="/verify-otp"       element={<VerifyOTP />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password"  element={<ResetPassword />}  />
               <Route path="/login"            element={<LoginRegister />} />
               <Route path="/terms" element={<Terms />} />
 
