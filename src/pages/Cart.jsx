@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from "react";
 import { useCart } from "../context/CartContext";
 import axios from "axios";
-import { FiTrash2 } from "react-icons/fi";
+
+import { FiTrash2, FiShoppingCart } from "react-icons/fi";  // ← icon
 import { Link } from "react-router-dom";
 
 const Cart = () => {
@@ -65,9 +66,10 @@ const Cart = () => {
 
   if (!cartItems.length)
     return (
-      <div className="p-4 text-center">
-        <p>Your cart is empty.</p>
-        <Link to="/products" className="text-green-600 hover:underline">
+      <div className="flex flex-col items-center justify-center py-24 text-gray-600">
+        <FiShoppingCart size={64} className="mb-4 text-orange-500" />
+        <p className="text-lg">Your cart is empty.</p>
+        <Link to="/products" className="mt-2 text-green-600 hover:underline">
           Continue shopping →
         </Link>
       </div>
