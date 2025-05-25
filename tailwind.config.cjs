@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         // override the default "sans" stack with your Google font first
-        sans: ['"WDXL Lubrifont TC"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Playwrite HU"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
