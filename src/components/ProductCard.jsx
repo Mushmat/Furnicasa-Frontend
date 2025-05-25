@@ -1,3 +1,4 @@
+// src/components/ProductCard.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,21 +15,21 @@ export default function ProductCard({ product }) {
   const { items, add, remove } = useWishlist();
   const navigate               = useNavigate();
 
+  /* ---------- image ---------- */
   const placeholder = "/assets/images/placeholder/270x290.png";
-  const imgSrc = product?.imageUrl
-    ? product.imageUrl.replace("http://", "https://")
-    : placeholder;
+  const imgSrc =
+    product?.imageUrl ? product.imageUrl.replace("http://", "https://") : placeholder;
 
-  /* ───── pricing ───── */
+  /* ---------- pricing ---------- */
   const { price, discountPercent: discount = 0 } = product;
   const finalPrice = Math.round(price * (1 - discount / 100));
 
-  /* already wished? */
+  /* ---------- wishlist status ---------- */
   const wishedItem = items.find(
     (i) => (i.product?._id || i?._id) === product._id
   );
 
-  /* ───── add-to-cart ───── */
+  /* ---------- handlers ---------- */
   const addToCart = async (e) => {
     e.preventDefault();
     if (!user) return navigate("/login");
@@ -47,7 +48,6 @@ export default function ProductCard({ product }) {
     }
   };
 
-  /* ───── wishlist toggle ───── */
   const toggleWish = async (e) => {
     e.preventDefault();
     if (!user) return navigate("/login");
@@ -60,7 +60,7 @@ export default function ProductCard({ product }) {
     }
   };
 
-  /* ───── JSX ───── */
+  /* ---------- JSX ---------- */
   return (
     <div className="single-grid-product bg-white rounded shadow hover:shadow-lg">
       <Link to={`/product/${product._id}`} className="block relative group">
@@ -69,11 +69,7 @@ export default function ProductCard({ product }) {
           onClick={toggleWish}
           className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/90 opacity-0 group-hover:opacity-100 transition"
         >
-          <Heart
-            size={20}
-            stroke="#e11d48"
-            fill={wishedItem ? "#e11d48" : "none"}
-          />
+          <Heart size={20} stroke="#e11d48" fill={wishedItem ? "#e11d48" : "none"} />
         </button>
 
         {/* discount badge */}
@@ -83,33 +79,27 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
-        {/* product image (taller) */}
-        <img
-          src={imgSrc}
-          alt={product.title}
-          className="w-full h-72 object-cover rounded-t"
-        />
+        {/* product image */}
+        <img src={imgSrc} alt={product.title} className="w-full h-72 object-cover rounded-t" />
       </Link>
 
       {/* details */}
       <div className="p-4 flex flex-col items-center text-center">
-        {/* price first */}
-        <p className="mb-1">
+        {/* price first — made bigger */}
+        <p className="mb-1 text-lg font-extrabold text-red-600">
+          ₹{finalPrice.toLocaleString()}
           {discount > 0 && (
-            <span className="line-through text-gray-500 mr-1">
-              ₹{price.toLocaleString()}
-            </span>
-          )}
-          <span className="text-red-500 font-semibold">
-            ₹{finalPrice.toLocaleString()}
-          </span>
-          {discount > 0 && (
-            <span className="ml-1 text-green-600 text-sm">-{discount}%</span>
+            <>
+              <span className="line-through text-xs text-gray-500 ml-2 font-normal">
+                ₹{price.toLocaleString()}
+              </span>
+              <span className="ml-1 text-green-600 text-xs">-{discount}%</span>
+            </>
           )}
         </p>
 
-        {/* title below price */}
-        <h3 className="line-clamp-2 font-semibold mb-2">
+        {/* title below price — smaller font */}
+        <h3 className="line-clamp-2 text-sm font-medium mb-2">
           <Link to={`/product/${product._id}`} className="hover:text-orange-600">
             {product.title}
           </Link>

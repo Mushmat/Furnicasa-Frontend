@@ -169,18 +169,21 @@ export default function Products() {
                 />
               </div>
 
-              <button className="btn w-full" onClick={() => setPage(1)}>
-                Apply filter
+               <button
+                 className="btn w-full py-1 text-sm"
+                 onClick={() => setPage(1)}
+               >                
+               Apply filter
               </button>
 
-              <button
-                className="btn w-full"
-                onClick={() => {
-                  setMinPrice(0);
-                  setMaxPrice(Infinity);
-                  setPage(1);
-                }}
-              >
+              + <button
+                   className="btn w-full py-1 text-sm"
+                   onClick={() => {
+                     setMinPrice(0);
+                     setMaxPrice(Infinity);
+                     setPage(1);
+                   }}
+                 >
                 Clear filter
               </button>
             </div>
