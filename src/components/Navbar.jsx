@@ -117,8 +117,11 @@ export default function Navbar() {
           <div className="flex items-center space-x-5">
             {/* account */}
             <div className="relative">
-              <button onClick={() => setProfileOpen((o) => !o)}
-                      className="w-6 h-6 flex items-center justify-center">
+              <button
+                title="Profile"
+                onClick={() => setProfileOpen((o) => !o)}
+                className="w-6 h-6 flex items-center justify-center"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg"
                      viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" strokeWidth="1.8"
@@ -151,7 +154,7 @@ export default function Navbar() {
             </div>
 
             {/* wishlist */}
-            <Link to="/wishlist" className="relative">
+            <Link to="/wishlist" title="Wishlist" className="relative">
               <Heart className="w-6 h-6 text-gray-700 hover:text-orange-600" />
               {wishes.length > 0 && (
                 <span className="absolute -top-2 -right-2 bg-orange-600 text-white text-[10px] leading-none rounded-full w-4 h-4 flex items-center justify-center">
@@ -161,7 +164,7 @@ export default function Navbar() {
             </Link>
 
             {/* cart */}
-            <Link to="/cart" className="relative">
+            <Link to="/cart" title="Cart" className="relative">
               <img src="https://cdn-icons-png.flaticon.com/512/263/263142.png"
                    alt="Cart" className="w-6 h-6" />
               {cartItems.length > 0 && (
