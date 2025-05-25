@@ -1,30 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=WDXL+Lubrifont+TC&display=swap');
+
 /* --- Tailwind Directives --- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* --- Override base layer to use your new font --- */
+@layer base {
+  html {
+    /* Use the `sans` stack you defined in Tailwind (starts with WDXL Lubrifont TC) */
+    font-family: theme('fontFamily.sans');
+  }
+  body {
+    /* existing body rules */
+    overflow-x: hidden;
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    @apply bg-white text-gray-800;
+  }
+}
+
 /* --- Global Styles --- */
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light;
-  color: #333;
-  background-color: #ffffff;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  overflow-x: hidden;
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  @apply bg-white text-gray-800;
-}
-
 a {
   @apply font-medium text-blue-500 hover:text-blue-700;
 }
@@ -43,7 +40,6 @@ h1 {
   @apply bg-gray-900 text-white;
 }
 
-
 .section {
   @apply max-w-6xl mx-auto p-6;
 }
@@ -52,6 +48,7 @@ h1 {
   @apply w-full bg-cover bg-center;
   height: 100vh;  /* Ensure the hero section takes up the full viewport height */
 }
+
 /* center slick dots under a full-width slider */
 .slick-dots {
   bottom: 20px;
@@ -68,6 +65,5 @@ h1 {
 
 /* show it when the group is hovered */
 .product-image:hover .overlay {
-   opacity: 1;
- }
-
+  opacity: 1;
+}
