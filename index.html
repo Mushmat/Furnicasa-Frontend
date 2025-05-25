@@ -2,30 +2,35 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Furnicasa</title>
 
-    <!-- Razorpay Checkout Script -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- Razorpay checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
 
-    <!-- Nelson styles that are still needed -->
+    <!-- Vendor icon font that the old template still needs -->
     <link rel="stylesheet" href="/assets/css/vendor/iconfont.min.css" />
 
-    <!-- Font Awesome (for social / star icons) -->
+    <!-- Font-Awesome (⚠️ no integrity attribute so the CDN hash can change) -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      integrity="sha512-1ycn6IcaQQ40/MKBW2W4/2gFqUJrhCBXun4jDKoZKpF3dDRHcFcJC1j3ocHxVQB8l0qS5Rw5uj4T7V3mgYFZdw=="
       crossorigin="anonymous"
-      referrerpolicy="no-referrer"
     />
   </head>
+
   <body>
     <div id="root"></div>
+
+    <!-- Vite will rewrite this to /assets/index-xxxx.js in production -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- (Google-maps script kept for Checkout only) -->
-    <script src="https://maps.google.com/maps/api/js?sensor=false&libraries=geometry&v=3.22"></script>
+    <!-- Google-maps is used only on Checkout; load it lazily -->
+    <script
+      async
+      defer
+      src="https://maps.google.com/maps/api/js?key=YOUR_KEY_HERE&libraries=geometry"
+    ></script>
   </body>
 </html>
