@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         // override the default "sans" stack with your Google font first
-        sans: ['"Orbitron"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Chewy"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },
