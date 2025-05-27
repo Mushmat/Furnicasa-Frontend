@@ -21,15 +21,14 @@ const features = [
   },
 ];
 
-/* one-person “team” (your profile) */
 const ME = {
-  img: "/assets/images/team/placeholder-dev.jpg", // 🖼️ drop any 400×400 headshot
+  img: "/assets/images/team/placeholder-dev.jpg",
   name: "Chirayu Choudhary",
   role: "Full-Stack Developer",
   bio: `I’m an Integrated M.Tech (CSE) student at the International
-  Institute of Information Technology, Bangalore.  
-  This entire website—front & back—was built in-house for my father’s company,
-  letting me blend academic learning with real-world product engineering.`,
+Institute of Information Technology, Bangalore.  
+This entire website—front & back—was built in-house for my father’s company,
+letting me blend academic learning with real-world product engineering.`,
   links: {
     github: "https://github.com/Mushmat",
     linkedin: "https://www.linkedin.com/in/chirayu-choudhary-560837277",
@@ -37,47 +36,15 @@ const ME = {
   },
 };
 
-/* six hard-coded customer reviews */
 const reviews = [
-  {
-    name: "Riya Patel",
-    rating: 5,
-    comment:
-      "Loved the midnight-blue sofa — plush, sturdy and delivered on time!",
-  },
-  {
-    name: "Aakash Verma",
-    rating: 4,
-    comment:
-      "Dining set quality is excellent. Minor scratch on one chair, customer-care handled it quickly.",
-  },
-  {
-    name: "Meera Nair",
-    rating: 5,
-    comment:
-      "Website UI is smooth and the AR preview feature saved me a showroom trip.",
-  },
-  {
-    name: "Kabir Singh",
-    rating: 4,
-    comment:
-      "Got a custom bookshelf made; communication and finish were spot-on.",
-  },
-  {
-    name: "Tanvi Kulkarni",
-    rating: 5,
-    comment:
-      "Three-day return actually works — I exchanged a coffee table hassle-free.",
-  },
-  {
-    name: "Rahul Menon",
-    rating: 5,
-    comment:
-      "Great mix of modern and classic designs at sane prices. Highly recommend Furnicasa.",
-  },
+  { name: "Riya Patel",      rating: 5, comment: "Loved the midnight-blue sofa — plush, sturdy and delivered on time!" },
+  { name: "Aakash Verma",    rating: 4, comment: "Dining set quality is excellent. Minor scratch on one chair, customer-care handled it quickly." },
+  { name: "Meera Nair",      rating: 5, comment: "Website UI is smooth and the AR preview feature saved me a showroom trip." },
+  { name: "Kabir Singh",     rating: 4, comment: "Got a custom bookshelf made; communication and finish were spot-on." },
+  { name: "Tanvi Kulkarni",  rating: 5, comment: "Three-day return actually works — I exchanged a coffee table hassle-free." },
+  { name: "Rahul Menon",     rating: 5, comment: "Great mix of modern and classic designs at sane prices. Highly recommend Furnicasa." },
 ];
 
-/* quick stars renderer */
 const Stars = ({ n }) => (
   <div className="flex">
     {[...Array(5)].map((_, i) => (
@@ -98,17 +65,22 @@ const Stars = ({ n }) => (
 export default function About() {
   return (
     <div className="space-y-24">
+
       {/* ───── Hero banner ───── */}
       <section
-        className="h-64 bg-cover bg-center flex items-center"
+        className="relative h-64 bg-cover bg-center"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
       >
-        <div className="container mx-auto px-4 text-white">
-          <h1 className="text-4xl font-bold">About&nbsp;Us</h1>
-          <nav className="mt-2 text-sm">
+        {/* dark overlay */}
+        <div className="absolute inset-0 bg-black/40" />
+
+        {/* centered content */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-4">
+          <h1 className="text-4xl font-bold drop-shadow-lg mb-2">About&nbsp;Us</h1>
+          <nav className="text-sm opacity-90">
             <ol className="flex space-x-2">
               <li>
-                <Link to="/" className="underline">
+                <Link to="/" className="hover:underline">
                   Home
                 </Link>
               </li>
@@ -179,19 +151,16 @@ export default function About() {
       {/* ───── “Team” (solo) ───── */}
       <section className="container mx-auto px-4 space-y-8">
         <h2 className="text-3xl font-semibold text-center">Our Team</h2>
-
         <div className="max-w-md mx-auto bg-white rounded shadow overflow-hidden">
           <img
             src={ME.img}
             alt={ME.name}
             className="w-full h-72 object-cover"
           />
-
           <div className="p-6 space-y-3 text-center">
             <h3 className="text-xl font-semibold">{ME.name}</h3>
             <p className="text-orange-600">{ME.role}</p>
             <p className="text-gray-700 whitespace-pre-line">{ME.bio}</p>
-
             <div className="flex justify-center space-x-4 pt-2 text-gray-600">
               <a href={ME.links.github}  target="_blank" rel="noreferrer" aria-label="GitHub">
                 <i className="fab fa-github text-xl hover:text-gray-800" />
