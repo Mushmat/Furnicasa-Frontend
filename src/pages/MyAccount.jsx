@@ -103,15 +103,23 @@ export default function MyAccount() {
     <div id="main-wrapper">
       {/* banner */}
       <section
-        className="page-banner-section bg-cover bg-center h-[330px]"
+        className="page-banner-section relative bg-cover bg-center h-[330px]"
         style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
       >
-        <div className="container mx-auto py-12 px-4">
-          <h2 className="text-3xl font-semibold">My Account</h2>
-          <nav className="text-sm mt-2 text-gray-600">
+        {/* dark overlay for contrast */}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+
+        <div className="container relative z-20 mx-auto py-12 px-4 text-white">
+          <h2 className="text-3xl font-semibold drop-shadow-lg">My Account</h2>
+          <nav className="text-sm mt-2 opacity-90">
             <ol className="flex space-x-2">
-              <li><Link to="/" className="hover:underline">Home</Link></li>
-              <li>/</li><li>My Account</li>
+              <li>
+                <Link to="/" className="hover:underline">
+                  Home
+                </Link>
+              </li>
+              <li>/</li>
+              <li>My Account</li>
             </ol>
           </nav>
         </div>
