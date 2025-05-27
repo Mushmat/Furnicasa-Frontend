@@ -91,12 +91,12 @@ export default function Home() {
                     <br />
                     Modern &amp; Exclusive Furniture
                   </h2>
-                  <Link
-                        to="/products"
-                        className="btn bg-white text-gray-900 hover:bg-gray-100"
-                      >
-                        SHOP NOW
-                      </Link>
+                  + <Link
+   to="/products"
+   className="px-8 py-3 bg-white text-gray-900 rounded-full uppercase font-semibold shadow transition hover:bg-gray-100"
+ >
+   SHOP NOW
+ </Link>
                 </div>
               </div>
             </div>
