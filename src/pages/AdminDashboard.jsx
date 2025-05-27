@@ -1,4 +1,3 @@
-// src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -6,7 +5,9 @@ import axios from "axios";
 const StatCard = ({ label, value }) => (
   <div className="bg-white shadow rounded-lg p-6 flex flex-col items-center">
     <span className="text-4xl font-bold">{value}</span>
-    <span className="mt-1 text-gray-500 uppercase tracking-wide text-sm">{label}</span>
+    <span className="mt-1 text-gray-500 uppercase tracking-wide text-sm">
+      {label}
+    </span>
   </div>
 );
 
@@ -35,18 +36,30 @@ const AdminDashboard = () => {
 
       {/* --- KPI CARDS --- */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-        <StatCard label="Orders"   value={stats.orders} />
+        <StatCard label="Orders" value={stats.orders} />
         <StatCard label="Products" value={stats.products} />
-        <StatCard label="Sales ₹"  value={stats.sales.toLocaleString()} />
+        <StatCard label="Sales ₹" value={stats.sales.toLocaleString()} />
       </div>
 
       {/* --- QUICK LINKS --- */}
       <div className="space-y-3">
-        <Link to="/admin/orders" className="text-lg text-blue-600 hover:underline">
+        <Link
+          to="/admin/orders"
+          className="text-lg text-blue-600 hover:underline"
+        >
           • Manage Orders
         </Link>
-        <Link to="/admin/products" className="text-lg text-blue-600 hover:underline">
+        <Link
+          to="/admin/products"
+          className="text-lg text-blue-600 hover:underline"
+        >
           • Add / Edit Products
+        </Link>
+        <Link
+          to="/admin/contacts"
+          className="text-lg text-blue-600 hover:underline"
+        >
+          • View Contact Messages
         </Link>
       </div>
     </div>
