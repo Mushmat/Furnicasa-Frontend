@@ -37,27 +37,36 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Hero / Breadcrumb */}
-      <section
-        className="h-64 bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage: "url('/assets/images/bg/breadcrumb.png')",
-        }}
-      >
-        <div className="text-center text-white">
-          <h1 className="text-4xl font-bold">Contact Us</h1>
-          <nav className="mt-2 text-sm">
-            <ol className="flex justify-center space-x-2">
-              <li>
-                <Link to="/" className="underline">
-                  Home
-                </Link>
-              </li>
-              <li>/</li>
-              <li>Contact</li>
-            </ol>
-          </nav>
-        </div>
-      </section>
+<section
+  className="relative h-64 bg-cover bg-center"
+  style={{
+    backgroundImage: "url('/assets/images/bg/breadcrumb.png')",
+  }}
+>
+  {/* dark overlay */}
+  <div className="absolute inset-0 bg-black/40" />
+
+  {/* centered content */}
+  <div className="absolute inset-0 flex items-center justify-center px-4">
+    <div className="text-center text-white">
+      <h1 className="text-4xl font-bold drop-shadow-lg mb-2">
+        Contact Us
+      </h1>
+      <nav className="mt-2 text-sm opacity-90">
+        <ol className="flex justify-center space-x-2">
+          <li>
+            <Link to="/" className="hover:underline">
+              Home
+            </Link>
+          </li>
+          <li>/</li>
+          <li>Contact</li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+</section>
+
 
       {/* Centered Content */}
       <section className="flex-1 flex items-center justify-center py-16 px-4">
