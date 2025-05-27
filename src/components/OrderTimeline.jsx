@@ -21,53 +21,63 @@ export default function OrderTimeline({ status, placedDate }) {
       { day: "2-digit", month: "short" }
     );
 
+  // compute ETAs array in same order as steps
+  const etas = steps.map((step) =>
+    step === "Order Placed"
+      ? new Date(placedDate).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+        })
+      : addDays(placedDate, ETA_DAYS[step] ?? ETA_DAYS.Delivered - 1)
+  );
+
   return (
-    <div className="mt-6 flex items-center">
-      {steps.map((step, i) => {
-        const done = i <= current;
-        const eta =
-          step === "Order Placed"
-            ? new Date(placedDate).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-              })
-            : addDays(placedDate, ETA_DAYS[step] ?? ETA_DAYS.Delivered - 1);
-
-        return (
-          <div key={step} className="relative flex-1 flex flex-col items-center">
-            {/* the circle */}
-            <div
-              className={`w-4 h-4 rounded-full ${
-                done ? "bg-green-600" : "bg-gray-300"
-              }`}
-            />
-
-            {/* the connector to the next step */}
-            {i < steps.length - 1 && (
+    <div className="mt-6 space-y-2">
+      {/* Row of circles + connectors */}
+      <div className="flex items-center">
+        {steps.map((step, i) => {
+          const done = i <= current;
+          return (
+            <React.Fragment key={step}>
               <div
-                className={`absolute top-1/2 right-0 h-0.5 ${
-                  i < current ? "bg-green-600" : "bg-gray-300"
+                className={`w-4 h-4 rounded-full ${
+                  done ? "bg-green-600" : "bg-gray-300"
                 }`}
-                style={{ width: "100%", transform: "translateX(50%)" }}
               />
-            )}
+              {i < steps.length - 1 && (
+                <div
+                  className={`flex-1 h-0.5 ${
+                    i < current ? "bg-green-600" : "bg-gray-300"
+                  }`}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
+      </div>
 
-            {/* step label */}
-            <p
-              className={`text-xs mt-1 ${
-                done ? "text-green-600" : "text-gray-500"
-              }`}
-            >
-              {step}
-            </p>
+      {/* Row of labels */}
+      <div className="flex justify-between text-xs">
+        {steps.map((step, i) => {
+          const done = i <= current;
+          return (
+            <div key={step} className="flex-1 text-center">
+              <p className={done ? "text-green-600" : "text-gray-500"}>
+                {step}
+              </p>
+            </div>
+          );
+        })}
+      </div>
 
-            {/* ETA beneath label (except first) */}
-            {step !== "Order Placed" && (
-              <p className="text-[11px] text-gray-400">{eta}</p>
-            )}
+      {/* Row of ETAs (skip first) */}
+      <div className="flex justify-between text-[11px] text-gray-400">
+        {etas.map((eta, i) => (
+          <div key={i} className="flex-1 text-center">
+            {i === 0 ? "" : eta}
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
