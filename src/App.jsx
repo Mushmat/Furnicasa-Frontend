@@ -20,7 +20,8 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
 import Wishlist from "./pages/Wishlist";
 import Terms from "./pages/Terms";
-
+  import FAQs from "./pages/FAQs";
+  import Policies from "./pages/Policies";
 /* Admin */
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
@@ -58,7 +59,8 @@ export default function App() {
               <Route path="/reset-password"    element={<ResetPassword />} />
               <Route path="/login"             element={<LoginRegister />} />
               <Route path="/terms"             element={<Terms />} />
-
+              <Route path="/faqs" element={<FAQs />} />
+              <Route path="/policies" element={<Policies />} />
               {/* Checkout */}
               <Route path="/checkout" element={<Checkout />} />
 
