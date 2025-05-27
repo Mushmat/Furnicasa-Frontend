@@ -15,7 +15,7 @@ import Contact from "./pages/Contact";
 import VerifyOTP from "./pages/VerifyOTP";
 import LoginRegister from "./pages/LoginRegister";
 import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword  from "./pages/ResetPassword";
+import ResetPassword from "./pages/ResetPassword";
 import MyAccount from "./pages/MyAccount";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Checkout from "./pages/Checkout";
@@ -27,6 +27,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
 import AdminProductList from "./pages/AdminProductList";
 import AdminProductForm from "./pages/AdminProductForm";
+import AdminContacts from "./pages/AdminContacts";    // ← new import
 
 export default function App() {
   return (
@@ -37,36 +38,38 @@ export default function App() {
 
           <main className="flex-grow pt-20">
             <Routes>
+              {/* Wishlist */}
               <Route path="/wishlist" element={<Wishlist />} />
 
               {/* Public */}
-              <Route path="/"               element={<Home />} />
-              <Route path="/products"       element={<Products />} />
-              <Route path="/product/:id"    element={<ProductDetail />} />
-              <Route path="/cart"           element={<Cart />} />
-              <Route path="/about"          element={<About />} />
-              <Route path="/contact"        element={<Contact />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/product/:id" element={<ProductDetail />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
 
               {/* Account */}
-              <Route path="/my-account"         element={<MyAccount />} />
+              <Route path="/my-account" element={<MyAccount />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
 
               {/* Auth flows */}
               <Route path="/register-advanced" element={<LoginRegister />} />
-              <Route path="/verify-otp"       element={<VerifyOTP />} />
+              <Route path="/verify-otp" element={<VerifyOTP />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password"  element={<ResetPassword />}  />
-              <Route path="/login"            element={<LoginRegister />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/login" element={<LoginRegister />} />
               <Route path="/terms" element={<Terms />} />
 
               {/* Checkout */}
               <Route path="/checkout" element={<Checkout />} />
 
               {/* Admin */}
-              <Route path="/admin"                 element={<AdminDashboard />} />
-              <Route path="/admin/orders"          element={<AdminOrders />} />
-              <Route path="/admin/products"        element={<AdminProductList />} />
-              <Route path="/admin/products/new"    element={<AdminProductForm />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/contacts" element={<AdminContacts />} />    {/* ← added */}
+              <Route path="/admin/products" element={<AdminProductList />} />
+              <Route path="/admin/products/new" element={<AdminProductForm />} />
               <Route path="/admin/products/:id/edit" element={<AdminProductForm />} />
             </Routes>
           </main>
@@ -75,7 +78,7 @@ export default function App() {
         </div>
       </Router>
 
-      {/* ✨ full-screen spinner shown whenever any axios request is in flight */}
+      {/* full-screen spinner shown whenever any axios request is in flight */}
       <LoadingOverlay />
     </>
   );

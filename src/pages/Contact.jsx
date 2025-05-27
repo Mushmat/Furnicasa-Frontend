@@ -13,11 +13,25 @@ export default function Contact() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  // ← make this async
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: actually submit
-    alert("Message sent! We'll get back to you soon.");
-    setForm({ name: "", email: "", message: "" });
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/contact`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
+      if (!res.ok) throw new Error("Network response was not ok");
+      alert("Message sent! We'll get back to you soon.");
+      setForm({ name: "", email: "", message: "" });
+    } catch (err) {
+      console.error("Contact form error:", err);
+      alert("Sorry, failed to send. Please try again later.");
+    }
   };
 
   return (
