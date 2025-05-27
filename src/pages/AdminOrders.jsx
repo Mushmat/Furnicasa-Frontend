@@ -1,24 +1,24 @@
 // src/pages/AdminOrders.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import clsx from "clsx";
 
 const statusOptions = ["Pending", "Packed", "Shipped", "Out for Delivery", "Delivered", "Cancelled"];
 const badgeColor = (s) =>
   ({
-    Pending:           "bg-yellow-100 text-yellow-800",
-    Packed:            "bg-indigo-100 text-indigo-800",
-    Shipped:           "bg-blue-100 text-blue-800",
-    "Out for Delivery":"bg-orange-100 text-orange-800",
-    Delivered:         "bg-green-100 text-green-800",
-    Cancelled:         "bg-red-100 text-red-800",
+    Pending:            "bg-yellow-100 text-yellow-800",
+    Packed:             "bg-indigo-100 text-indigo-800",
+    Shipped:            "bg-blue-100 text-blue-800",
+    "Out for Delivery": "bg-orange-100 text-orange-800",
+    Delivered:          "bg-green-100 text-green-800",
+    Cancelled:          "bg-red-100 text-red-800",
   }[s] || "bg-gray-100 text-gray-800");
 
-const AdminOrders = () => {
+export default function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const token = localStorage.getItem("token");
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       const { data } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders`,
@@ -28,7 +28,11 @@ const AdminOrders = () => {
     } catch (err) {
       console.error("Failed to fetch orders:", err);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   const updateStatus = async (id, status) => {
     try {
@@ -43,21 +47,34 @@ const AdminOrders = () => {
     }
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  const deleteOrder = async (id) => {
+    if (!confirm("Are you sure you want to delete this order?")) return;
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/orders/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      fetchOrders();
+    } catch (err) {
+      console.error("Could not delete order:", err);
+      alert("Failed to delete order.");
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-8">
       <h1 className="text-3xl font-bold mb-8">Orders</h1>
 
       {orders.length === 0 ? (
-        <p>No orders yet.</p>
+        <p className="text-center text-gray-600">No orders yet.</p>
       ) : (
         orders.map((o) => (
           <div key={o._id} className="bg-white shadow rounded-lg p-6 mb-6">
             <div className="flex flex-wrap justify-between items-start gap-4">
               <div>
                 <p className="font-semibold">
-                  Order&nbsp;ID:&nbsp;<span className="font-mono">{o._id.slice(-6)}</span>
+                  Order&nbsp;ID:&nbsp;
+                  <span className="font-mono">{o._id.slice(-6)}</span>
                 </p>
                 <p>Total: <span className="font-semibold">₹{o.totalPrice}</span></p>
                 <p>
@@ -68,6 +85,7 @@ const AdminOrders = () => {
                 </p>
               </div>
 
+              {/* Status dropdown */}
               <select
                 value={o.status}
                 onChange={(e) => updateStatus(o._id, e.target.value)}
@@ -77,6 +95,14 @@ const AdminOrders = () => {
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
+
+              {/* Delete button */}
+              <button
+                onClick={() => deleteOrder(o._id)}
+                className="text-red-600 hover:text-red-800 font-medium"
+              >
+                Delete
+              </button>
             </div>
 
             {/* --- ITEMS --- */}
@@ -92,7 +118,9 @@ const AdminOrders = () => {
                     <p className="font-medium">{product.title}</p>
                     <p className="text-sm text-gray-500">Qty: {quantity}</p>
                   </div>
-                  <p className="font-semibold whitespace-nowrap">₹{product.price * quantity}</p>
+                  <p className="font-semibold whitespace-nowrap">
+                    ₹{(product.price * quantity).toLocaleString()}
+                  </p>
                 </div>
               ))}
             </div>
@@ -101,6 +129,4 @@ const AdminOrders = () => {
       )}
     </div>
   );
-};
-
-export default AdminOrders;
+}
