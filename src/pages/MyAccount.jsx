@@ -103,27 +103,30 @@ export default function MyAccount() {
     <div id="main-wrapper">
       {/* banner */}
       <section
-        className="page-banner-section relative bg-cover bg-center h-[330px]"
-        style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
-      >
-        {/* dark overlay for contrast */}
-        <div className="absolute inset-0 bg-black/40 z-10" />
+  className="page-banner-section relative bg-cover bg-center h-[330px]"
+  style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
+>
+  {/* dark overlay for contrast */}
+  <div className="absolute inset-0 bg-black/40 z-10" />
 
-        <div className="container relative z-20 mx-auto py-12 px-4 text-white">
-          <h2 className="text-3xl font-semibold drop-shadow-lg">My Account</h2>
-          <nav className="text-sm mt-2 opacity-90">
-            <ol className="flex space-x-2">
-              <li>
-                <Link to="/" className="hover:underline">
-                  Home
-                </Link>
-              </li>
-              <li>/</li>
-              <li>My Account</li>
-            </ol>
-          </nav>
-        </div>
-      </section>
+  {/* center content */}
+  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white px-4">
+    <h2 className="text-3xl font-semibold drop-shadow-lg mb-2">
+      My Account
+    </h2>
+    <nav className="text-sm opacity-90">
+      <ol className="flex space-x-2">
+        <li>
+          <Link to="/" className="hover:underline">
+            Home
+          </Link>
+        </li>
+        <li>/</li>
+        <li>My Account</li>
+      </ol>
+    </nav>
+  </div>
+</section>
 
       {/* layout */}
       <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
