@@ -8,7 +8,6 @@
 /* --- Override base layer to use your new font --- */
 @layer base {
   html {
-    /* Use the `sans` stack you defined in Tailwind (starts with your custom font) */
     font-family: theme('fontFamily.sans');
   }
   body {
@@ -66,16 +65,14 @@ h1 {
 }
 
 /* ────────────────────────────────── */
-/* Pull the content under your sticky navs */
+/* HERO UNDER NAV FIX                */
 /* ────────────────────────────────── */
-main {
-  /* mobile: single-row navbar height = 4rem */
-  padding-top: 4rem;
+.hero-section {
+  margin-top: -4rem;
 }
 
 @media (min-width: 1024px) {
-  /* desktop: navbar (4rem) + category bar (≈2.25rem) = 6.25rem */
-  main {
-    padding-top: 6.25rem;
+  .hero-section {
+    margin-top: -6.25rem;
   }
 }
