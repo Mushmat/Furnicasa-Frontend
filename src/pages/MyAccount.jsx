@@ -2,85 +2,48 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-
-/* timeline helper */
+import OrderTimeline from "../components/OrderTimeline"; // adjust import path
 
 const steps = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"];
+const ETA_DAYS = { Shipped: 13, Delivered: 21 };
 
-/* ↳ tweak these two numbers anytime */
-const ETA_DAYS = {
-  Shipped: 13,            // days after order date
-  Delivered: 21,
-};
-
-const OrderTimeline = ({ status, placedDate }) => {
-  /* Cancelled shortcut */
-  if (status === "Cancelled")
-    return <p className="text-red-600 font-semibold mt-4">Order Cancelled</p>;
-
-  /* which step is current? (case-insensitive) */
-  const current =
-    steps.findIndex((s) => s.toLowerCase() === status?.toLowerCase()) || 0;
-
-  /* helper to add N days */
-  const addDays = (dateStr, n) =>
-    new Date(new Date(dateStr).getTime() + n * 86400000).toLocaleDateString(
-      "en-IN",
-      { day: "2-digit", month: "short" }
-    );
-
-  return (
-    <div className="mt-6 flex items-center justify-between gap-2 overflow-x-auto">
-      {steps.map((step, i) => {
-        const done = i <= current;
-        const eta =
-          step === "Order Placed"
-            ? new Date(placedDate).toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-              })
-            : addDays(placedDate, ETA_DAYS[step] ?? ETA_DAYS.Delivered - 1);
-
-        return (
-          <div key={step} className="flex-1 min-w-[70px] text-center">
-            <div
-              className={`mx-auto w-4 h-4 rounded-full ${
-                done ? "bg-green-600" : "bg-gray-300"
-              }`}
-            />
-            <p
-              className={`text-xs mt-1 ${
-                done ? "text-green-600" : "text-gray-500"
-              }`}
-            >
-              {step}
-            </p>
-            {step !== "Order Placed" && (
-              <p className="text-[11px] text-gray-400">{eta}</p>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-/* main component */
 export default function MyAccount() {
-  const { user }            = useAuth();
-  const { hash }            = useLocation();
-  const [tab, setTab]       = useState("dashboard");
-  const [orders, setOrders] = useState([]);
+  const { user: authUser } = useAuth();
+  const { hash }           = useLocation();
+  const token              = localStorage.getItem("token");
+  const [tab, setTab]      = useState("dashboard");
+  const [profile, setProfile] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: { street: "", city: "", state: "", postalCode: "", country: "" },
+  });
+  const [orders, setOrders]   = useState([]);
   const [fetchErr, setFetchErr] = useState("");
-  const token               = localStorage.getItem("token");
+  const [savingMsg, setSavingMsg] = useState("");
 
-  /* hash-based tab switch */
+  // switch tabs by hash
   useEffect(() => {
     const h = hash.replace("#", "");
-    if (["dashboard", "orders", "address", "account"].includes(h)) setTab(h);
+    if (["dashboard","orders","address","account"].includes(h)) setTab(h);
   }, [hash]);
 
-  /* fetch orders when Orders tab active */
+  // fetch profile on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/profile`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setProfile(data);
+      } catch (err) {
+        console.error("Could not load profile", err);
+      }
+    })();
+  }, [token]);
+
+  // fetch orders when tab=orders
   useEffect(() => {
     if (tab !== "orders") return;
     (async () => {
@@ -97,6 +60,45 @@ export default function MyAccount() {
     })();
   }, [tab, token]);
 
+  // handle account details save
+  const saveAccount = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/profile`,
+        {
+          fullName: profile.fullName,
+          phone: profile.phone,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProfile(data);
+      setSavingMsg("Account details updated");
+      setTimeout(() => setSavingMsg(""), 3000);
+    } catch {
+      setSavingMsg("Failed to save account details");
+      setTimeout(() => setSavingMsg(""), 3000);
+    }
+  };
+
+  // handle address save
+  const saveAddress = async (e) => {
+    e.preventDefault();
+    try {
+      const { data } = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/users/profile`,
+        { address: profile.address },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProfile(data);
+      setSavingMsg("Address updated");
+      setTimeout(() => setSavingMsg(""), 3000);
+    } catch {
+      setSavingMsg("Failed to save address");
+      setTimeout(() => setSavingMsg(""), 3000);
+    }
+  };
+
   return (
     <div id="main-wrapper">
       {/* banner */}
@@ -108,7 +110,7 @@ export default function MyAccount() {
           <h2 className="text-3xl font-semibold">My Account</h2>
           <nav className="text-sm mt-2 text-gray-600">
             <ol className="flex space-x-2">
-              <li><a href="/" className="hover:underline">Home</a></li>
+              <li><Link to="/" className="hover:underline">Home</Link></li>
               <li>/</li><li>My Account</li>
             </ol>
           </nav>
@@ -121,16 +123,18 @@ export default function MyAccount() {
         <aside className="lg:w-1/4">
           <nav className="bg-white shadow p-4 flex flex-col space-y-2">
             {[
-              ["dashboard", "Dashboard"],
-              ["orders",    "Orders"],
-              ["address",   "Address"],
-              ["account",   "Account Details"],
-            ].map(([key, label]) => (
+              ["dashboard",    "Dashboard"],
+              ["orders",       "Orders"],
+              ["address",      "Address"],
+              ["account",      "Account Details"],
+            ].map(([key,label])=>(
               <button
                 key={key}
-                onClick={() => setTab(key)}
+                onClick={()=>setTab(key)}
                 className={`text-left p-2 rounded ${
-                  tab === key ? "bg-orange-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                  tab===key
+                    ? "bg-orange-600 text-white"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 {label}
@@ -145,9 +149,11 @@ export default function MyAccount() {
           {tab === "dashboard" && (
             <>
               <h3 className="text-2xl font-semibold mb-4">Dashboard</h3>
-              <p>Hello, <strong>{user?.fullName || user?.email}</strong>!</p>
+              <p>
+                Hello, <strong>{profile.fullName || profile.email}</strong>!
+              </p>
               <p className="mt-2">
-                From here you can view your recent orders, manage addresses and update your details.
+                From here you can view your recent orders, manage your address and update your account details.
               </p>
             </>
           )}
@@ -163,14 +169,16 @@ export default function MyAccount() {
                 <div key={order._id} className="border rounded shadow p-4 mb-6">
                   <div className="flex flex-wrap justify-between">
                     <div>
-                      <p><strong>Order&nbsp;ID:</strong> {order._id}</p>
+                      <p><strong>Order ID:</strong> {order._id}</p>
                       <p><strong>Status:</strong> {order.status}</p>
                       <p><strong>Total:</strong> ₹{order.totalPrice}</p>
-                      <p><strong>Placed&nbsp;on:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+                      <p>
+                        <strong>Placed on:</strong>{" "}
+                        {new Date(order.createdAt).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
-                  {/* item grid */}
                   <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {order.items.map((it) => (
                       <Link
@@ -179,7 +187,7 @@ export default function MyAccount() {
                         className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
                       >
                         <img
-                          src={it.product?.imageUrl.replace("http://", "https://")}
+                          src={it.product?.imageUrl.replace("http://","https://")}
                           alt={it.product?.title}
                           className="w-16 h-16 object-contain border rounded"
                         />
@@ -188,22 +196,107 @@ export default function MyAccount() {
                             {it.product?.title || "Removed"}
                           </p>
                           <p className="text-gray-500">
-                            Qty&nbsp;{it.quantity} • ₹{(it.price * it.quantity).toLocaleString()}
+                            Qty {it.quantity} • ₹
+                            {(it.price * it.quantity).toLocaleString()}
                           </p>
                         </div>
                       </Link>
                     ))}
                   </div>
 
-<OrderTimeline status={order.status} placedDate={order.createdAt} />
+                  <OrderTimeline status={order.status} placedDate={order.createdAt} />
                 </div>
               ))}
             </>
           )}
 
-          {/* Address + Account panes (unchanged) */}
-          {tab === "address" && /* ... same as before ... */ null}
-          {tab === "account" && /* ... same as before ... */ null}
+          {/* Address */}
+          {tab === "address" && (
+            <>
+              <h3 className="text-2xl font-semibold mb-4">Your Address</h3>
+              <form onSubmit={saveAddress} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {["street","city","state","postalCode","country"].map((field) => (
+                    <div key={field}>
+                      <label className="block font-medium capitalize">
+                        {field.replace(/([A-Z])/g," $1")}
+                      </label>
+                      <input
+                        name={field}
+                        value={profile.address[field] || ""}
+                        onChange={(e)=>{
+                          const v = e.target.value;
+                          setProfile(p=>({
+                            ...p,
+                            address:{ ...p.address, [field]: v }
+                          }));
+                        }}
+                        className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-orange-300"
+                      />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="submit"
+                  className="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700"
+                >
+                  Save Address
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* Account Details */}
+          {tab === "account" && (
+            <>
+              <h3 className="text-2xl font-semibold mb-4">Account Details</h3>
+              <form onSubmit={saveAccount} className="space-y-4">
+                <div>
+                  <label className="block font-medium mb-1">Full Name</label>
+                  <input
+                    name="fullName"
+                    value={profile.fullName}
+                    onChange={(e)=>setProfile(p=>({
+                      ...p, [e.target.name]: e.target.value
+                    }))}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-orange-300"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Email</label>
+                  <input
+                    name="email"
+                    value={profile.email}
+                    disabled
+                    className="w-full border rounded px-3 py-2 bg-gray-100 cursor-not-allowed"
+                  />
+                </div>
+                <div>
+                  <label className="block font-medium mb-1">Phone</label>
+                  <input
+                    name="phone"
+                    value={profile.phone}
+                    onChange={(e)=>setProfile(p=>({
+                      ...p, [e.target.name]: e.target.value
+                    }))}
+                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-orange-300"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="bg-orange-600 text-white px-6 py-2 rounded hover:bg-orange-700"
+                >
+                  Save Details
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* show save confirmation */}
+          {savingMsg && (
+            <p className="mt-4 text-green-600 font-medium">{savingMsg}</p>
+          )}
         </main>
       </div>
     </div>
