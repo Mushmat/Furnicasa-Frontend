@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&display=swap');
+
 /* --- Tailwind Directives --- */
 @tailwind base;
 @tailwind components;
@@ -7,11 +8,10 @@
 /* --- Override base layer to use your new font --- */
 @layer base {
   html {
-    /* Use the `sans` stack you defined in Tailwind (starts with WDXL Lubrifont TC) */
+    /* Use the `sans` stack you defined in Tailwind (starts with your custom font) */
     font-family: theme('fontFamily.sans');
   }
   body {
-    /* existing body rules */
     overflow-x: hidden;
     margin: 0;
     min-width: 320px;
@@ -45,7 +45,7 @@ h1 {
 
 .hero-item {
   @apply w-full bg-cover bg-center;
-  height: 100vh;  /* Ensure the hero section takes up the full viewport height */
+  height: 100vh;
 }
 
 /* center slick dots under a full-width slider */
@@ -61,8 +61,21 @@ h1 {
   transition: opacity 0.3s;
   background: rgba(0,0,0,0.4);
 }
-
-/* show it when the group is hovered */
 .product-image:hover .overlay {
   opacity: 1;
+}
+
+/* ────────────────────────────────── */
+/* Pull the content under your sticky navs */
+/* ────────────────────────────────── */
+main {
+  /* mobile: single-row navbar height = 4rem */
+  padding-top: 4rem;
+}
+
+@media (min-width: 1024px) {
+  /* desktop: navbar (4rem) + category bar (≈2.25rem) = 6.25rem */
+  main {
+    padding-top: 6.25rem;
+  }
 }
