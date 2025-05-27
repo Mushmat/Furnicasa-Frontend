@@ -90,7 +90,7 @@ export default function About() {
           </nav>
         </div>
       </section>
-
+      
       {/* ───── Company intro ───── */}
       <section className="container mx-auto px-4 grid gap-12 lg:grid-cols-2 items-center">
         <img
