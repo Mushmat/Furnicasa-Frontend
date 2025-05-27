@@ -91,9 +91,12 @@ export default function Home() {
                     <br />
                     Modern &amp; Exclusive Furniture
                   </h2>
-                  <Link to="/products" className="btn bg-white/80 hover:bg-white">
-                    SHOP NOW
-                  </Link>
+                  <Link
+                        to="/products"
+                        className="btn bg-white text-gray-900 hover:bg-gray-100"
+                      >
+                        SHOP NOW
+                      </Link>
                 </div>
               </div>
             </div>
