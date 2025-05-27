@@ -83,20 +83,26 @@ export default function Home() {
         <Slider {...heroSettings}>
           {heroImages.map((src, i) => (
             <div key={i} className="relative h-[400px]">
+              {/* background image */}
               <img src={src} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 flex items-center justify-center">
+
+              {/* dark overlay for contrast */}
+              <div className="absolute inset-0 bg-black/40 z-10" />
+
+              {/* slide content */}
+              <div className="absolute inset-0 z-20 flex items-center justify-center px-4">
                 <div className="text-center text-white">
-                  <h2 className="text-4xl font-bold mb-4 leading-tight">
+                  <h2 className="text-4xl font-bold mb-4 leading-tight drop-shadow-lg">
                     Creative Design
                     <br />
                     Modern &amp; Exclusive Furniture
                   </h2>
-                  + <Link
-   to="/products"
-   className="px-8 py-3 bg-white text-gray-900 rounded-full uppercase font-semibold shadow transition hover:bg-gray-100"
- >
-   SHOP NOW
- </Link>
+                  <Link
+                    to="/products"
+                    className="px-8 py-3 bg-white text-gray-900 rounded-full uppercase font-semibold shadow transition hover:bg-gray-100"
+                  >
+                    SHOP NOW
+                  </Link>
                 </div>
               </div>
             </div>

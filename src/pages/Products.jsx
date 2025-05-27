@@ -99,28 +99,28 @@ export default function Products() {
     <div id="main-wrapper">
       {/* banner */}
       <section
-  className="page-banner-section relative bg-cover bg-center h-[330px] mb-12
-             before:absolute before:inset-0 before:bg-black/40 before:z-0"
-  style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
->
-  {/* content container now centered both ways */}
-  <div className="relative z-10 container h-full flex flex-col items-center justify-center text-white text-center px-4">
-    <h1 className="text-5xl md:text-6xl font-bold drop-shadow-lg">
-      Shop
-    </h1>
-    <nav className="mt-3 text-lg drop-shadow">
-      <ol className="flex space-x-2 justify-center">
-        <li>
-          <a href="/" className="hover:underline">
-            Home
-          </a>
-        </li>
-        <li>/</li>
-        <li>Shop</li>
-      </ol>
-    </nav>
-  </div>
-</section>
+            className="page-banner-section relative bg-cover bg-center h-[330px] mb-12
+                      before:absolute before:inset-0 before:bg-black/40 before:z-0"
+            style={{ backgroundImage: "url('/assets/images/bg/breadcrumb.png')" }}
+          >
+            {/* content container now centered both ways */}
+            <div className="relative z-10 container h-full flex flex-col items-center justify-center text-white text-center px-4">
+              <h1 className="text-5xl md:text-6xl font-bold drop-shadow-lg">
+                Shop
+              </h1>
+              <nav className="mt-3 text-lg drop-shadow">
+                <ol className="flex space-x-2 justify-center">
+                  <li>
+                    <a href="/" className="hover:underline">
+                      Home
+                    </a>
+                  </li>
+                  <li>/</li>
+                  <li>Shop</li>
+                </ol>
+              </nav>
+            </div>
+          </section>
 
       <div className="container mx-auto px-6 flex flex-col lg:flex-row gap-8">
         {/* ───── sidebar (narrower) ───── */}
