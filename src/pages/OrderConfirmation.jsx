@@ -29,7 +29,7 @@ export default function OrderConfirmation() {
           <strong>Total&nbsp;Paid:</strong> ₹{totalPrice}
         </p>
         <p className="text-gray-600 mb-6 text-center">
-          <strong>Expected&nbsp;Delivery:</strong> 15-21 business days
+          <strong>Expected&nbsp;Delivery:</strong> 4-6 business weeks (or as mentioned in Policies)
         </p>
 
         {/* guidance */}
