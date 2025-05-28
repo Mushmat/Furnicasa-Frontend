@@ -39,7 +39,7 @@ letting me blend academic learning with real-world product engineering.`,
 const reviews = [
   { name: "Riya Patel",      rating: 5, comment: "Loved the midnight-blue sofa — plush, sturdy and delivered on time!" },
   { name: "Aakash Verma",    rating: 4, comment: "Dining set quality is excellent. Minor scratch on one chair, customer-care handled it quickly." },
-  { name: "Meera Nair",      rating: 5, comment: "Website UI is smooth and the AR preview feature saved me a showroom trip." },
+  { name: "Meera Nair",      rating: 5, comment: "Website UI is smooth, easy to order." },
   { name: "Kabir Singh",     rating: 4, comment: "Got a custom bookshelf made; communication and finish were spot-on." },
   { name: "Tanvi Kulkarni",  rating: 5, comment: "Three-day return actually works — I exchanged a coffee table hassle-free." },
   { name: "Rahul Menon",     rating: 5, comment: "Great mix of modern and classic designs at sane prices. Highly recommend Furnicasa." },

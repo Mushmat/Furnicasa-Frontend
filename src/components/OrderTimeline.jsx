@@ -36,7 +36,7 @@ export default function OrderTimeline({ status, placedDate }) {
       {/* Row of circles + connectors */}
       <div className="flex items-center">
         {steps.map((step, i) => {
-          const done = i <= current;
+          const done = i === 0 || i<= current;
           return (
             <React.Fragment key={step}>
               <div
