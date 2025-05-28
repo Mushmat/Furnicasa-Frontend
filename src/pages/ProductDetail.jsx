@@ -23,32 +23,35 @@ const MAX_QTY = 10;      // 🚦 hard-cap per item
 export default function ProductDetail() {
   const { id }       = useParams();
   const { dispatch } = useCart();
+  const navigate     = useNavigate();
 
-  const [product, setProduct] = useState(null);
-  const [related, setRelated] = useState([]);
-  const [qty, setQty]         = useState(1);
-  const [tab, setTab]         = useState("description");
-  const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState("");
+  const [product,  setProduct]  = useState(null);
+  const [related,  setRelated]  = useState([]);
+  const [qty,      setQty]      = useState(1);
+  const [loading,  setLoading]  = useState(true);
+  const [error,    setError]    = useState("");
 
-  /* ── fetch product + 8 random “related” ───────────────────────── */
+  /* NEW – review state */
+  const [reviews,  setReviews]  = useState([]);
+  const [rating,   setRating]   = useState(5);
+  const [comment,  setComment]  = useState("");
+  const token = localStorage.getItem("token");
+
+  /* ─ fetch product, related items, and reviews ─ */
   useEffect(() => {
     (async () => {
       try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
-        );
-        setProduct(data);
+        const [{ data: prod }, { data: all }, { data: rev }] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`),
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`),
+          axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/reviews`)
+        ]);
 
-        const { data: all } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/products`
-        );
+        setProduct(prod);
         setRelated(
-          all
-            .filter((p) => p._id !== id)
-            .sort(() => 0.5 - Math.random())
-            .slice(0, 8)                            // ⬅️ eight items
+          all.filter((p) => p._id !== id).sort(() => 0.5 - Math.random()).slice(0, 8)
         );
+        setReviews(rev);
       } catch {
         setError("Failed to load product.");
       } finally {
@@ -90,6 +93,31 @@ export default function ProductDetail() {
     setQty(next);
   };
 
+  /* submit review */
+  const submitReview = async (e) => {
+    e.preventDefault();
+    if (!token) {
+      alert("Please sign in to leave a review.");
+      return navigate("/login");
+    }
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/reviews`,
+        { rating, comment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRating(5);
+      setComment("");
+      const { data: rev } = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/reviews`
+      );
+      setReviews(rev);                               // refresh list
+    } catch {
+      alert("Could not save review. Please try again.");
+    }
+  };
+
+  
   /* ── early returns ────────────────────────────────────────────── */
   if (loading) return <p className="p-4">Loading…</p>;
   if (error)   return <p className="p-4 text-red-600">{error}</p>;
@@ -231,8 +259,81 @@ export default function ProductDetail() {
               </Link>
             );
           })}
+          
         </div>
       </div>
+       {/* ───────────────────  REVIEWS  ─────────────────── */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">Customer Reviews</h2>
+
+        {/* average & count */}
+        {reviews.length > 0 ? (
+          <div className="mb-4 flex items-center space-x-2">
+            <p className="font-medium">
+              {(
+                reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+              ).toFixed(1)}{" "}
+              / 5
+            </p>
+            <span className="text-sm text-gray-600">
+              ({reviews.length} review{reviews.length > 1 && "s"})
+            </span>
+          </div>
+        ) : (
+          <p className="mb-4 text-sm text-gray-600">No reviews yet.</p>
+        )}
+
+        {/* list */}
+        <div className="space-y-4 mb-8">
+          {reviews.map((r) => (
+            <div key={r._id} className="border rounded p-4">
+              <p className="font-medium">
+                {"★".repeat(r.rating).padEnd(5, "☆")}
+              </p>
+              <p className="text-sm text-gray-700 mt-1">{r.comment}</p>
+              <p className="text-xs text-gray-500 mt-1">
+                — {r.name} on {new Date(r.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* form */}
+        <form onSubmit={submitReview} className="max-w-md space-y-3">
+          <label className="block">
+            <span className="text-sm font-medium">Your rating</span>
+            <select
+              value={rating}
+              onChange={(e) => setRating(Number(e.target.value))}
+              className="mt-1 border rounded px-2 py-1 text-sm"
+            >
+              {[5, 4, 3, 2, 1].map((n) => (
+                <option key={n} value={n}>
+                  {n} – {["Poor","Fair","Good","Very good","Excellent"][5-n]}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium">Your review</span>
+            <textarea
+              required
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows="3"
+              className="mt-1 w-full border rounded px-2 py-1 text-sm"
+            />
+          </label>
+
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm"
+          >
+            Submit Review
+          </button>
+        </form>
+        </div>
     </div>
   );
 }
