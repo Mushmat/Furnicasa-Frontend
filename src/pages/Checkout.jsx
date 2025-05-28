@@ -127,13 +127,45 @@ export default function Checkout() {
     }
   };
 
-  /* ─── UI ───────────────────────────────────────────────────── */
+   /* ─── UI ───────────────────────────────────────────────────── */
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h2 className="text-3xl font-semibold mb-6">Checkout</h2>
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* shipping */}
+        {/* ────── LEFT COLUMN ────── */}
         <div>
+          {/* =====  NOTICE BANNER  ===== */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded mb-6 text-sm leading-relaxed space-y-1">
+            <p className="font-medium">
+              Please read our&nbsp;
+              <Link
+                to="/policies"
+                className="text-blue-600 underline underline-offset-2"
+              >
+                Store&nbsp;Policies
+              </Link>
+              ,&nbsp;
+              <Link
+                to="/terms"
+                className="text-blue-600 underline underline-offset-2"
+              >
+                Terms&nbsp;&amp;&nbsp;Conditions
+              </Link>{" "}
+              and&nbsp;
+              <Link
+                to="/privacy"
+                className="text-blue-600 underline underline-offset-2"
+              >
+                Privacy&nbsp;Policy
+              </Link>{" "}
+              before placing an order.
+            </p>
+            <p className="text-red-600 font-semibold">
+              All sales are final — no refunds once an order is confirmed.
+            </p>
+          </div>
+
+          {/* =====  SHIPPING FORM  ===== */}
           <h4 className="font-semibold mb-4">Shipping Details</h4>
           {[
             ["fullName", "Full Name"],
@@ -155,10 +187,10 @@ export default function Checkout() {
           ))}
         </div>
 
-        {/* summary */}
+        {/* ────── RIGHT COLUMN (summary) ────── */}
         <div className="bg-white p-4 rounded shadow">
+          {/* (unchanged summary & pay button) */}
           <h4 className="font-semibold mb-4">Order Summary</h4>
-
           <ul className="divide-y">
             {cartItems.map((i) => (
               <li key={i.product._id} className="py-2 flex justify-between">
@@ -166,7 +198,8 @@ export default function Checkout() {
                   {i.product.title} × {i.quantity}
                 </span>
                 <span>
-                  ₹{(priceAfterDisc(i.product) * i.quantity).toLocaleString()}
+                  ₹
+                  {(priceAfterDisc(i.product) * i.quantity).toLocaleString()}
                 </span>
               </li>
             ))}
