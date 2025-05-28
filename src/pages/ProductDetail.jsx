@@ -289,10 +289,10 @@ export default function ProductDetail() {
               className="mt-1 border rounded px-2 py-1 text-sm"
             >
               {[5, 4, 3, 2, 1].map((n) => (
-                <option key={n} value={n}>
-                  {n} – {["Poor","Fair","Good","Very good","Excellent"][5-n]}
-                </option>
-              ))}
+            <option key={n} value={n}>
+              {n} – {["Excellent", "Very good", "Good", "Fair", "Poor"][5 - n]}
+            </option>
+          ))}
             </select>
           </label>
 
