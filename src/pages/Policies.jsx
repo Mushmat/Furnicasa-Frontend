@@ -3,155 +3,152 @@ import React from "react";
 
 export default function Policies() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-10 px-4">
-      <article className="w-full max-w-4xl bg-white shadow-lg rounded-lg p-8 prose prose-sm sm:prose-base">
-        <h1 className="text-center">Furnicasa — Store Policies</h1>
+    <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4">
+      <article className="w-full max-w-4xl bg-white shadow-lg rounded-lg px-8 py-10">
+        {/* ───────────────────────── Header ───────────────────────── */}
+        <h1 className="text-3xl font-extrabold text-center mb-10">
+          Furnicasa — Store Policies
+        </h1>
 
         {/* ─────────────────── Shipping ─────────────────── */}
-        <h2>📦 Shipping Policy</h2>
+        <section className="space-y-4 mb-10">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-2xl">📦</span> Shipping&nbsp;Policy
+          </h2>
 
-        <h3>Delivery Timelines</h3>
-        <ul>
-          <li>
-            <strong>Ready items</strong> (scatter pillows, ready lighting):&nbsp;
-            <em>7 – 15&nbsp;days</em>.
-          </li>
-          <li>
-            <strong>Customised products</strong> (sofas, large furniture, custom
-            lighting):&nbsp;
-            <em>4 – 6&nbsp;weeks</em>.
-          </li>
-        </ul>
+          <h3 className="font-semibold">Delivery&nbsp;Timelines</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              <strong>Ready items</strong>&nbsp;(scatter pillows, ready
+              lighting): <em>7 – 15&nbsp;days</em>.
+            </li>
+            <li>
+              <strong>Customised products</strong>&nbsp;(sofas, large furniture,
+              custom lighting): <em>4 – 6&nbsp;weeks</em>.
+            </li>
+          </ul>
 
-        <h3>Delivery Process</h3>
-        <ul>
-          <li>Deliveries occur <strong>Monday – Saturday</strong>.</li>
-          <li>
-            Customers receive an <strong>SMS</strong> when the shipment is ready
-            for dispatch.
-          </li>
-          <li>
-            Our courier partner may call to confirm the tentative delivery date
-            and time.
-          </li>
-          <li>
-            Delivery is made to the building premises (or wherever physically
-            possible). For floors above the first, customers must arrange their
-            own manpower.
-          </li>
-        </ul>
+          <h3 className="font-semibold">Delivery&nbsp;Process</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Deliveries occur <strong>Monday – Saturday</strong>.</li>
+            <li>
+              Customers receive an <strong>SMS</strong> when the shipment is
+              ready for dispatch.
+            </li>
+            <li>
+              Courier partner may call to confirm tentative date &amp; time.
+            </li>
+            <li>
+              Delivery is made to the building&nbsp;premises (ground floor); for
+              upper floors customers arrange manpower.
+            </li>
+          </ul>
 
-        <h3>Packaging & Inspection</h3>
-        <ul>
-          <li>
-            Goods are protected with <strong>wooden crates</strong>; packaging
-            may therefore be bulky.
-          </li>
-          <li>
-            Customers must <strong>open & inspect</strong> goods on delivery.{" "}
-            Report any defect or damage to both the delivery person
-            <em>and</em> Furnicasa customer care and note it on the Proof of
-            Delivery (POD).
-          </li>
-          <li>
-            Delivery personnel are <em>not</em> authorised to open packages or
-            crates.
-          </li>
-        </ul>
+          <h3 className="font-semibold">Packaging&nbsp;&amp;&nbsp;Inspection</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              Goods are protected with <strong>wooden crates</strong>.
+            </li>
+            <li>
+              Customers must <strong>open &amp; inspect</strong> goods on
+              delivery and note issues on the POD.
+            </li>
+            <li>Delivery staff are not authorised to open crates.</li>
+          </ul>
 
-        <h3>Delivery Refusals & Charges</h3>
-        <ul>
-          <li>
-            <strong>Entryway fit</strong> is the customer’s responsibility; we
-            cannot refund/replace items that do not fit through doors, lifts or
-            stairwells.
-          </li>
-          <li>
-            Failed delivery attempts (size issues, no-show, wrong address) may
-            incur additional charges for redelivery.
-          </li>
-          <li>
-            Furnicasa reserves the right not to deliver to insecure addresses
-            (e.g.&nbsp;communal post boxes or PO Boxes).
-          </li>
-        </ul>
+          <h3 className="font-semibold">Delivery&nbsp;Refusals&nbsp;&amp;&nbsp;Charges</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              <strong>Entryway fit</strong> is the customer’s responsibility.
+            </li>
+            <li>
+              Failed delivery attempts may incur redelivery charges.
+            </li>
+            <li>
+              We don’t deliver to insecure addresses (e.g. PO&nbsp;Boxes).
+            </li>
+          </ul>
 
-        <h3>Exceptional Circumstances</h3>
-        <p>
-          In rare cases, deliveries may fall outside the quoted time-frames due
-          to events beyond our control (weather, strikes, etc.).
-        </p>
+          <h3 className="font-semibold">Exceptional&nbsp;Circumstances</h3>
+          <p className="leading-relaxed">
+            In rare cases, deliveries may exceed quoted time-frames due to
+            weather, strikes or similar events beyond our control.
+          </p>
+        </section>
 
         {/* ───────────────── Holding cost ───────────────── */}
-        <h2>🕒 Holding Cost / Delayed-Delivery Charges</h2>
-        <ul>
-          <li>
-            We offer a <strong>2-week grace period</strong> to hold orders in
-            our warehouse upon request.
-          </li>
-          <li>
-            After that, a holding fee of{" "}
-            <strong>5 % of the order value per month&nbsp;+ 18 % GST</strong>{" "}
-            applies (partial orders included).
-          </li>
-          <li>Holding fees must be cleared before dispatch.</li>
-        </ul>
+        <section className="space-y-4 mb-10">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-2xl">🕒</span> Holding Cost /
+            Delayed-Delivery&nbsp;Charges
+          </h2>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              Free storage for <strong>14&nbsp;days</strong> on written request.
+            </li>
+            <li>
+              Thereafter&nbsp;→ <strong>5 % of order value per month&nbsp;+
+              18 % GST</strong>.
+            </li>
+            <li>Holding fee must be cleared before dispatch.</li>
+          </ul>
+        </section>
 
         {/* ───────────────── Warranty ───────────────── */}
-        <h2>🛠️ Warranty Information</h2>
+        <section className="space-y-4 mb-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-2xl">🛠️</span> Warranty&nbsp;Information
+          </h2>
 
-        <h3>Coverage</h3>
-        <ul>
-          <li>
-            <strong>One-year limited warranty</strong> against manufacturing
-            defects when used under normal residential conditions.
-          </li>
-          <li>
-            Applies to imperfections in materials or wooden frames that impair
-            usage.
-          </li>
-        </ul>
+          <h3 className="font-semibold">Coverage</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              <strong>One-year limited warranty</strong> against manufacturing
+              defects under normal residential use.
+            </li>
+            <li>
+              Covers imperfections in materials or frames that impair usage.
+            </li>
+          </ul>
 
-        <h3>Exclusions</h3>
-        <ul>
-          <li>Improper storage, handling, assembly or maintenance.</li>
-          <li>
-            Damage after purchase due to modifications, misuse, accidents or
-            negligence.
-          </li>
-          <li>Normal wear-and-tear: fabric/leather fading, cushion softening.</li>
-          <li>Labour/assembly costs.</li>
-          <li>Natural colour or texture variations in fabric, leather or wood.</li>
-          <li>Fabric and leather themselves are not covered.</li>
-          <li>Commercial use voids the warranty.</li>
-        </ul>
+          <h3 className="font-semibold">Exclusions</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>Improper storage, handling, assembly or maintenance.</li>
+            <li>
+              Damage after purchase due to accident, misuse or alterations.
+            </li>
+            <li>
+              Normal wear-and-tear: fabric/leather fading, cushion softening.
+            </li>
+            <li>Labour or assembly costs.</li>
+            <li>Natural variations in colour or grain.</li>
+            <li>Commercial use voids the warranty.</li>
+          </ul>
 
-        <h3>Claims Process</h3>
-        <ul>
-          <li>
-            Report defects within the warranty period to{" "}
-            <a href="mailto:care@furnicasa.in">care@furnicasa.in</a>.
-          </li>
-          <li>
-            Proof of purchase is required. Warranty is non-transferable and
-            limited to the original purchaser.
-          </li>
-          <li>
-            Furnicasa will repair or replace the item (of equal value). No cash
-            refunds.
-          </li>
-          <li>
-            Lighting: warranty covers non-electrical defects only. Filament
-            bulbs are covered <em>only</em> if reported broken/non-working
-            within&nbsp;2 days of delivery.
-          </li>
-          <li>
-            Visible defects must be reported within <strong>7 days</strong> of
-            delivery; issues reported later are deemed acceptable.
-          </li>
-        </ul>
+          <h3 className="font-semibold">Claims&nbsp;Process</h3>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              Email&nbsp;
+              <a
+                href="mailto:care@furnicasa.in"
+                className="text-blue-600 underline"
+              >
+                care@furnicasa.in
+              </a>{" "}
+              with proof of purchase.
+            </li>
+            <li>Warranty is non-transferable.</li>
+            <li>
+              Furnicasa will repair or replace; cash refunds are not offered.
+            </li>
+            <li>
+              Visible defects must be reported within{" "}
+              <strong>7&nbsp;days</strong> of delivery.
+            </li>
+          </ul>
+        </section>
 
-        <p className="mt-8 text-center text-xs text-gray-500">
+        <p className="text-center text-xs text-gray-500">
           © {new Date().getFullYear()} Furnicasa. All rights reserved.
         </p>
       </article>
