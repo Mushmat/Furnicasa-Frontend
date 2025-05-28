@@ -71,7 +71,7 @@ export default function Home() {
   /* popular items for active tab (max 4) */
   const tabItems = products
     .filter((p) => p.category === activeCat)
-    .slice(0, 4);
+    .slice(0, 8);
 
   /* render */
   if (loading) return <p className="p-8 text-center">Loading…</p>;
