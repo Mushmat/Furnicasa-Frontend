@@ -72,13 +72,13 @@ export default function Terms() {
             24 hours of payment. After that, a 30 % fabrication charge applies.
           </li>
           <li>
-            Ready items may be cancelled until they are dispatched from our
+            Ready items may be cancelled (by contacting us) until they are dispatched from our
             warehouse.
           </li>
           <li>
             To request a change or cancellation, email&nbsp;
-            <a href="mailto:care@furnicasa.in" className="underline">
-              care@furnicasa.in
+            <a href="mailto:cc.furnicasa@gmail.com" className="underline">
+              cc.furnicasa@gmail.com
             </a>{" "}
             quoting your order ID.
           </li>
@@ -146,8 +146,8 @@ export default function Terms() {
         <h2>12. Governing Law &amp; Dispute Resolution</h2>
         <p>
           These Terms are governed by the laws of India. Any dispute shall be
-          subject to the exclusive jurisdiction of the courts of Bangalore,
-          Karnataka. You agree to attempt informal resolution with Furnicasa for
+          subject to the exclusive jurisdiction of the courts of Jaipur,
+          Rajasthan. You agree to attempt informal resolution with Furnicasa for
           at least 30 days before filing suit.
         </p>
 
@@ -163,11 +163,11 @@ export default function Terms() {
         <h2>14. Contact</h2>
         <p>
           Questions? Email&nbsp;
-          <a href="mailto:care@furnicasa.in" className="underline">
-            care@furnicasa.in
+          <a href="mailto:cc.furnicasa@gmail.com" className="underline">
+            cc.furnicasa@gmail.com
           </a>
-          &nbsp;or write to&nbsp;Furnicasa, No.&nbsp;21, 4th&nbsp;Cross,
-          HSR&nbsp;Layout, Bangalore 560102, India.
+          &nbsp;or write to&nbsp;Furnicasa, C-&nbsp;193, Riico&nbsp;Residential&nbsp;Colony,
+          Sitapura, Jaipur 302022, India.
         </p>
 
         <p className="text-center text-xs text-gray-500 mt-8">
