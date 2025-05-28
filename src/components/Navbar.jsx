@@ -130,6 +130,20 @@ export default function Navbar() {
                     >
                       Orders
                     </Link>
+
+                    {/* ➜ NEW: Admin link (desktop) */}
+                    {user.isAdmin && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setProfileOpen(false)}
+                        className="block px-4 py-2 hover:bg-gray-100"
+                      >
+                        Admin&nbsp;Dashboard
+                      </Link>
+                    )}
+
+
+
                     <button
                       onClick={handleLogout}
                       className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -269,7 +283,18 @@ export default function Navbar() {
             </div>
 
             <Link to="/wishlist" onClick={()=>setMenuOpen(false)} className="block">Wishlist</Link>
-
+            
+             {/* ➜ NEW: Admin link (mobile) */}
+            {user?.isAdmin && (
+              <Link
+                to="/admin"
+                onClick={() => setMenuOpen(false)}
+                className="block"
+              >
+                Admin&nbsp;Dashboard
+              </Link>
+            )}
+            
             {user ? (
               <button onClick={handleLogout} className="block text-left w-full">Logout</button>
             ) : (
