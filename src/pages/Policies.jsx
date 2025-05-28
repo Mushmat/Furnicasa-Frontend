@@ -130,10 +130,10 @@ export default function Policies() {
             <li>
               Email&nbsp;
               <a
-                href="mailto:care@furnicasa.in"
+                href="mailto:cc.furnicasa@gmail.com"
                 className="text-blue-600 underline"
               >
-                care@furnicasa.in
+                cc.furnicasa@gmail.com
               </a>{" "}
               with proof of purchase.
             </li>
