@@ -184,38 +184,19 @@ export default function ProductDetail() {
             Add to Cart
           </button>
 
-          {/* ── description / reviews tabs now live right here ── */}
+          {/* ── description / specs (no tabs) ── */}
           <div>
-            <div className="flex border-b mb-2">
-              {["description", "reviews"].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTab(t)}
-                  className={`py-2 px-4 text-sm ${
-                    tab === t ? "border-b-2 border-blue-600" : ""
-                  }`}
-                >
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </button>
-              ))}
-            </div>
-
-            {tab === "description" &&
-              (Object.keys(product.specs || {}).length ? (
-                <div className="grid sm:grid-cols-2 gap-y-1 text-sm">
-                  {Object.entries(product.specs).map(([k, v]) => (
-                    <React.Fragment key={k}>
-                      <p className="font-medium">{k}</p>
-                      <p>{v}</p>
-                    </React.Fragment>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm">{product.description}</p>
-              ))}
-
-            {tab === "reviews" && (
-              <p className="text-sm italic">No reviews yet.</p>
+            {Object.keys(product.specs || {}).length ? (
+              <div className="grid sm:grid-cols-2 gap-y-1 text-sm">
+                {Object.entries(product.specs).map(([k, v]) => (
+                  <React.Fragment key={k}>
+                    <p className="font-medium">{k}</p>
+                    <p>{v}</p>
+                  </React.Fragment>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm">{product.description}</p>
             )}
           </div>
         </div>
