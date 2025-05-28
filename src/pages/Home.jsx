@@ -252,8 +252,8 @@ export default function Home() {
             },
             {
               icon: "feature-3.png",
-              title: "3-Day Return",
-              desc: "If you’re not happy",
+              title: "10-day Replacement",
+              desc: "Easy Replacement/Repair",
             },
           ].map(({ icon, title, desc }) => (
             <div

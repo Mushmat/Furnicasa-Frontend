@@ -16,8 +16,8 @@ const features = [
   },
   {
     icon: "/assets/images/icons/feature-3.png",
-    title: "3-day return",
-    desc: "Not happy? Return within 3 days for a full refund.",
+    title: "10-day Replacement",
+    desc: "Defects? Get a replacement or a repair within days.",
   },
 ];
 
