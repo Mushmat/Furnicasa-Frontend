@@ -64,7 +64,7 @@ export default function FAQs() {
       ),
     },
     {
-      q: "What is <em>not</em> covered by the warranty?",
+      q: "What is NOT covered by the warranty?",
       a: (
         <ul className="list-disc list-inside space-y-1">
           <li>Natural wear-and-tear, fading, or cushion softening.</li>
