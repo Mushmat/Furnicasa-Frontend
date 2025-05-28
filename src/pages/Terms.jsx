@@ -4,9 +4,9 @@ import React from "react";
 export default function Terms() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-start justify-center py-12 px-4">
-      <article className="w-full max-w-5xl bg-white shadow-lg rounded-lg px-8 py-10 prose prose-sm sm:prose-base">
+      <article className="w-full max-w-5xl bg-white shadow-lg rounded-lg px-8 py-10 prose prose-sm sm:prose-base lg:prose-lg prose-headings:font-bold prose-headings:text-gray-900">
         {/* ─────────── Header ─────────── */}
-        <h1 className="text-center">
+        <h1 className="text-center font-extrabold">
           Furnicasa — Terms&nbsp;&amp;&nbsp;Conditions
         </h1>
         <p className="text-center text-xs text-gray-500">
@@ -14,7 +14,7 @@ export default function Terms() {
         </p>
 
         {/* ─────────── 1. Acceptance ─────────── */}
-        <h2>1. Acceptance of Terms</h2>
+        <h2>1. Acceptance&nbsp;of&nbsp;Terms</h2>
         <p>
           By accessing <a href="https://www.furnicasa.in">furnicasa.in</a> or
           purchasing from us (“<strong>Service</strong>”), you agree to be bound
@@ -39,7 +39,8 @@ export default function Terms() {
           </li>
           <li>
             Prices are listed in Indian Rupees (INR) and include GST unless
-            stated otherwise. We reserve the right to change prices or discontinue items without notice.
+            stated otherwise. We reserve the right to change prices or
+            discontinue items without notice.
           </li>
           <li>
             Inaccuracies (typographical or system errors) may be corrected and
@@ -65,15 +66,16 @@ export default function Terms() {
         </ul>
 
         {/* ─────────── 5. Cancellations ─────────── */}
-        <h2>5. Cancellations &amp; Changes</h2>
+        <h2>5. Cancellations&nbsp;&amp;&nbsp;Changes</h2>
         <ul className="list-disc list-inside space-y-1">
           <li>
             <strong>Made-to-order furniture:</strong> Can be cancelled within
-            24 hours of payment. After that, a 30 % fabrication charge applies.
+            24&nbsp;hours of payment. After that, a 30 % fabrication charge
+            applies.
           </li>
           <li>
-            Ready items may be cancelled (by contacting us) until they are dispatched from our
-            warehouse.
+            Ready items may be cancelled (by contacting us) until they are
+            dispatched from our warehouse.
           </li>
           <li>
             To request a change or cancellation, email&nbsp;
@@ -85,11 +87,11 @@ export default function Terms() {
         </ul>
 
         {/* ─────────── 6. Shipping, Holding, Warranty ─────────── */}
-        <h2>6. Shipping, Holding &amp; Warranty</h2>
+        <h2>6. Shipping, Holding&nbsp;&amp;&nbsp;Warranty</h2>
         <p>
           These topics are covered in detail in our{" "}
-          <LinkWithUnderline to="/policies">Store&nbsp;Policies</LinkWithUnderline>. They form part of these
-          Terms.
+          <LinkWithUnderline to="/policies">Store&nbsp;Policies</LinkWithUnderline>.
+          They form part of these Terms.
         </p>
 
         {/* ─────────── 7. Intellectual-Property ─────────── */}
@@ -102,7 +104,7 @@ export default function Terms() {
         </p>
 
         {/* ─────────── 8. User-Generated Content ─────────── */}
-        <h2>8. Reviews &amp; Other User Content</h2>
+        <h2>8. Reviews&nbsp;&amp;&nbsp;Other User&nbsp;Content</h2>
         <ul className="list-disc list-inside space-y-1">
           <li>
             By submitting a review, you grant Furnicasa a non-exclusive,
@@ -136,23 +138,21 @@ export default function Terms() {
         <h2>11. Privacy</h2>
         <p>
           Our handling of personal data is explained in the{" "}
-          <LinkWithUnderline to="/privacy">
-            Furnicasa Privacy Notice
-          </LinkWithUnderline>. By using the Service you consent to that
-          processing.
+          <LinkWithUnderline to="/privacy">Furnicasa Privacy&nbsp;Notice</LinkWithUnderline>.
+          By using the Service you consent to that processing.
         </p>
 
         {/* ─────────── 12. Governing-Law & Disputes ─────────── */}
-        <h2>12. Governing Law &amp; Dispute Resolution</h2>
+        <h2>12. Governing&nbsp;Law&nbsp;&amp;&nbsp;Dispute Resolution</h2>
         <p>
           These Terms are governed by the laws of India. Any dispute shall be
           subject to the exclusive jurisdiction of the courts of Jaipur,
           Rajasthan. You agree to attempt informal resolution with Furnicasa for
-          at least 30 days before filing suit.
+          at least 30&nbsp;days before filing suit.
         </p>
 
         {/* ─────────── 13. Changes ─────────── */}
-        <h2>13. Changes to Terms</h2>
+        <h2>13. Changes&nbsp;to&nbsp;Terms</h2>
         <p>
           Furnicasa may modify these Terms at any time by posting the updated
           version on the Site. Continued use of the Service constitutes
@@ -166,8 +166,9 @@ export default function Terms() {
           <a href="mailto:cc.furnicasa@gmail.com" className="underline">
             cc.furnicasa@gmail.com
           </a>
-          &nbsp;or write to&nbsp;Furnicasa, C-&nbsp;193, Riico&nbsp;Residential&nbsp;Colony,
-          Sitapura, Jaipur 302022, India.
+          &nbsp;or write to&nbsp;Furnicasa, C&nbsp;-&nbsp;193,
+          Riico&nbsp;Residential&nbsp;Colony, Sitapura, Jaipur&nbsp;302022,
+          India.
         </p>
 
         <p className="text-center text-xs text-gray-500 mt-8">
@@ -178,7 +179,7 @@ export default function Terms() {
   );
 }
 
-/* simple helper so Tailwind keeps link styling even in prose */
+/* helper so Tailwind keeps link styling even in prose */
 const LinkWithUnderline = ({ to, children }) => (
   <a href={to} className="text-blue-600 underline">
     {children}
