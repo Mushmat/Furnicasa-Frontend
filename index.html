@@ -2,7 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="/vite.svg" />
+
+    <!--  favicons / PWA icons  -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/assets/images/favicon/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/assets/images/favicon/favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/images/favicon/apple-touch-icon.png"
+    />
+    <link
+      rel="manifest"
+      href="/assets/images/favicon/site.webmanifest"
+    />
+    <meta name="theme-color" content="#8B1252" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Furnicasa</title>
 
@@ -10,9 +34,12 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
 
     <!-- Vendor icon font that the old template still needs -->
-    <link rel="stylesheet" href="/assets/css/vendor/iconfont.min.css" />
+    <link
+      rel="stylesheet"
+      href="/assets/css/vendor/iconfont.min.css"
+    />
 
-    <!-- Font-Awesome (⚠️ no integrity attribute so the CDN hash can change) -->
+    <!-- Font Awesome (⚠ no integrity attribute so CDN hash can change) -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -23,14 +50,9 @@
   <body>
     <div id="root"></div>
 
-    <!-- Vite will rewrite this to /assets/index-xxxx.js in production -->
+    <!-- Vite rewrites this to /assets/index-xxxx.js in production -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- Google-maps is used only on Checkout; load it lazily -->
-    <script
-      async
-      defer
-      src="https://maps.google.com/maps/api/js?key=YOUR_KEY_HERE&libraries=geometry"
-    ></script>
+ 
   </body>
 </html>
