@@ -28,6 +28,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminProductList from "./pages/AdminProductList";
 import AdminProductForm from "./pages/AdminProductForm";
 import AdminContacts from "./pages/AdminContacts";  // ← new
+import Privacy from "./pages/Privacy";
 
 export default function App() {
   return (
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/terms"             element={<Terms />} />
               <Route path="/faqs" element={<FAQs />} />
               <Route path="/policies" element={<Policies />} />
+              <Route path="/privacy" element={<Privacy />} />
               {/* Checkout */}
               <Route path="/checkout" element={<Checkout />} />
 
