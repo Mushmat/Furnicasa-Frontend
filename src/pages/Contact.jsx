@@ -80,13 +80,13 @@ export default function Contact() {
             </p>
             <ul className="space-y-2 text-gray-700">
               <li>
-                <strong>Email:</strong> support@furnicasa.com
+                <strong>Email:</strong> cc.furnicasa@gmail.com
               </li>
               <li>
-                <strong>Phone:</strong> +91 98765 43210
+                <strong>Phone:</strong> +91 80582 65231
               </li>
               <li>
-                <strong>Address:</strong> 123 Furniture Lane, Delhi, India
+                <strong>Address:</strong> C-193, Riico Residential Colony, Sitapura, Jaipur, Rajasthan-302022
               </li>
             </ul>
           </div>
