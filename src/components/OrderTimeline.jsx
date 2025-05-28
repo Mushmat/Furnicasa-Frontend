@@ -2,7 +2,7 @@
 import React from "react";
 
 const steps = ["Order Placed", "Shipped", "Out for Delivery", "Delivered"];
-const ETA_DAYS = { Shipped: 13, Delivered: 21 };
+const ETA_DAYS = { Shipped: 21, Delivered: 26 };
 
 export default function OrderTimeline({ status, placedDate }) {
   if (status === "Cancelled") {
