@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 /* ─── helper: look up Indian PIN-code ─────────────────────────── */
 const lookupPin = async (pin) => {
