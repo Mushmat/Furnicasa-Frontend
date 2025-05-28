@@ -1,33 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export default function OrderConfirmation() {
-  const { state }  = useLocation();          // { orderId, totalPrice }
-  const navigate   = useNavigate();
-  const token      = localStorage.getItem("token");
+  const { state } = useLocation();            // { orderId, totalPrice }
+  const navigate  = useNavigate();
   const { orderId, totalPrice } = state || {};
 
-  const [order, setOrder] = useState(null);
-  const [err,   setErr]   = useState("");
-
-  /* fetch full order once we have an id */
-  useEffect(() => {
-    if (!orderId) return;
-    (async () => {
-      try {
-        const { data } = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/orders/${orderId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setOrder(data);
-      } catch {
-        setErr("Could not load order details.");
-      }
-    })();
-  }, [orderId, token]);
-
-  /* if no order id (e.g. direct visit) → bounce home */
+  /* if someone lands here directly, bounce home */
   useEffect(() => {
     if (!orderId) navigate("/");
   }, [orderId, navigate]);
@@ -53,32 +32,11 @@ export default function OrderConfirmation() {
           <strong>Expected&nbsp;Delivery:</strong> 15-21 business days
         </p>
 
-        {/* items */}
-        {err && <p className="text-red-600">{err}</p>}
-        {order && (
-          <div className="space-y-4 mb-6">
-            {order.items.map((it) => (
-              <Link
-                key={it._id}
-                to={`/product/${it.product?._id || ""}`}
-                className="flex items-center space-x-4 hover:bg-gray-50 p-2 rounded"
-              >
-                <img
-                  src={it.product?.imageUrl.replace("http://", "https://")}
-                  alt={it.product?.title}
-                  className="w-20 h-20 object-contain border rounded"
-                />
-                <div className="flex-1">
-                  <p className="font-medium">{it.product?.title || "Removed"}</p>
-                  <p className="text-sm text-gray-500">
-                    Qty: {it.quantity} &nbsp;|&nbsp; ₹
-                    {(it.price * it.quantity).toLocaleString()}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
+        {/* guidance */}
+        <p className="text-sm text-gray-600 mb-6 text-center">
+          You can view the full invoice and tracking details anytime in&nbsp;
+          <strong>Dashboard → Orders</strong>.
+        </p>
 
         {/* CTA */}
         <div className="text-center">
