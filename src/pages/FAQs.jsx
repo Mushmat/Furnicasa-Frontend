@@ -83,10 +83,10 @@ export default function FAQs() {
         <p>
           Email&nbsp;
           <a
-            href="mailto:care@furnicasa.in"
+            href="mailto:cc.furnicasa@gmail.com"
             className="text-blue-600 underline"
           >
-            care@furnicasa.in
+            cc.furnicasa@gmail.com
           </a>{" "}
           along with your order ID, photos of the issue and a brief description.
           Claims for visible defects must be lodged within <strong>7 days</strong> of
