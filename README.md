@@ -52,3 +52,16 @@ src/
 ├── utils/          # Formatters, constants
 └── main.jsx        # App entry
 ```
+
+**Check the live demo:** [https://furnicasa-frontend.vercel.app](https://furnicasa-frontend.vercel.app)
+
+## 🤝 Acknowledgements
+- **Furnicasa** leadership for guidance, UI feedback, and production testing  
+- **Tailwind Labs** & **Headless UI** for stellar styling utilities  
+- **Razorpay** for their developer-friendly payment APIs  
+- The open-source community whose tools and docs made this build possible
+
+## 📜 License
+This repository is **source-available, view-only**.  
+All rights are reserved; copying, modification, or redistribution is prohibited without written permission.  
+See the full terms in [`LICENSE`](./LICENSE).
