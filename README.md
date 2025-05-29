@@ -43,11 +43,11 @@ This project was built end-to-end during my SDE internship, covering **UI, state
 ## 🗂️ Folder Structure
 
 src/
-├─ assets/ # Static images & icons
-├─ components/ # Reusable UI primitives
-├─ hooks/ # Custom React hooks
-├─ pages/ # Route-level views
-├─ context/ # Global providers (Auth, Cart, Toast)
-├─ services/ # API helpers (Axios instances)
-├─ utils/ # Formatters, constants
-└─ main.jsx # App entry
+├─ assets/           # Static images & icons
+├─ components/       # Reusable UI primitives
+├─ hooks/            # Custom React hooks
+├─ pages/            # Route-level views
+├─ context/          # Global providers (Auth, Cart, Toast)
+├─ services/         # API helpers (Axios instances)
+├─ utils/            # Formatters, constants
+└─ main.jsx          # App entry
