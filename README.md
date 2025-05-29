@@ -45,11 +45,13 @@ This project was built end-to-end during my SDE internship, covering **UI, state
 src/
 ├── assets/         # Static images & icons
 ├── components/     # Reusable UI primitives
-├── hooks/          # Custom React hooks
 ├── pages/          # Route-level views
 ├── context/        # Global providers (Auth, Cart, Toast)
 ├── services/       # API helpers (Axios instances)
-├── utils/          # Formatters, constants
+├── data/           # Data Models
+├── App.css
+├── App.jsx
+├── index.css 
 └── main.jsx        # App entry
 ```
 
