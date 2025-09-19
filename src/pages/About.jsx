@@ -147,34 +147,9 @@ export default function About() {
           ))}
         </div>
       </section>
+      
+       
 
-      {/* ───── “Team” (solo) ───── */}
-      <section className="container mx-auto px-4 space-y-8">
-        <h2 className="text-3xl font-semibold text-center">Our Team</h2>
-        <div className="max-w-md mx-auto bg-white rounded shadow overflow-hidden">
-          <img
-            src={ME.img}
-            alt={ME.name}
-            className="w-full h-72 object-cover"
-          />
-          <div className="p-6 space-y-3 text-center">
-            <h3 className="text-xl font-semibold">{ME.name}</h3>
-            <p className="text-orange-600">{ME.role}</p>
-            <p className="text-gray-700 whitespace-pre-line">{ME.bio}</p>
-            <div className="flex justify-center space-x-4 pt-2 text-gray-600">
-              <a href={ME.links.github}  target="_blank" rel="noreferrer" aria-label="GitHub">
-                <i className="fab fa-github text-xl hover:text-gray-800" />
-              </a>
-              <a href={ME.links.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn">
-                <i className="fab fa-linkedin text-xl hover:text-blue-700" />
-              </a>
-              <a href={ME.links.mail} aria-label="e-mail">
-                <i className="fas fa-envelope text-xl hover:text-red-500" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
