@@ -6,7 +6,8 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { Heart } from "lucide-react";
 
-const categories = ["sofas", "bed", "dining sets", "chairs", "center tables"];
+const categories = ["sofas", "bed", "dining sets", "chairs", "center tables", "trophies", "decorative items"
+];
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
