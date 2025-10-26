@@ -1,5 +1,5 @@
 // src/pages/LoginRegister.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -56,7 +56,46 @@ export default function LoginRegister() {
     }
   };
 
-  /* ───── JSX ───── */
+  /* ───── Google Sign-In (GIS) ───── */
+  const googleBtnRef = useRef(null);
+
+  useEffect(() => {
+    // ensure script is loaded in index.html: <script src="https://accounts.google.com/gsi/client" async defer></script>
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!window.google || !clientId || !googleBtnRef.current) return;
+
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (response) => {
+        try {
+          const idToken = response.credential;
+          const { data } = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`,
+            { idToken }
+          );
+          // backend returns { token, isAdmin, user }
+          login(data.user?.email || "", data.token, data.isAdmin);
+          navigate(data.isAdmin ? "/admin" : "/");
+        } catch (e) {
+          console.error(e);
+          alert("Google login failed, please try again.");
+        }
+      },
+      auto_select: false,
+      ux_mode: "popup",
+    });
+
+    window.google.accounts.id.renderButton(googleBtnRef.current, {
+      theme: "outline",
+      size: "large",
+      type: "standard",
+      shape: "rectangular",
+      text: "continue_with",
+      logo_alignment: "left",
+      width: 320,
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
       {/* breadcrumb banner */}
@@ -122,6 +161,11 @@ export default function LoginRegister() {
               Log&nbsp;In
             </button>
           </form>
+
+          {/* Google button */}
+          <div className="mt-6">
+            <div ref={googleBtnRef} className="flex justify-center" />
+          </div>
         </div>
 
         {/* REGISTER CARD */}
@@ -165,7 +209,7 @@ export default function LoginRegister() {
                 onChange={(e) => setAgree(e.target.checked)}
               />
               <span>
-                By clicking this, you agree to the&nbsp;
+                By clicking this, you agree to the{" "}
                 <Link to="/terms" className="text-orange-600 underline">
                   Terms&nbsp;&amp;&nbsp;Conditions
                 </Link>

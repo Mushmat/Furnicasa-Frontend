@@ -28,6 +28,11 @@ export const AuthProvider = ({ children }) => {
     setUser({ email, token, isAdmin });
   };
 
+  // Helper for Google path (and any SSO)
+  const setUserAndToken = (email, token, isAdmin) => {
+    login(email, token, isAdmin);
+  };
+
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
@@ -37,7 +42,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, setUserAndToken }}>
       {children}
     </AuthContext.Provider>
   );
