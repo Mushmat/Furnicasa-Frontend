@@ -93,7 +93,7 @@ const AdminAddProduct = () => {
   const token     = localStorage.getItem("token");
   const navigate  = useNavigate();
 
-  const [form, setForm]         = useState({ title:"", price:"", description:"", category:"" });
+  const [form, setForm]         = useState({ title:"", price:"", description:"", category:"", outOfStock: false });
   const [imageFile, setImageFile] = useState(null);
   const [saving, setSaving]     = useState(false);
   const [msg, setMsg]           = useState({ type:"", text:"" });
@@ -125,7 +125,7 @@ const AdminAddProduct = () => {
       );
 
       setMsg({ type:"success", text:"Product added!" });
-      setForm({ title:"", price:"", description:"", category:"" });
+      setForm({ title:"", price:"", description:"", category:"", outOfStock: false });
       setImageFile(null);
       setTimeout(() => navigate("/admin/orders"), 1000); // go somewhere useful
     } catch (err) {
@@ -183,6 +183,16 @@ const AdminAddProduct = () => {
           value={form.category}
           onChange={(c) => setForm({ ...form, category:c })}
         />
+
+        {/* out of stock toggle */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={form.outOfStock}
+            onChange={(e) => setForm({ ...form, outOfStock: e.target.checked })}
+          />
+          Mark as out of stock
+        </label>
 
         <button
           disabled={saving}

@@ -33,6 +33,7 @@ export default function ProductCard({ product }) {
   const addToCart = async (e) => {
     e.preventDefault();
     if (!user) return navigate("/login");
+    if (product?.outOfStock) return; // prevent add when unavailable
 
     try {
       const token = localStorage.getItem("token");
@@ -79,6 +80,13 @@ export default function ProductCard({ product }) {
           </span>
         )}
 
+        {/* out-of-stock badge */}
+        {product?.outOfStock && (
+          <span className="absolute top-2 left-2 z-10 translate-y-8 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
+            Out of Stock
+          </span>
+        )}
+
         {/* product image */}
         <img src={imgSrc} alt={product.title} className="w-full h-72 object-cover rounded-t" />
       </Link>
@@ -107,9 +115,14 @@ export default function ProductCard({ product }) {
 
         <button
           onClick={addToCart}
-          className="mt-2 w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-700"
+          disabled={product?.outOfStock}
+          className={`mt-2 w-full py-2 rounded ${
+            product?.outOfStock
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-orange-600 text-white hover:bg-orange-700"
+          }`}
         >
-          Add to Cart
+          {product?.outOfStock ? "Unavailable" : "Add to Cart"}
         </button>
       </div>
     </div>

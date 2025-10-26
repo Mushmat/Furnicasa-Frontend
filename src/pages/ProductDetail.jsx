@@ -17,7 +17,6 @@ const fetchCart = async (dispatch) => {
   dispatch({ type: "SET_CART", payload: items });
 };
 
-
 const MAX_QTY = 10;      // 🚦 hard-cap per item
 
 export default function ProductDetail() {
@@ -62,13 +61,15 @@ export default function ProductDetail() {
 
   const addToCart = async () => {
     const token = localStorage.getItem("token");
-  
+
     /* guests must sign in first */
     if (!token) {
       alert("Please sign in to add items to your cart.");
       return;
     }
-  
+
+    if (product?.outOfStock) return; // prevent add when unavailable
+
     try {
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/cart/add`,
@@ -80,7 +81,6 @@ export default function ProductDetail() {
       alert("Couldn’t add to cart. Please try again.");
     }
   };
-
 
   /* ── qty helpers with cap + polite notice ─────────────────────── */
   const changeQty = (delta) => {
@@ -111,13 +111,12 @@ export default function ProductDetail() {
       const { data: rev } = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}/reviews`
       );
-      setReviews(rev);                               // refresh list
+      setReviews(rev);                                // refresh list
     } catch {
       alert("Could not save review. Please try again.");
     }
   };
 
-  
   /* ── early returns ────────────────────────────────────────────── */
   if (loading) return <p className="p-4">Loading…</p>;
   if (error)   return <p className="p-4 text-red-600">{error}</p>;
@@ -164,6 +163,11 @@ export default function ProductDetail() {
             </p>
           </div>
 
+          {/* availability */}
+          {product.outOfStock && (
+            <p className="text-red-600 font-semibold">Currently out of stock</p>
+          )}
+
           {/* qty picker */}
           <div className="flex items-center space-x-4">
             <button onClick={() => changeQty(-1)} className="text-xl">−</button>
@@ -179,9 +183,12 @@ export default function ProductDetail() {
           {/* add-to-cart */}
           <button
             onClick={addToCart}
-            className="bg-blue-600 text-white px-6 py-2 rounded w-max"
+            disabled={product.outOfStock}
+            className={`px-6 py-2 rounded w-max ${
+              product.outOfStock ? "bg-gray-300 text-gray-600 cursor-not-allowed" : "bg-blue-600 text-white"
+            }`}
           >
-            Add to Cart
+            {product.outOfStock ? "Unavailable" : "Add to Cart"}
           </button>
 
           {/* ── description / specs (no tabs) ── */}
@@ -289,10 +296,10 @@ export default function ProductDetail() {
               className="mt-1 border rounded px-2 py-1 text-sm"
             >
               {[5, 4, 3, 2, 1].map((n) => (
-            <option key={n} value={n}>
-              {n} – {["Excellent", "Very good", "Good", "Fair", "Poor"][5 - n]}
-            </option>
-          ))}
+              <option key={n} value={n}>
+                {n} – {["Excellent", "Very good", "Good", "Fair", "Poor"][5 - n]}
+              </option>
+            ))}
             </select>
           </label>
 

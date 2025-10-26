@@ -42,6 +42,7 @@ const AdminProductForm = () => {
   /* base fields + discount */
   const [base, setBase] = useState({
     title: "", price: "", category: "", discountPercent: 0,
+    outOfStock: false, // NEW
   });
 
   const [specs, setSpecs]     = useState([{ k: "", v: "" }]);
@@ -69,8 +70,8 @@ const AdminProductForm = () => {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
           );
-          const { title, price, category, imageUrl, specs, discountPercent = 0 } = data;
-          setBase({ title, price, category, discountPercent });
+          const { title, price, category, imageUrl, specs, discountPercent = 0, outOfStock = false } = data;
+          setBase({ title, price, category, discountPercent, outOfStock }); // ← include toggle
           setUrl(imageUrl);
           setSpecs(
             Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
@@ -250,6 +251,16 @@ const AdminProductForm = () => {
             + Add row
           </button>
         </div>
+
+        {/* NEW: Out of stock toggle */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={base.outOfStock}
+            onChange={(e) => setBase({ ...base, outOfStock: e.target.checked })}
+          />
+          Mark as out of stock
+        </label>
 
         <button
           disabled={saving}
