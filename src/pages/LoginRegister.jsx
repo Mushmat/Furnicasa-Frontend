@@ -184,21 +184,13 @@ export default function LoginRegister() {
             </button>
           </form>
 
-          {/* Google button */}
+           {/* Google button (only GIS-rendered) */}
           <div className="mt-6">
-            {/* Ensure the container has some height so you can see it */}
             <div
               ref={googleBtnRef}
               style={{ minHeight: 44 }}
               className="flex justify-center"
             />
-            {/* Fallback manual trigger; safe to keep or remove after button appears */}
-            <button
-              onClick={tryGoogleOneTap}
-              className="mt-3 w-full border px-4 py-2 rounded"
-            >
-              Continue with Google
-            </button>
           </div>
         </div>
 
