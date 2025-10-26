@@ -60,8 +60,16 @@ export default function LoginRegister() {
   const googleBtnRef = useRef(null);
 
   useEffect(() => {
-    // ensure script is loaded in index.html: <script src="https://accounts.google.com/gsi/client" async defer></script>
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+    // Helpful one-line debug so you can see this in the browser console
+    console.log("GIS init:", {
+      hasGoogle: !!window.google,
+      clientIdLen: clientId?.length,
+      hasRef: !!googleBtnRef.current,
+      backend: import.meta.env.VITE_BACKEND_URL,
+    });
+
     if (!window.google || !clientId || !googleBtnRef.current) return;
 
     window.google.accounts.id.initialize({
@@ -95,6 +103,20 @@ export default function LoginRegister() {
       width: 320,
     });
   }, []);
+
+  // Fallback click handler if you want to manually trigger One Tap
+  const tryGoogleOneTap = () => {
+    if (!window.google) {
+      alert("Google script not loaded");
+      return;
+    }
+    try {
+      window.google.accounts.id.prompt(); // show One Tap (if user is eligible)
+    } catch (e) {
+      console.error(e);
+      alert("Could not open Google prompt.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 sm:px-6 lg:px-8">
@@ -164,7 +186,19 @@ export default function LoginRegister() {
 
           {/* Google button */}
           <div className="mt-6">
-            <div ref={googleBtnRef} className="flex justify-center" />
+            {/* Ensure the container has some height so you can see it */}
+            <div
+              ref={googleBtnRef}
+              style={{ minHeight: 44 }}
+              className="flex justify-center"
+            />
+            {/* Fallback manual trigger; safe to keep or remove after button appears */}
+            <button
+              onClick={tryGoogleOneTap}
+              className="mt-3 w-full border px-4 py-2 rounded"
+            >
+              Continue with Google
+            </button>
           </div>
         </div>
 
