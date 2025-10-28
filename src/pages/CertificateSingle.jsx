@@ -33,12 +33,12 @@ export default function CertificateSingle() {
         <span className="text-sm text-gray-500">© {year}</span>
       </div>
 
-      <h1 className="text-3xl font-bold">Furnicasa Certificate</h1>
+      <h1 className="text-3xl font-bold">Certificate of Completion issued to Deeksha Meena</h1>
       <p className="mt-2 text-sm text-gray-600">
         Certificate ID: <span className="font-mono">{KNOWN_CERT_ID}</span>
       </p>
       <p className="mt-1 text-xs text-gray-500">
-        This page verifies the authenticity of the printed certificate.
+        This page verifies the authenticity of the certificate.
       </p>
 
       <div className="mt-6 border rounded-lg overflow-hidden bg-white">
