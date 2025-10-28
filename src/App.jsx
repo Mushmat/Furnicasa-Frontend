@@ -48,6 +48,7 @@ export default function App() {
               <Route path="/cart"           element={<Cart />} />
               <Route path="/about"          element={<About />} />
               <Route path="/contact"        element={<Contact />} />
+              <Route path="/certificate/:certId" element={<CertificateSingle />} />
 
               {/* Account */}
               <Route path="/my-account"         element={<MyAccount />} />
