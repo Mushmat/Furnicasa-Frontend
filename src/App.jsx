@@ -29,6 +29,7 @@ import AdminProductList from "./pages/AdminProductList";
 import AdminProductForm from "./pages/AdminProductForm";
 import AdminContacts from "./pages/AdminContacts";  // ← new
 import Privacy from "./pages/Privacy";
+import CertificateSingle from "./pages/CertificateSingle";
 
 export default function App() {
   return (
