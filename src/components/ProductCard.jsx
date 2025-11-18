@@ -1,4 +1,3 @@
-// src/components/ProductCard.jsx
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -7,18 +6,19 @@ import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 
 export default function ProductCard({ product }) {
-  const { dispatch }           = useCart();
-  const { user }               = useAuth();
+  const { dispatch } = useCart();
+  const { user } = useAuth();
   const { items, add, remove } = useWishlist();
-  const navigate               = useNavigate();
+  const navigate = useNavigate();
 
   /* ---------- image ---------- */
   const placeholder = "/assets/images/placeholder/270x290.png";
-  const imgSrc =
-    product?.imageUrl ? product.imageUrl.replace("http://", "https://") : placeholder;
+  const imgSrc = product?.imageUrl
+    ? product.imageUrl.replace("http://", "https://")
+    : placeholder;
 
   /* ---------- pricing ---------- */
   const { price, discountPercent: discount = 0 } = product;
@@ -33,7 +33,7 @@ export default function ProductCard({ product }) {
   const addToCart = async (e) => {
     e.preventDefault();
     if (!user) return navigate("/login");
-    if (product?.outOfStock) return; // prevent add when unavailable
+    if (product?.outOfStock) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -63,66 +63,103 @@ export default function ProductCard({ product }) {
 
   /* ---------- JSX ---------- */
   return (
-    <div className="single-grid-product bg-white rounded shadow hover:shadow-lg">
-      <Link to={`/product/${product._id}`} className="block relative group">
-        {/* ♥ button */}
-        <button
-          onClick={toggleWish}
-          className="absolute top-2 right-2 z-10 p-1 rounded-full bg-white/90 opacity-0 group-hover:opacity-100 transition"
-        >
-          <Heart size={20} stroke="#e11d48" fill={wishedItem ? "#e11d48" : "none"} />
-        </button>
+    <div className="group bg-card border border-border rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+      <Link to={`/product/${product._id}`} className="block relative">
+        {/* Product Image */}
+        <div className="relative aspect-square overflow-hidden bg-muted">
+          <img
+            src={imgSrc}
+            alt={product.title}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
 
-        {/* discount badge */}
-        {discount > 0 && (
-          <span className="absolute top-2 left-2 z-10 bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded">
-            -{discount}%
-          </span>
-        )}
+          {/* Hover overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* out-of-stock badge */}
-        {product?.outOfStock && (
-          <span className="absolute top-2 left-2 z-10 translate-y-8 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-            Out of Stock
-          </span>
-        )}
+          {/* Wishlist button */}
+          <button
+            onClick={toggleWish}
+            className="absolute top-3 right-3 z-10 p-2.5 rounded-full bg-white/95 backdrop-blur-sm shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-white"
+            aria-label="Add to wishlist"
+          >
+            <Heart
+              size={18}
+              className="transition-colors"
+              stroke="hsl(var(--accent))"
+              fill={wishedItem ? "hsl(var(--accent))" : "none"}
+            />
+          </button>
 
-        {/* product image */}
-        <img src={imgSrc} alt={product.title} className="w-full h-72 object-cover rounded-t" />
+          {/* Badges container */}
+          <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+            {/* Discount badge */}
+            {discount > 0 && (
+              <span className="px-3 py-1.5 bg-accent text-accent-foreground text-xs font-bold rounded-full shadow-md">
+                -{discount}% OFF
+              </span>
+            )}
+
+            {/* Out of stock badge */}
+            {product?.outOfStock && (
+              <span className="px-3 py-1.5 bg-destructive text-destructive-foreground text-xs font-bold rounded-full shadow-md">
+                Out of Stock
+              </span>
+            )}
+          </div>
+        </div>
       </Link>
 
-      {/* details */}
-      <div className="p-4 flex flex-col items-center text-center">
-        {/* price first — made bigger */}
-        <p className="mb-1 text-lg font-extrabold text-red-600">
-          ₹{finalPrice.toLocaleString()}
-          {discount > 0 && (
-            <>
-              <span className="line-through text-xs text-gray-500 ml-2 font-normal">
-                ₹{price.toLocaleString()}
-              </span>
-              <span className="ml-1 text-green-600 text-xs">-{discount}%</span>
-            </>
-          )}
-        </p>
-
-        {/* title below price — smaller font */}
-        <h3 className="line-clamp-2 text-sm font-medium mb-2">
-          <Link to={`/product/${product._id}`} className="hover:text-orange-600">
+      {/* Product Info */}
+      <div className="p-5 space-y-3">
+        {/* Title */}
+        <h3 className="font-semibold text-base leading-tight line-clamp-2 min-h-[2.5rem] group-hover:text-accent transition-colors">
+          <Link to={`/product/${product._id}`}>
             {product.title}
           </Link>
         </h3>
 
+        {/* Category (optional) */}
+        {product.category && (
+          <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">
+            {product.category}
+          </p>
+        )}
+
+        {/* Price section */}
+        <div className="flex items-baseline gap-2 pt-1">
+          <span className="text-2xl font-bold text-accent">
+            ₹{finalPrice.toLocaleString()}
+          </span>
+          {discount > 0 && (
+            <>
+              <span className="text-sm line-through text-muted-foreground font-medium">
+                ₹{price.toLocaleString()}
+              </span>
+              <span className="text-xs font-semibold text-green-600 dark:text-green-500 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 rounded-full">
+                Save {discount}%
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Add to Cart Button */}
         <button
           onClick={addToCart}
           disabled={product?.outOfStock}
-          className={`mt-2 w-full py-2 rounded ${
+          className={`w-full mt-4 py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
             product?.outOfStock
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-orange-600 text-white hover:bg-orange-700"
+              ? "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:opacity-90 hover:shadow-lg active:scale-[0.98]"
           }`}
         >
-          {product?.outOfStock ? "Unavailable" : "Add to Cart"}
+          {product?.outOfStock ? (
+            "Unavailable"
+          ) : (
+            <>
+              <ShoppingCart size={18} />
+              Add to Cart
+            </>
+          )}
         </button>
       </div>
     </div>
