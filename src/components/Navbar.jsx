@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { useWishlist } from "../context/WishlistContext";
 import { Heart } from "lucide-react";
 
-const categories = ["sofas", "bed", "dining sets", "chairs", "center tables", "trophies", "decorative items"
+const categories = ["sofas", "bed", "dining sets", "chairs", "center tables", "trophies", "accessories"
 ];
 
 export default function Navbar() {
