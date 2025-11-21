@@ -16,14 +16,32 @@ const ImageDrop = ({ initial, onSelect }) => {
       onSelect(file);
     },
   });
+
+  const clearImage = (e) => {
+    e.stopPropagation(); // prevent triggering dropzone click
+    setPreview(null);
+    onSelect(null);
+  };
+
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer border-gray-300"
+      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer border-gray-300 relative"
     >
       <input {...getInputProps()} />
       {preview ? (
-        <img src={preview} alt="" className="h-40 mx-auto object-contain" />
+        <div className="relative">
+          <img src={preview} alt="" className="h-40 mx-auto object-contain" />
+          {/* Cross button */}
+          <button
+            type="button"
+            onClick={clearImage}
+            className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 transition"
+            title="Remove image"
+          >
+            ✕
+          </button>
+        </div>
       ) : (
         <p className="text-gray-500">Drag & drop image or click to browse</p>
       )}
