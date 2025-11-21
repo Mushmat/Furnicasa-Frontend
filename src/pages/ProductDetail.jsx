@@ -65,6 +65,7 @@ export default function ProductDetail() {
     /* guests must sign in first */
     if (!token) {
       alert("Please sign in to add items to your cart.");
+      navigate("/login", { state: { from: `/product/${id}` } });
       return;
     }
 
