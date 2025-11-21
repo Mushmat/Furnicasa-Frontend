@@ -135,11 +135,11 @@ export default function ProductDetail() {
       {/* top grid */}
       <div className="grid md:grid-cols-2 gap-8">
         {/* image box keeps aspect ratio uniform */}
-        <div className="w-full h-64 md:h-96 lg:h-[500px] flex items-center justify-center border">
+        <div className="w-full aspect-square max-w-md mx-auto border rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
           <img
             src={product.imageUrl.replace("http://", "https://")}
             alt={product.title}
-            className="max-w-full max-h-full object-contain"
+            className="w-full h-full object-contain p-4"
           />
         </div>
 
