@@ -18,7 +18,7 @@ const ImageDrop = ({ initial, onSelect }) => {
   });
 
   const clearImage = (e) => {
-    e.stopPropagation(); // prevent triggering dropzone click
+    e.stopPropagation();
     setPreview(null);
     onSelect(null);
   };
@@ -32,7 +32,6 @@ const ImageDrop = ({ initial, onSelect }) => {
       {preview ? (
         <div className="relative">
           <img src={preview} alt="" className="h-40 mx-auto object-contain" />
-          {/* Cross button */}
           <button
             type="button"
             onClick={clearImage}
@@ -57,10 +56,14 @@ const AdminProductForm = () => {
   const { user }  = useAuth();
   const token     = localStorage.getItem("token");
 
-  /* base fields + discount */
+  /* base fields + discount + description */
   const [base, setBase] = useState({
-    title: "", price: "", category: "", discountPercent: 0,
-    outOfStock: false, // NEW
+    title: "",
+    price: "",
+    category: "",
+    description: "", // NEW
+    discountPercent: 0,
+    outOfStock: false,
   });
 
   const [specs, setSpecs]     = useState([{ k: "", v: "" }]);
@@ -88,8 +91,17 @@ const AdminProductForm = () => {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
           );
-          const { title, price, category, imageUrl, specs, discountPercent = 0, outOfStock = false } = data;
-          setBase({ title, price, category, discountPercent, outOfStock }); // ← include toggle
+          const {
+            title,
+            price,
+            category,
+            description = "", // NEW
+            imageUrl,
+            specs,
+            discountPercent = 0,
+            outOfStock = false
+          } = data;
+          setBase({ title, price, category, description, discountPercent, outOfStock });
           setUrl(imageUrl);
           setSpecs(
             Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
@@ -225,6 +237,15 @@ const AdminProductForm = () => {
           </button>
         </div>
 
+        {/* NEW: Description textarea */}
+        <textarea
+          rows="4"
+          className="w-full border rounded px-3 py-2"
+          placeholder="Product Description (optional)"
+          value={base.description}
+          onChange={(e) => setBase({ ...base, description: e.target.value })}
+        />
+
         <ImageDrop initial={imgUrl} onSelect={setFile} />
 
         <datalist id="spec-keys">
@@ -270,7 +291,7 @@ const AdminProductForm = () => {
           </button>
         </div>
 
-        {/* NEW: Out of stock toggle */}
+        {/* Out of stock toggle */}
         <label className="flex items-center gap-2">
           <input
             type="checkbox"

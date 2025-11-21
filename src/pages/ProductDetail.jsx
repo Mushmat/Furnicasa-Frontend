@@ -192,21 +192,32 @@ export default function ProductDetail() {
             {product.outOfStock ? "Unavailable" : "Add to Cart"}
           </button>
 
-          {/* ── description / specs (no tabs) ── */}
-          <div>
-            {Object.keys(product.specs || {}).length ? (
-              <div className="grid sm:grid-cols-2 gap-y-1 text-sm">
-                {Object.entries(product.specs).map(([k, v]) => (
-                  <React.Fragment key={k}>
-                    <p className="font-medium">{k}</p>
-                    <p>{v}</p>
-                  </React.Fragment>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm">{product.description}</p>
-            )}
-          </div>
+          {/* ── description / specs ── */}
+            <div className="space-y-4">
+              {/* Show description if present */}
+              {product.description && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Description</h3>
+                  <p className="text-sm text-gray-700">{product.description}</p>
+                </div>
+              )}
+
+              {/* Show specs if present */}
+              {Object.keys(product.specs || {}).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Specifications</h3>
+                  <div className="grid sm:grid-cols-2 gap-y-1 text-sm">
+                    {Object.entries(product.specs).map(([k, v]) => (
+                      <React.Fragment key={k}>
+                        <p className="font-medium">{k}</p>
+                        <p>{v}</p>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
         </div>
       </div>
 
