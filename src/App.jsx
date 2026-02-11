@@ -68,6 +68,8 @@ export default function App() {
               {/* Checkout */}
               <Route path="/checkout" element={<Checkout />} />
 
+              <Route path="/company_profile" element={<PdfViewer />} />
+
               {/* Admin */}
               <Route path="/admin"                   element={<AdminDashboard />} />
               <Route path="/admin/orders"            element={<AdminOrders />} />
