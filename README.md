@@ -1,6 +1,6 @@
 # Furnicasa - Front-End
 
-> **Live Demo:** <https://furnicasa-frontend.vercel.app>  
+> **Live Demo:** <https://furnicasa.in>  
 > **Status:** ![production-badge](https://img.shields.io/badge/live-✅-brightgreen) ![vercel](https://img.shields.io/badge/hosted%20on-vercel-black)  
 > **License:** View-only & All Rights Reserved (see [`LICENSE`](./LICENSE))
 
