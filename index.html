@@ -2,6 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Furnicasa — Made-to-order furniture, built to last</title>
+    <meta
+      name="description"
+      content="Sofas, beds and dining sets built to order in solid hardwood and shipped direct across India. Free delivery over ₹10,000, one-year warranty."
+    />
+    <meta name="theme-color" content="#0D0B0A" />
 
     <!--  favicons / PWA icons  -->
     <link
@@ -22,31 +30,14 @@
       href="/assets/images/favicon/apple-touch-icon.png"
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/assets/images/favicon/site.webmanifest" />
 
-    <link
-      rel="manifest"
-      href="/assets/images/favicon/site.webmanifest"
-    />
-    <meta name="theme-color" content="#8B1252" />
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Furnicasa</title>
+    <!-- Google Fonts are pulled in from index.css; warm the connection early -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
     <!-- Razorpay checkout -->
     <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
-
-    <!-- Vendor icon font that the old template still needs -->
-    <link
-      rel="stylesheet"
-      href="/assets/css/vendor/iconfont.min.css"
-    />
-
-    <!-- Font Awesome (⚠ no integrity attribute so CDN hash can change) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-      crossorigin="anonymous"
-    />
   </head>
 
   <body>
@@ -56,6 +47,5 @@
     <script type="module" src="/src/main.jsx"></script>
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
-  </body> 
+  </body>
 </html>

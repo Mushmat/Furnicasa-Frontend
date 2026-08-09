@@ -1,17 +1,36 @@
 // src/pages/AdminProductForm.jsx
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { useDropzone } from "react-dropzone";
-import { useAuth } from "../context/AuthContext";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  UploadCloud,
+  X,
+  Plus,
+  Trash2,
+  Loader2,
+  ArrowLeft,
+  Lock,
+} from "lucide-react";
 
-/* ───────────────────────── image drop ───────────────────────── */
-const ImageDrop = ({ initial, onSelect }) => {
+import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/ui/Toast";
+import AdminShell from "../components/ui/AdminShell";
+import { EmptyState, inr } from "../components/ui/Bits";
+import { EASE, spring } from "../components/ui/motion";
+
+/* ── image drop zone ──────────────────────────────────────── */
+function ImageDrop({ initial, onSelect }) {
   const [preview, setPreview] = useState(initial);
-  const { getRootProps, getInputProps } = useDropzone({
+
+  useEffect(() => setPreview(initial), [initial]);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { "image/*": [] },
     multiple: false,
     onDrop: ([file]) => {
+      if (!file) return;
       setPreview(URL.createObjectURL(file));
       onSelect(file);
     },
@@ -26,54 +45,91 @@ const ImageDrop = ({ initial, onSelect }) => {
   return (
     <div
       {...getRootProps()}
-      className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer border-gray-300 relative"
+      className={`relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed p-6 text-center transition-colors ${
+        isDragActive
+          ? "border-clay-500 bg-clay-50"
+          : "border-ink-200 bg-sand-100/50 hover:border-ink-300"
+      }`}
     >
       <input {...getInputProps()} />
-      {preview ? (
-        <div className="relative">
-          <img src={preview} alt="" className="h-40 mx-auto object-contain" />
-          <button
-            type="button"
-            onClick={clearImage}
-            className="absolute top-0 right-0 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-700 transition"
-            title="Remove image"
+
+      <AnimatePresence mode="wait">
+        {preview ? (
+          <motion.div
+            key="preview"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="relative"
           >
-            ✕
-          </button>
-        </div>
-      ) : (
-        <p className="text-gray-500">Drag & drop image or click to browse</p>
-      )}
+            <img
+              src={preview}
+              alt="Product preview"
+              className="mx-auto h-44 rounded-xl object-contain"
+            />
+            <button
+              type="button"
+              onClick={clearImage}
+              title="Remove image"
+              className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-ink-900 text-white transition-colors hover:bg-clay-600"
+            >
+              <X size={15} />
+            </button>
+            <p className="mt-3 text-xs text-ink-400">
+              Click or drop another image to replace it
+            </p>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="py-8"
+          >
+            <motion.span
+              animate={isDragActive ? { y: -6 } : { y: 0 }}
+              transition={spring}
+              className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-ink-500 shadow-soft"
+            >
+              <UploadCloud size={24} />
+            </motion.span>
+            <p className="font-medium text-ink-700">
+              {isDragActive ? "Drop it here" : "Drag & drop an image"}
+            </p>
+            <p className="mt-1 text-sm text-ink-400">or click to browse</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
-};
-/* ────────────────────────────────────────────────────────────── */
+}
 
-const AdminProductForm = () => {
-  const { id }    = useParams();
-  const isEdit    = Boolean(id);
-  const nav       = useNavigate();
-  const { user }  = useAuth();
-  const token     = localStorage.getItem("token");
+/* ── page ─────────────────────────────────────────────────── */
+export default function AdminProductForm() {
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+  const nav = useNavigate();
+  const { user } = useAuth();
+  const toast = useToast();
+  const token = localStorage.getItem("token");
 
-  /* base fields + discount + description */
   const [base, setBase] = useState({
     title: "",
     price: "",
     category: "",
-    description: "", // NEW
+    description: "",
     discountPercent: 0,
     outOfStock: false,
   });
 
-  const [specs, setSpecs]     = useState([{ k: "", v: "" }]);
-  const [specKeys, setKeys]   = useState([]);
-  const [cats, setCats]       = useState([]);
-  const [imgFile, setFile]    = useState(null);
-  const [imgUrl,  setUrl]     = useState("");
-  const [saving,  setSaving]  = useState(false);
+  const [specs, setSpecs] = useState([{ k: "", v: "" }]);
+  const [specKeys, setKeys] = useState([]);
+  const [cats, setCats] = useState([]);
+  const [imgFile, setFile] = useState(null);
+  const [imgUrl, setUrl] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  /* load cats, keys, product */
   useEffect(() => {
     (async () => {
       try {
@@ -83,10 +139,13 @@ const AdminProductForm = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        setCats(c);  setKeys(k);
-      } catch (e) { console.error(e); }
+        setCats(Array.isArray(c) ? c : []);
+        setKeys(Array.isArray(k) ? k : []);
+      } catch (e) {
+        console.error(e);
+      }
 
-      if (isEdit)
+      if (isEdit) {
         try {
           const { data } = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`
@@ -95,42 +154,64 @@ const AdminProductForm = () => {
             title,
             price,
             category,
-            description = "", // NEW
+            description = "",
             imageUrl,
-            specs,
+            specs: loadedSpecs,
             discountPercent = 0,
-            outOfStock = false
+            outOfStock = false,
           } = data;
+
           setBase({ title, price, category, description, discountPercent, outOfStock });
           setUrl(imageUrl);
-          setSpecs(
-            Object.entries(specs || {}).map(([k, v]) => ({ k, v })) || [
-              { k: "", v: "" },
-            ]
-          );
-        } catch (e) { console.error(e); }
+
+          const rows = Object.entries(loadedSpecs || {}).map(([k, v]) => ({ k, v }));
+          setSpecs(rows.length ? rows : [{ k: "", v: "" }]);
+        } catch (e) {
+          console.error(e);
+          toast.error("Could not load that product.");
+        }
+      }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEdit, token]);
 
-  /* seed on new */
+  /* seed the spec rows for a brand-new product */
   useEffect(() => {
     if (!isEdit && specKeys.length) setSpecs(specKeys.map((k) => ({ k, v: "" })));
   }, [isEdit, specKeys]);
 
-  if (!user?.isAdmin) return <p className="p-4">Access denied.</p>;
+  if (!user?.isAdmin) {
+    return (
+      <AdminShell title="Admin">
+        <EmptyState
+          icon={Lock}
+          title="Access denied"
+          description="You need an admin account to open this page."
+          action={
+            <Link to="/" className="btn-primary">
+              Back to the store
+            </Link>
+          }
+        />
+      </AdminShell>
+    );
+  }
 
-  /* spec helpers */
   const changeSpec = (i, f, v) =>
     setSpecs((s) => s.map((row, idx) => (idx === i ? { ...row, [f]: v } : row)));
   const addRow = () => setSpecs((s) => [...s, { k: "", v: "" }]);
   const delRow = (i) => setSpecs((s) => s.filter((_, idx) => idx !== i));
 
-  /* save */
+  const finalPrice = Math.round(
+    (Number(base.price) || 0) * (1 - (Number(base.discountPercent) || 0) / 100)
+  );
+
   const save = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
       let finalUrl = imgUrl;
+
       if (imgFile) {
         const fd = new FormData();
         fd.append("file", imgFile);
@@ -153,163 +234,279 @@ const AdminProductForm = () => {
 
       const payload = { ...base, imageUrl: finalUrl, specs: specObj };
 
-      if (isEdit)
+      if (isEdit) {
         await axios.put(
           `${import.meta.env.VITE_BACKEND_URL}/api/admin/products/${id}`,
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
-      else
+      } else {
         await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/admin/products`,
           payload,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+      }
 
+      toast.success(isEdit ? "Product updated" : "Product added");
       nav("/admin/products");
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to save");
+      toast.error(err.response?.data?.error || "Failed to save the product.");
     } finally {
       setSaving(false);
     }
   };
 
-  /* render */
   return (
-    <div className="max-w-xl mx-auto px-6 py-8">
-      <h1 className="text-3xl font-bold mb-6">
-        {isEdit ? "Edit Product" : "Add Product"}
-      </h1>
+    <AdminShell
+      title={isEdit ? "Edit product" : "Add product"}
+      subtitle={
+        isEdit
+          ? "Changes go live on the storefront as soon as you save."
+          : "New products appear in the catalogue immediately."
+      }
+      action={
+        <Link to="/admin/products" className="btn-ghost">
+          <ArrowLeft size={16} />
+          Back to products
+        </Link>
+      }
+    >
+      <motion.form
+        onSubmit={save}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: EASE }}
+        className="grid gap-6 lg:grid-cols-[1fr_22rem] lg:items-start"
+      >
+        {/* ── main column ── */}
+        <div className="space-y-6">
+          <section className="rounded-3xl border border-ink-100 bg-white p-7 shadow-soft">
+            <h2 className="mb-6 font-display text-lg font-semibold">Basics</h2>
 
-      <form onSubmit={save} className="space-y-4">
-        <input
-          required
-          className="w-full border rounded px-3 py-2"
-          placeholder="Title"
-          value={base.title}
-          onChange={(e) => setBase({ ...base, title: e.target.value })}
-        />
+            <div className="space-y-5">
+              <div>
+                <label htmlFor="title" className="label">
+                  Title
+                </label>
+                <input
+                  id="title"
+                  required
+                  className="input"
+                  placeholder="e.g. Solid teak three-seater sofa"
+                  value={base.title}
+                  onChange={(e) => setBase({ ...base, title: e.target.value })}
+                />
+              </div>
 
-        <input
-          required
-          type="number"
-          className="w-full border rounded px-3 py-2"
-          placeholder="List Price ₹"
-          value={base.price}
-          onChange={(e) => setBase({ ...base, price: e.target.value })}
-        />
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="price" className="label">
+                    List price (₹)
+                  </label>
+                  <input
+                    id="price"
+                    required
+                    type="number"
+                    min="0"
+                    className="input"
+                    placeholder="0"
+                    value={base.price}
+                    onChange={(e) => setBase({ ...base, price: e.target.value })}
+                  />
+                </div>
 
-        <input
-          type="number"
-          min="0"
-          max="90"
-          className="w-full border rounded px-3 py-2"
-          placeholder="Discount %"
-          value={base.discountPercent}
-          onChange={(e) =>
-            setBase({ ...base, discountPercent: e.target.value })
-          }
-        />
+                <div>
+                  <label htmlFor="discount" className="label">
+                    Discount (%)
+                  </label>
+                  <input
+                    id="discount"
+                    type="number"
+                    min="0"
+                    max="90"
+                    className="input"
+                    placeholder="0"
+                    value={base.discountPercent}
+                    onChange={(e) =>
+                      setBase({ ...base, discountPercent: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
 
-        <div className="flex gap-2">
-          <select
-            className="flex-1 border rounded px-3 py-2"
-            value={base.category}
-            onChange={(e) => setBase({ ...base, category: e.target.value })}
-          >
-            <option value="">Select category…</option>
-            {cats.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className="px-4 rounded bg-gray-800 text-white"
-            onClick={() => {
-              const n = prompt("New category name");
-              if (n) {
-                setCats([...cats, n]);
-                setBase({ ...base, category: n });
-              }
-            }}
-          >
-            Add
-          </button>
-        </div>
+              <div>
+                <label htmlFor="category" className="label">
+                  Category
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    id="category"
+                    className="select flex-1"
+                    value={base.category}
+                    onChange={(e) => setBase({ ...base, category: e.target.value })}
+                  >
+                    <option value="">Select a category…</option>
+                    {cats.map((c) => (
+                      <option key={c}>{c}</option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn-ink btn-sm shrink-0 px-5"
+                    onClick={() => {
+                      const n = prompt("New category name");
+                      if (n) {
+                        setCats([...cats, n]);
+                        setBase({ ...base, category: n });
+                      }
+                    }}
+                  >
+                    <Plus size={15} />
+                    New
+                  </button>
+                </div>
+              </div>
 
-        {/* NEW: Description textarea */}
-        <textarea
-          rows="4"
-          className="w-full border rounded px-3 py-2"
-          placeholder="Product Description (optional)"
-          value={base.description}
-          onChange={(e) => setBase({ ...base, description: e.target.value })}
-        />
-
-        <ImageDrop initial={imgUrl} onSelect={setFile} />
-
-        <datalist id="spec-keys">
-          {specKeys.map((k) => (
-            <option key={k} value={k} />
-          ))}
-        </datalist>
-
-        <div className="border rounded p-4">
-          <p className="font-medium mb-2">Product Specs</p>
-          {specs.map((row, i) => (
-            <div key={i} className="flex gap-2 mb-2">
-              <input
-                list="spec-keys"
-                placeholder="Label"
-                className="flex-1 border rounded px-2 py-1"
-                value={row.k}
-                onChange={(e) => changeSpec(i, "k", e.target.value)}
-              />
-              <input
-                placeholder="Value"
-                className="flex-1 border rounded px-2 py-1"
-                value={row.v}
-                onChange={(e) => changeSpec(i, "v", e.target.value)}
-              />
-              {specs.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => delRow(i)}
-                  className="px-2 text-red-600"
-                >
-                  ✕
-                </button>
-              )}
+              <div>
+                <label htmlFor="description" className="label">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  rows={5}
+                  className="input resize-none"
+                  placeholder="Materials, dimensions, the story behind the piece…"
+                  value={base.description}
+                  onChange={(e) => setBase({ ...base, description: e.target.value })}
+                />
+              </div>
             </div>
-          ))}
-          <button
-            type="button"
-            onClick={addRow}
-            className="text-blue-600 text-sm"
-          >
-            + Add row
-          </button>
+          </section>
+
+          {/* specs */}
+          <section className="rounded-3xl border border-ink-100 bg-white p-7 shadow-soft">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="font-display text-lg font-semibold">
+                Specifications
+              </h2>
+              <button type="button" onClick={addRow} className="btn-ghost btn-sm">
+                <Plus size={14} />
+                Add row
+              </button>
+            </div>
+
+            <datalist id="spec-keys">
+              {specKeys.map((k) => (
+                <option key={k} value={k} />
+              ))}
+            </datalist>
+
+            <div className="space-y-3">
+              <AnimatePresence initial={false}>
+                {specs.map((row, i) => (
+                  <motion.div
+                    key={i}
+                    layout
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.25, ease: EASE }}
+                    className="flex gap-2"
+                  >
+                    <input
+                      list="spec-keys"
+                      placeholder="Label — e.g. Material"
+                      className="input flex-1 py-2.5 text-sm"
+                      value={row.k}
+                      onChange={(e) => changeSpec(i, "k", e.target.value)}
+                      aria-label={`Spec ${i + 1} label`}
+                    />
+                    <input
+                      placeholder="Value — e.g. Solid teak"
+                      className="input flex-1 py-2.5 text-sm"
+                      value={row.v}
+                      onChange={(e) => changeSpec(i, "v", e.target.value)}
+                      aria-label={`Spec ${i + 1} value`}
+                    />
+                    {specs.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => delRow(i)}
+                        aria-label="Remove this spec"
+                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-ink-400 transition-colors hover:bg-clay-50 hover:text-clay-600"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          </section>
         </div>
 
-        {/* Out of stock toggle */}
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={base.outOfStock}
-            onChange={(e) => setBase({ ...base, outOfStock: e.target.checked })}
-          />
-          Mark as out of stock
-        </label>
+        {/* ── sidebar ── */}
+        <div className="space-y-6 lg:sticky lg:top-8">
+          <section className="rounded-3xl border border-ink-100 bg-white p-7 shadow-soft">
+            <h2 className="mb-5 font-display text-lg font-semibold">Image</h2>
+            <ImageDrop initial={imgUrl} onSelect={setFile} />
+          </section>
 
-        <button
-          disabled={saving}
-          className="w-full bg-orange-600 text-white py-2 rounded"
-        >
-          {saving ? "Saving…" : isEdit ? "Update" : "Add"}
-        </button>
-      </form>
-    </div>
+          <section className="rounded-3xl border border-ink-100 bg-white p-7 shadow-soft">
+            <h2 className="mb-5 font-display text-lg font-semibold">
+              Availability
+            </h2>
+
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                className="checkbox mt-0.5"
+                checked={base.outOfStock}
+                onChange={(e) => setBase({ ...base, outOfStock: e.target.checked })}
+              />
+              <span className="text-sm">
+                <span className="font-medium text-ink-900">
+                  Mark as out of stock
+                </span>
+                <span className="mt-0.5 block text-ink-400">
+                  Customers can still see the product but can't add it to a cart.
+                </span>
+              </span>
+            </label>
+
+            {base.price !== "" && (
+              <div className="mt-6 rounded-2xl bg-sand-100 p-4">
+                <p className="label mb-1">Customers will pay</p>
+                <p className="font-display text-2xl font-semibold text-ink-900">
+                  {inr(finalPrice)}
+                </p>
+                {Number(base.discountPercent) > 0 && (
+                  <p className="mt-1 text-xs text-ink-400">
+                    down from {inr(base.price)}
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="btn-primary btn-sheen w-full btn-lg"
+          >
+            {saving ? (
+              <>
+                <Loader2 size={17} className="animate-spin" /> Saving…
+              </>
+            ) : isEdit ? (
+              "Update product"
+            ) : (
+              "Add product"
+            )}
+          </button>
+        </div>
+      </motion.form>
+    </AdminShell>
   );
-};
-
-export default AdminProductForm;
+}

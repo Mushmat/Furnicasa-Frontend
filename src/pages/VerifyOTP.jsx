@@ -1,73 +1,132 @@
 // src/pages/VerifyOTP.jsx
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { MailCheck, Loader2, ArrowLeft } from "lucide-react";
 
-const VerifyOTP = () => {
-  const [otp, setOtp]   = useState("");
-  const location        = useLocation();
-  const navigate        = useNavigate();
+import { useToast } from "../components/ui/Toast";
+import AuthLayout from "../components/ui/AuthLayout";
+import OtpInput from "../components/ui/OtpInput";
+import { EASE, spring } from "../components/ui/motion";
 
-  // Email passed from the registration page
+const RESEND_SECONDS = 45;
+
+export default function VerifyOTP() {
+  const [otp, setOtp] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [seconds, setSeconds] = useState(RESEND_SECONDS);
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toast = useToast();
+
   const email = location.state?.email;
+
+  /* countdown before the "resend" hint becomes actionable */
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const id = setTimeout(() => setSeconds((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [seconds]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
+    if (otp.length < 6) {
+      toast.error("Enter all six digits.");
+      return;
+    }
+
+    setVerifying(true);
     try {
       const res = await axios.post(
         "https://furnicasa.onrender.com/api/auth/verify-otp",
         { email, otp }
       );
-      alert(res.data.message);
-      navigate("/login");           // go to login on success
+      toast.success(res.data.message || "Email verified — you can log in now.");
+      navigate("/login");
     } catch (error) {
-      alert(error.response?.data?.error || "OTP Verification Failed");
+      toast.error(error.response?.data?.error || "That code didn't work.");
+      setOtp("");
+    } finally {
+      setVerifying(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 px-4">
-      <div className="w-full max-w-sm bg-white/90 backdrop-blur rounded-2xl shadow-xl ring-1 ring-slate-200 p-8">
-        {/* header */}
-        <h1 className="text-3xl font-extrabold text-slate-900 text-center tracking-tight">
-          Verify&nbsp;OTP
-        </h1>
-        {email && (
-          <p className="mt-1 mb-6 text-center text-sm text-slate-600">
-            We emailed a code to&nbsp;
-            <span className="font-medium">{email}</span>
-          </p>
+    <AuthLayout
+      title="Check your inbox"
+      subtitle={
+        email ? (
+          <>
+            We sent a six-digit code to{" "}
+            <span className="font-semibold text-ink-800">{email}</span>.
+          </>
+        ) : (
+          "Enter the six-digit code we emailed you."
+        )
+      }
+      footer={
+        <Link
+          to="/login"
+          className="flex items-center justify-center gap-2 text-sm font-medium text-ink-500 transition-colors hover:text-ink-900"
+        >
+          <ArrowLeft size={15} />
+          Back to login
+        </Link>
+      }
+    >
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ ...spring, delay: 0.1 }}
+        className="mx-auto mb-9 flex h-16 w-16 items-center justify-center rounded-2xl bg-clay-grad text-white shadow-glow"
+      >
+        <MailCheck size={28} strokeWidth={1.8} />
+      </motion.div>
+
+      <form onSubmit={handleVerify} className="space-y-7">
+        <OtpInput value={otp} onChange={setOtp} />
+
+        <motion.button
+          type="submit"
+          disabled={verifying || otp.length < 6}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: EASE, delay: 0.2 }}
+          className="btn-primary btn-sheen w-full"
+        >
+          {verifying ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Verifying…
+            </>
+          ) : (
+            "Verify code"
+          )}
+        </motion.button>
+      </form>
+
+      <p className="mt-7 text-center text-sm text-ink-500">
+        {seconds > 0 ? (
+          <>
+            Didn't get it? You can request a new code in{" "}
+            <span className="font-semibold tabular-nums text-ink-800">
+              {seconds}s
+            </span>
+          </>
+        ) : (
+          <>
+            Still nothing? Check your spam folder, or{" "}
+            <Link
+              to="/register-advanced"
+              className="font-semibold text-clay-600 hover:underline"
+            >
+              sign up again
+            </Link>{" "}
+            to resend.
+          </>
         )}
-
-        {/* form */}
-        <form onSubmit={handleVerify} className="space-y-6">
-          <input
-            type="text"
-            inputMode="numeric"
-            maxLength={6}
-            placeholder="••••••"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            className="w-full text-center tracking-widest placeholder-slate-400 font-mono text-xl border border-slate-300 rounded-lg py-3 focus:outline-none focus:ring-2 focus:ring-orange-500"
-            required
-          />
-
-          <button
-            type="submit"
-            className="w-full py-3 rounded-lg bg-orange-600 hover:bg-orange-700 active:scale-95 transition-transform text-white font-semibold shadow-sm"
-          >
-            Verify&nbsp;Code
-          </button>
-        </form>
-
-        {/* resend hint */}
-        <p className="mt-6 text-xs text-center text-slate-500">
-          Didn’t receive the code? Check your spam folder or try resending from
-          the sign-up page.
-        </p>
-      </div>
-    </div>
+      </p>
+    </AuthLayout>
   );
-};
-
-export default VerifyOTP;
+}

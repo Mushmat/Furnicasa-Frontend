@@ -1,66 +1,95 @@
 // src/pages/ForgotPassword.jsx
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { KeyRound, Loader2, ArrowLeft } from "lucide-react";
+
+import { useToast } from "../components/ui/Toast";
+import AuthLayout from "../components/ui/AuthLayout";
+import Field from "../components/Field";
+import { spring } from "../components/ui/motion";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const [email, setEmail]     = useState("");
-  const [message, setMessage] = useState("");
-  const [error, setError]     = useState("");
+  const toast = useToast();
+  const [email, setEmail] = useState("");
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setMessage("");
+    setSending(true);
     try {
       const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/auth/forgot-password`,
         { email }
       );
-      setMessage(data.message || "Check your email for a reset code.");
-      // pass email to reset page so the user doesn’t have to re-enter it
+      toast.success(data.message || "Check your email for a reset code.");
       navigate("/reset-password", { state: { email } });
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to send reset code.");
+      toast.error(err.response?.data?.error || "Failed to send the reset code.");
+    } finally {
+      setSending(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-md bg-white p-8 rounded-lg shadow space-y-6"
+    <AuthLayout
+      title="Forgot your password?"
+      subtitle="Enter the email on your account and we'll send a six-digit reset code."
+      footer={
+        <Link
+          to="/login"
+          className="flex items-center justify-center gap-2 text-sm font-medium text-ink-500 transition-colors hover:text-ink-900"
+        >
+          <ArrowLeft size={15} />
+          Back to login
+        </Link>
+      }
+    >
+      <motion.div
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ ...spring, delay: 0.1 }}
+        className="mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-ink-900 text-sand-50 shadow-lift"
       >
-        <h2 className="text-2xl font-semibold text-center">Forgot Password</h2>
+        <KeyRound size={26} strokeWidth={1.8} />
+      </motion.div>
 
-        {message && (
-          <div className="text-green-600 text-center">{message}</div>
-        )}
-        {error && (
-          <div className="text-red-600 text-center">{error}</div>
-        )}
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded px-3 py-2 focus:ring-orange-500 focus:border-orange-500"
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
         <button
           type="submit"
-          className="w-full bg-orange-600 text-white py-2 rounded-md font-semibold hover:bg-orange-700"
+          disabled={sending}
+          className="btn-primary btn-sheen w-full"
         >
-          Send Reset Code
+          {sending ? (
+            <>
+              <Loader2 size={16} className="animate-spin" /> Sending…
+            </>
+          ) : (
+            "Send reset code"
+          )}
         </button>
       </form>
-    </div>
+
+      <p className="mt-6 text-center text-xs text-ink-400">
+        Already have a code?{" "}
+        <Link
+          to="/reset-password"
+          className="font-semibold text-clay-600 hover:underline"
+        >
+          Reset your password
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

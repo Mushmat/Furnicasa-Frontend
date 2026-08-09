@@ -1,78 +1,414 @@
-@import url('https://fonts.googleapis.com/css2?family=Alegreya:ital,wght@0,400..900;1,400..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Manrope:wght@300..800&display=swap");
 
-/* --- Tailwind Directives --- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- Override base layer to use your new font --- */
+/* ═══════════════════════════════════════════════════════════
+   TOKENS
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  --clay: 227 91 40;
+  --ink: 24 21 19;
+  --sand: 248 245 239;
+
+  --nav-h: 4.5rem;
+  --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: light;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BASE
+   ═══════════════════════════════════════════════════════════ */
 @layer base {
-  html {
-    font-family: theme('fontFamily.sans');
+  * {
+    @apply border-ink-100;
   }
+
+  html {
+    @apply scroll-smooth antialiased;
+    font-family: theme("fontFamily.sans");
+    scroll-padding-top: calc(var(--nav-h) + 1.5rem);
+    -webkit-tap-highlight-color: transparent;
+  }
+
   body {
-    overflow-x: hidden;
+    @apply bg-sand-50 text-ink-800;
     margin: 0;
     min-width: 320px;
     min-height: 100vh;
-    @apply bg-white text-gray-800;
+    overflow-x: hidden;
+    font-feature-settings: "ss01", "cv01";
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-ink-900;
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  h1 {
+    @apply text-4xl font-semibold sm:text-5xl;
+  }
+  h2 {
+    @apply text-3xl font-semibold sm:text-4xl;
+  }
+  h3 {
+    @apply text-xl font-semibold sm:text-2xl;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    @apply text-inherit no-underline transition-colors;
+  }
+
+  /* keyboard focus only — never a stray ring on mouse clicks */
+  :focus-visible {
+    @apply outline-none ring-2 ring-clay-500/70 ring-offset-2 ring-offset-sand-50;
+    border-radius: 0.375rem;
+  }
+
+  ::selection {
+    @apply bg-clay-500/20 text-ink-900;
+  }
+
+  /* inputs inherit the type system */
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+    color: inherit;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-sand-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full border-[3px] border-solid border-sand-100 bg-ink-300;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-ink-400;
+    background-clip: content-box;
   }
 }
 
-/* --- Global Styles --- */
-a {
-  @apply font-medium text-blue-500 hover:text-blue-700;
+/* ═══════════════════════════════════════════════════════════
+   COMPONENTS
+   ═══════════════════════════════════════════════════════════ */
+@layer components {
+  .container-x {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .container-tight {
+    @apply mx-auto w-full max-w-4xl px-5 sm:px-8;
+  }
+
+  /* ── surfaces ─────────────────────────────────────────── */
+  .surface {
+    @apply rounded-3xl border border-ink-100/80 bg-white shadow-card;
+  }
+
+  .glass {
+    @apply border border-white/50 bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .glass-dark {
+    @apply border border-white/10 bg-ink-950/60 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  /* ── buttons ──────────────────────────────────────────── */
+  .btn {
+    @apply relative inline-flex select-none items-center justify-center gap-2
+           overflow-hidden whitespace-nowrap rounded-full px-6 py-3
+           text-sm font-semibold tracking-wide
+           transition-all duration-300 ease-spring
+           disabled:pointer-events-none disabled:opacity-50;
+    transform: translateZ(0);
+  }
+
+  .btn-primary {
+    @apply btn bg-clay-grad text-white shadow-[0_8px_24px_-8px_rgba(227,91,40,.7)];
+  }
+  .btn-primary:hover {
+    @apply -translate-y-0.5 shadow-[0_16px_36px_-10px_rgba(227,91,40,.75)];
+  }
+  .btn-primary:active {
+    @apply translate-y-0 scale-[.98];
+  }
+
+  .btn-ink {
+    @apply btn bg-ink-900 text-sand-50 shadow-lift;
+  }
+  .btn-ink:hover {
+    @apply -translate-y-0.5 bg-ink-950;
+  }
+  .btn-ink:active {
+    @apply translate-y-0 scale-[.98];
+  }
+
+  .btn-outline {
+    @apply btn border border-ink-300 bg-transparent text-ink-800;
+  }
+  .btn-outline:hover {
+    @apply -translate-y-0.5 border-ink-900 bg-ink-900 text-sand-50;
+  }
+  .btn-outline:active {
+    @apply translate-y-0 scale-[.98];
+  }
+
+  .btn-ghost {
+    @apply btn bg-ink-900/5 text-ink-800;
+  }
+  .btn-ghost:hover {
+    @apply bg-ink-900/10;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+  .btn-lg {
+    @apply px-8 py-4 text-base;
+  }
+
+  /* light sweep across a button on hover */
+  .btn-sheen::after {
+    content: "";
+    @apply pointer-events-none absolute inset-0 bg-sheen opacity-0;
+    transform: translateX(-120%);
+  }
+  .btn-sheen:hover::after {
+    @apply opacity-100;
+    animation: shimmer 0.9s ease-out;
+  }
+
+  /* ── form controls ────────────────────────────────────── */
+  .input {
+    @apply w-full rounded-xl border border-ink-200 bg-white/80 px-4 py-3 text-sm text-ink-900
+           placeholder:text-ink-400
+           transition-all duration-200
+           focus:border-clay-500 focus:bg-white focus:outline-none
+           focus:ring-4 focus:ring-clay-500/10;
+  }
+
+  .input-lg {
+    @apply input px-5 py-4 text-base;
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-semibold uppercase tracking-[.14em] text-ink-500;
+  }
+
+  .select {
+    @apply input cursor-pointer appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236B6154' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 1rem center;
+  }
+
+  .checkbox {
+    @apply h-[18px] w-[18px] shrink-0 cursor-pointer rounded-[5px] border-2 border-ink-300
+           text-clay-600 transition-colors focus:ring-2 focus:ring-clay-500/40 focus:ring-offset-0;
+  }
+
+  /* ── chips & badges ───────────────────────────────────── */
+  .chip {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-ink-200
+           bg-white px-4 py-2 text-sm font-medium text-ink-700
+           transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:border-ink-900 hover:shadow-soft;
+  }
+  .chip-active {
+    @apply border-transparent bg-ink-900 text-sand-50 shadow-lift hover:border-transparent hover:bg-ink-900;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.24em] text-clay-600;
+  }
+
+  /* ── decorative ───────────────────────────────────────── */
+  .hairline {
+    @apply h-px w-full border-0 bg-gradient-to-r from-transparent via-ink-200 to-transparent;
+  }
+
+  .skeleton {
+    @apply animate-skeleton rounded-xl bg-ink-100;
+  }
+
+  /* ── long-form document styling ────────────────────────
+     The project never installed @tailwindcss/typography, so the old `prose`
+     classes rendered as nothing. This is the replacement. */
+  .doc {
+    @apply text-[16px] leading-[1.75] text-ink-600;
+  }
+  .doc h2 {
+    @apply mb-4 mt-12 scroll-mt-32 text-2xl font-semibold text-ink-900 first:mt-0;
+  }
+  .doc h3 {
+    @apply mb-3 mt-8 text-lg font-semibold text-ink-900;
+  }
+  .doc p {
+    @apply mb-4;
+  }
+  .doc ul {
+    @apply mb-5 space-y-2 pl-1;
+  }
+  .doc ul > li {
+    @apply relative pl-6;
+  }
+  .doc ul > li::before {
+    content: "";
+    @apply absolute left-0 top-[.65em] h-1.5 w-1.5 rounded-full bg-clay-500;
+  }
+  .doc ol {
+    @apply mb-5 list-decimal space-y-2 pl-6 marker:font-semibold marker:text-clay-600;
+  }
+  .doc a {
+    @apply font-medium text-clay-700 underline decoration-clay-300 underline-offset-2 transition-colors hover:decoration-clay-600;
+  }
+  .doc strong {
+    @apply font-semibold text-ink-900;
+  }
+  .doc em {
+    @apply not-italic font-medium text-ink-800;
+  }
 }
 
-h1 {
-  @apply text-4xl font-bold;
+/* ═══════════════════════════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+@layer utilities {
+  /* 3D scaffolding */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .perspective-1600 {
+    perspective: 1600px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+  .translate-z-0 {
+    transform: translateZ(0);
+  }
+  .translate-z-8 {
+    transform: translateZ(8px);
+  }
+  .translate-z-16 {
+    transform: translateZ(16px);
+  }
+  .translate-z-24 {
+    transform: translateZ(24px);
+  }
+  .translate-z-40 {
+    transform: translateZ(40px);
+  }
+
+  /* text treatments */
+  .text-gradient {
+    @apply bg-clay-grad bg-clip-text text-transparent;
+  }
+  .text-gradient-ink {
+    @apply bg-gradient-to-br from-ink-700 via-ink-900 to-ink-950 bg-clip-text text-transparent;
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* animated underline for inline links */
+  .link-underline {
+    @apply relative;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1.5px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s var(--ease-spring);
+  }
+  .link-underline:hover {
+    background-size: 100% 1.5px;
+  }
+
+  /* film grain overlay */
+  .grain::before {
+    content: "";
+    @apply pointer-events-none absolute inset-0 bg-grain opacity-[.035] mix-blend-multiply;
+  }
+
+  /* soft ambient blobs */
+  .blob {
+    @apply pointer-events-none absolute rounded-full blur-3xl;
+  }
+
+  .mask-fade-r {
+    -webkit-mask-image: linear-gradient(to right, black 70%, transparent 100%);
+    mask-image: linear-gradient(to right, black 70%, transparent 100%);
+  }
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 12%, black 88%, transparent);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .line-clamp-2-safe {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 }
 
-/* Recreate Nelson’s default .btn look */
-.btn {
-  @apply bg-transparent border border-gray-900 text-gray-900 
-         px-6 py-3 rounded-full uppercase inline-block;
-}
-.btn:hover,
-.btn:focus {
-  @apply bg-gray-900 text-white;
+/* ═══════════════════════════════════════════════════════════
+   THIRD-PARTY OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Google Identity button — keep it from clashing with the card */
+#gsi-slot iframe {
+  margin: 0 auto !important;
 }
 
-.section {
-  @apply max-w-6xl mx-auto p-6;
-}
-
-.hero-item {
-  @apply w-full bg-cover bg-center;
-  height: 100vh;
-}
-
-/* center slick dots under a full-width slider */
-.slick-dots {
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* overlay sits on top of the image, initially hidden */
-.product-image .overlay {
-  opacity: 0;
-  transition: opacity 0.3s;
-  background: rgba(0,0,0,0.4);
-}
-.product-image:hover .overlay {
-  opacity: 1;
-}
-
-/* ────────────────────────────────── */
-/* HERO UNDER NAV FIX                */
-/* ────────────────────────────────── */
-.hero-section {
-  margin-top: -4rem;
-}
-
-@media (min-width: 1024px) {
-  .hero-section {
-    margin-top: -6.25rem;
+/* ═══════════════════════════════════════════════════════════
+   MOTION PREFERENCES
+   ═══════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
