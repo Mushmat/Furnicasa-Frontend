@@ -6,9 +6,6 @@ import {
   Truck,
   ShieldCheck,
   RefreshCw,
-  Github,
-  Linkedin,
-  Mail,
   ArrowRight,
   Hammer,
   Leaf,
@@ -65,18 +62,6 @@ const STATS = [
   { value: 300, suffix: "+", label: "Verified reviews" },
   { value: 24, suffix: " hrs", label: "Avg. reply time" },
 ];
-
-const ME = {
-  img: "/assets/images/team/placeholder-dev.jpg",
-  name: "Chirayu Choudhary",
-  role: "Full-Stack Developer",
-  bio: `I'm an Integrated M.Tech (CSE) student at the International Institute of Information Technology, Bangalore. This entire website — front and back — was built in-house for my father's company, letting me blend academic learning with real-world product engineering.`,
-  links: {
-    github: "https://github.com/Mushmat",
-    linkedin: "https://www.linkedin.com/in/chirayu-choudhary-560837277",
-    mail: "mailto:edu.chirayu2005@gmail.com",
-  },
-};
 
 const REVIEWS = [
   { name: "Riya Patel", rating: 5, comment: "Loved the midnight-blue sofa — plush, sturdy and delivered on time!" },
@@ -227,63 +212,6 @@ export default function About() {
               </RevealItem>
             ))}
           </RevealGroup>
-        </div>
-      </Section>
-
-      {/* ── the developer ── */}
-      <Section size="lg">
-        <div className="container-x">
-          <SectionHeading
-            kicker="Behind the site"
-            title="Built in-house, end to end"
-            align="left"
-          />
-
-          <Reveal>
-            <div className="grid gap-10 overflow-hidden rounded-[2rem] border border-ink-100 bg-white p-8 shadow-card sm:p-10 lg:grid-cols-[16rem_1fr] lg:items-center">
-              <div className="relative mx-auto aspect-square w-48 overflow-hidden rounded-3xl bg-sand-100 lg:w-full">
-                <img
-                  src={ME.img}
-                  alt={ME.name}
-                  loading="lazy"
-                  className="h-full w-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              </div>
-
-              <div>
-                <h3 className="font-display text-2xl font-semibold">{ME.name}</h3>
-                <p className="mb-5 text-sm font-medium uppercase tracking-[.16em] text-clay-600">
-                  {ME.role}
-                </p>
-                <p className="mb-7 max-w-2xl leading-relaxed text-ink-600">
-                  {ME.bio}
-                </p>
-
-                <div className="flex flex-wrap gap-3">
-                  {[
-                    { icon: Github, href: ME.links.github, label: "GitHub" },
-                    { icon: Linkedin, href: ME.links.linkedin, label: "LinkedIn" },
-                    { icon: Mail, href: ME.links.mail, label: "Email" },
-                  ].map(({ icon: Icon, href, label }) => (
-                    <motion.a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      whileHover={{ y: -3 }}
-                      className="inline-flex items-center gap-2 rounded-full border border-ink-200 px-4 py-2 text-sm font-medium text-ink-700 transition-colors hover:border-ink-900 hover:bg-ink-900 hover:text-sand-50"
-                    >
-                      <Icon size={15} />
-                      {label}
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </Reveal>
         </div>
       </Section>
 

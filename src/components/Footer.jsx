@@ -8,7 +8,6 @@ import {
   MapPin,
   Instagram,
   Linkedin,
-  Github,
   ArrowUpRight,
 } from "lucide-react";
 import { EASE, viewportOnce } from "./ui/motion";
@@ -47,7 +46,6 @@ const COLUMNS = [
 const SOCIALS = [
   { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
   { icon: Linkedin, href: "https://www.linkedin.com", label: "LinkedIn" },
-  { icon: Github, href: "https://github.com/Mushmat", label: "GitHub" },
 ];
 
 const MARQUEE_WORDS = [
